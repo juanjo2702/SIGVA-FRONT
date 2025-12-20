@@ -1,7 +1,10 @@
 import axios from 'axios'
 
+// Detectar si estamos en producción o desarrollo
+const isProduction = import.meta.env.PROD
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: isProduction ? 'https://api.sigva.xpertiaplus.com/api' : '/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
