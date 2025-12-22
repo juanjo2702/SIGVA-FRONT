@@ -83,6 +83,18 @@ const routes = [
         name: 'reportes',
         component: () => import('@/pages/admin/ReportesPage.vue'),
         meta: { title: 'SIGVA - Reportes' }
+      },
+      {
+        path: 'usuarios',
+        name: 'usuarios',
+        component: () => import('@/pages/admin/UsuariosPage.vue'),
+        meta: { title: 'SIGVA - Usuarios' }
+      },
+      {
+        path: 'roles',
+        name: 'roles',
+        component: () => import('@/pages/admin/RolesPage.vue'),
+        meta: { title: 'SIGVA - Roles' }
       }
     ]
   },

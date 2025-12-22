@@ -12,7 +12,7 @@
       <q-card-section class="q-pa-lg">
         <q-form @submit="handleLogin" class="q-gutter-md">
           <q-input
-            v-model="form.email"
+            v-model="form.ci"
             label="Usuario / CI"
             type="text"
             outlined
@@ -75,7 +75,7 @@ const authStore = useAuthStore()
 const $q = useQuasar()
 
 const form = ref({
-  email: '',
+  ci: '',
   password: ''
 })
 const showPassword = ref(false)
@@ -85,7 +85,7 @@ async function handleLogin() {
   error.value = ''
   
   try {
-    const result = await authStore.login(form.value.email, form.value.password)
+    const result = await authStore.login(form.value.ci, form.value.password)
     
     // Verificar si debe cambiar contraseña
     if (result.mustChangePassword) {

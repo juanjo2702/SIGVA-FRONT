@@ -108,6 +108,8 @@ const menuItems = [
   { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
   { to: '/admin/solicitudes', icon: 'event_note', label: 'Solicitudes' },
   { to: '/admin/empleados', icon: 'people', label: 'Empleados' },
+  { to: '/admin/usuarios', icon: 'manage_accounts', label: 'Usuarios' },
+  { to: '/admin/roles', icon: 'badge', label: 'Roles' },
   { to: '/admin/reportes', icon: 'assessment', label: 'Reportes' }
 ]
 
@@ -116,6 +118,8 @@ const pageTitle = computed(() => {
     dashboard: 'Dashboard',
     solicitudes: 'Gestión de Solicitudes',
     empleados: 'Gestión de Empleados',
+    usuarios: 'Gestión de Usuarios',
+    roles: 'Gestión de Roles',
     reportes: 'Reportes'
   }
   return titles[route.name] || 'SIGVA'
