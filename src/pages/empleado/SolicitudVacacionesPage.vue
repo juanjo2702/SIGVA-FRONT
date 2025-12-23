@@ -270,11 +270,22 @@ async function enviarSolicitud() {
 async function cargarEmpleado() {
   loading.value = true
   try {
-    const response = await empleadoService.buscarPorCi(ci)
-    if (response.success) {
-      empleado.value = response.data.empleado
-      form.value.lugar = empleado.value.sede || ''
+    // Intentar obtener datos desde sessionStorage
+    const storedData = sessionStorage.getItem('empleadoSearch')
+    
+    if (storedData) {
+      const parsed = JSON.parse(storedData)
+      // Verificar que el CI coincida con el de la ruta
+      if (parsed.ci === ci && parsed.empleado) {
+        empleado.value = parsed.empleado
+        form.value.lugar = empleado.value.sede || ''
+        loading.value = false
+        return
+      }
     }
+    
+    // Si no hay datos en sessionStorage o el CI no coincide, redirigir a búsqueda
+    router.push('/')
   } catch (error) {
     console.error('Error cargando empleado:', error)
     router.push('/')

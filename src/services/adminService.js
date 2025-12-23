@@ -110,6 +110,11 @@ export const adminService = {
     return response.data
   },
 
+  async actualizarSolicitud(id, data) {
+    const response = await api.put(`/admin/solicitudes/${id}`, data)
+    return response.data
+  },
+
   // =============================================
   // Reportes
   // =============================================
@@ -136,8 +141,65 @@ export const adminService = {
   getExportarSolicitudesUrl(params = {}) {
     const query = new URLSearchParams(params).toString()
     return `/api/admin/reportes/exportar/solicitudes${query ? '?' + query : ''}`
+  },
+
+  // =============================================
+  // Sedes
+  // =============================================
+  async getSedes(params = {}) {
+    const response = await api.get('/admin/sedes', { params })
+    return response.data
+  },
+
+  async getSede(id) {
+    const response = await api.get(`/admin/sedes/${id}`)
+    return response.data
+  },
+
+  async crearSede(data) {
+    const response = await api.post('/admin/sedes', data)
+    return response.data
+  },
+
+  async actualizarSede(id, data) {
+    const response = await api.put(`/admin/sedes/${id}`, data)
+    return response.data
+  },
+
+  async eliminarSede(id) {
+    const response = await api.delete(`/admin/sedes/${id}`)
+    return response.data
+  },
+
+  // =============================================
+  // Feriados
+  // =============================================
+  async getFeriados(params = {}) {
+    const response = await api.get('/admin/feriados', { params })
+    return response.data
+  },
+
+  async getFeriado(id) {
+    const response = await api.get(`/admin/feriados/${id}`)
+    return response.data
+  },
+
+  async crearFeriado(data) {
+    const response = await api.post('/admin/feriados', data)
+    return response.data
+  },
+
+  async actualizarFeriado(id, data) {
+    const response = await api.put(`/admin/feriados/${id}`, data)
+    return response.data
+  },
+
+  async eliminarFeriado(id) {
+    const response = await api.delete(`/admin/feriados/${id}`)
+    return response.data
   }
 }
 
 export default adminService
+
 

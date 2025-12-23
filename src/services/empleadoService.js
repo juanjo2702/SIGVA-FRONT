@@ -1,9 +1,12 @@
 import api from './api'
 
 export const empleadoService = {
-  // Buscar empleado por CI (público)
-  async buscarPorCi(ci) {
-    const response = await api.get(`/empleados/buscar/${ci}`)
+  // Buscar empleado por CI y Fecha de Ingreso (público)
+  async buscarEmpleado(ci, fechaIngreso) {
+    const response = await api.post('/empleados/buscar', {
+      ci,
+      fecha_ingreso: fechaIngreso
+    })
     return response.data
   },
 

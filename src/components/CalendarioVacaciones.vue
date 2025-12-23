@@ -25,11 +25,15 @@
           @click="toggleDia(dia)"
         >
           <div class="dia-numero">{{ dia.numero }}</div>
-          <div v-if="diaSeleccionado(dia)" class="dia-tipo">
+          <div v-if="dia.esFeriado" class="dia-feriado-icono">
+            <q-icon name="celebration" size="12px" color="red" />
+          </div>
+          <div v-else-if="diaSeleccionado(dia)" class="dia-tipo">
             <q-badge :color="getTipoColor(getDiaInfo(dia)?.tipo)" size="xs">
               {{ getTipoLabel(getDiaInfo(dia)?.tipo) }}
             </q-badge>
           </div>
+          <q-tooltip v-if="dia.esFeriado">{{ dia.feriadoNombre }}</q-tooltip>
         </div>
       </div>
     </div>
@@ -117,6 +121,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import api from '@/services/api'
 
 const props = defineProps({
   empleado: { type: Object, required: true },
@@ -132,6 +137,7 @@ const dialogTipo = ref(false)
 const fechaSeleccionada = ref(null)
 const tipoSeleccionado = ref('completo')
 const diaYaSeleccionado = ref(false)
+const feriados = ref([])
 
 const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
@@ -183,9 +189,11 @@ const semanasDelMes = computed(() => {
     const esDomingo = fecha.getDay() === 0
     const esSabado = fecha.getDay() === 6
     const esAnterior = fecha < new Date(new Date().setHours(0, 0, 0, 0))
+    const feriadoInfo = getFeriadoInfo(fechaStr)
+    const esFeriado = !!feriadoInfo
     
-    // Mujer medio tiempo no puede seleccionar sábados
-    const deshabilitado = esDomingo || esAnterior || (esMujerMedioTiempo.value && esSabado)
+    // Mujer medio tiempo no puede seleccionar sábados, y feriados nunca se pueden seleccionar
+    const deshabilitado = esDomingo || esAnterior || esFeriado || (esMujerMedioTiempo.value && esSabado)
     
     semana.push({
       numero: dia,
@@ -193,6 +201,8 @@ const semanasDelMes = computed(() => {
       esDomingo,
       esSabado,
       esAnterior,
+      esFeriado,
+      feriadoNombre: feriadoInfo?.nombre || null,
       deshabilitado,
       diaSemana: diasSemana[fecha.getDay()]
     })
@@ -266,6 +276,7 @@ function getDiaClasses(dia) {
   if (dia.esDomingo) classes.push('domingo')
   if (dia.esSabado) classes.push('sabado')
   if (dia.esAnterior) classes.push('anterior')
+  if (dia.esFeriado) classes.push('feriado')
   if (diaSeleccionado(dia)) {
     classes.push('seleccionado')
     const info = getDiaInfo(dia)
@@ -274,6 +285,11 @@ function getDiaClasses(dia) {
     else classes.push('tipo-completo')
   }
   return classes
+}
+
+// Helper para obtener info de feriado
+function getFeriadoInfo(fechaStr) {
+  return feriados.value.find(f => f.fecha.split('T')[0] === fechaStr)
 }
 
 function getTipoColor(tipo) {
@@ -389,6 +405,31 @@ function calcularDiasDescontados(fechaStr, tipo) {
   }
   return 1
 }
+
+// Cargar feriados desde la API
+async function cargarFeriados() {
+  try {
+    const sedeId = props.empleado?.sede_id || props.empleado?.sede?.id
+    const params = { ano: mesActualDate.value.getFullYear() }
+    if (sedeId) params.sede_id = sedeId
+    
+    const response = await api.get('/feriados', { params })
+    if (response.data?.success) {
+      feriados.value = response.data.data || []
+    }
+  } catch (error) {
+    console.error('Error cargando feriados:', error)
+  }
+}
+
+// Recargar feriados cuando cambia el mes o el empleado
+watch([mesActualDate, () => props.empleado], () => {
+  cargarFeriados()
+}, { deep: true })
+
+onMounted(() => {
+  cargarFeriados()
+})
 </script>
 
 <style scoped>
@@ -477,4 +518,16 @@ function calcularDiasDescontados(fechaStr, tipo) {
   display: flex;
   flex-wrap: wrap;
 }
+
+.calendario-dia.feriado {
+  background: #ffebee;
+  color: #c62828;
+  cursor: not-allowed;
+  border: 2px solid #ef5350;
+}
+
+.calendario-dia.feriado .dia-numero {
+  font-weight: bold;
+}
 </style>
+

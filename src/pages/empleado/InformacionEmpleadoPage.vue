@@ -659,13 +659,24 @@ async function descargarPDF() {
 async function cargarEmpleado() {
   loading.value = true
   try {
-    const response = await empleadoService.buscarPorCi(route.params.ci)
-    if (response.success) {
-      empleado.value = response.data.empleado
+    // Intentar obtener datos desde sessionStorage
+    const storedData = sessionStorage.getItem('empleadoSearch')
+    
+    if (storedData) {
+      const parsed = JSON.parse(storedData)
+      // Verificar que el CI coincida con el de la ruta
+      if (parsed.ci === route.params.ci && parsed.empleado) {
+        empleado.value = parsed.empleado
+        loading.value = false
+        return
+      }
     }
+    
+    // Si no hay datos en sessionStorage o el CI no coincide, redirigir a búsqueda
+    router.push('/')
   } catch (error) {
     console.error('Error cargando empleado:', error)
-    empleado.value = null
+    router.push('/')
   } finally {
     loading.value = false
   }

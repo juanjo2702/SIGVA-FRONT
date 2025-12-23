@@ -108,9 +108,12 @@ const menuItems = [
   { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
   { to: '/admin/solicitudes', icon: 'event_note', label: 'Solicitudes' },
   { to: '/admin/empleados', icon: 'people', label: 'Empleados' },
+  { to: '/admin/sedes', icon: 'business', label: 'Sedes' },
+  { to: '/admin/feriados', icon: 'event', label: 'Feriados' },
   { to: '/admin/usuarios', icon: 'manage_accounts', label: 'Usuarios' },
   { to: '/admin/roles', icon: 'badge', label: 'Roles' },
-  { to: '/admin/reportes', icon: 'assessment', label: 'Reportes' }
+  { to: '/admin/reportes', icon: 'assessment', label: 'Reportes' },
+  { to: '/admin/documentacion', icon: 'menu_book', label: 'Documentación' }
 ]
 
 const pageTitle = computed(() => {
@@ -118,9 +121,12 @@ const pageTitle = computed(() => {
     dashboard: 'Dashboard',
     solicitudes: 'Gestión de Solicitudes',
     empleados: 'Gestión de Empleados',
+    sedes: 'Gestión de Sedes',
+    feriados: 'Gestión de Feriados',
     usuarios: 'Gestión de Usuarios',
     roles: 'Gestión de Roles',
-    reportes: 'Reportes'
+    reportes: 'Reportes',
+    documentacion: 'Documentación del Sistema'
   }
   return titles[route.name] || 'SIGVA'
 })

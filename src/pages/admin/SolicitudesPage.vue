@@ -99,6 +99,19 @@
                 <q-tooltip>Descargar Formulario</q-tooltip>
               </q-btn>
 
+              <!-- Botón editar (pendientes y aprobadas) -->
+              <q-btn 
+                v-if="props.row.estado !== 'rechazada'"
+                size="sm" 
+                round 
+                flat 
+                color="primary" 
+                icon="edit" 
+                @click="mostrarEditar(props.row)"
+              >
+                <q-tooltip>Editar</q-tooltip>
+              </q-btn>
+
               <!-- Acciones según estado -->
               <template v-if="props.row.estado === 'pendiente'">
                 <q-btn size="sm" round flat color="positive" icon="check" @click="aprobar(props.row.id)">
@@ -149,6 +162,83 @@
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" v-close-popup />
           <q-btn color="negative" label="Rechazar" @click="rechazar" :loading="loadingAction" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Dialog editar solicitud -->
+    <q-dialog v-model="dialogEditar" persistent maximized>
+      <q-card>
+        <q-card-section class="row items-center bg-primary text-white">
+          <q-icon name="edit" size="sm" class="q-mr-sm" />
+          <div class="text-h6">Editar Solicitud</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section v-if="solicitudEditar" class="q-pa-lg" style="max-width: 900px; margin: 0 auto;">
+          <!-- Info Empleado -->
+          <q-card flat bordered class="q-mb-md">
+            <q-card-section>
+              <div class="text-subtitle1 text-weight-bold">{{ solicitudEditar.empleado?.nombre_completo }}</div>
+              <div class="text-caption text-grey">CI: {{ solicitudEditar.empleado?.ci }} | Saldo: {{ solicitudEditar.empleado?.saldo_vacaciones }} días</div>
+            </q-card-section>
+          </q-card>
+
+          <!-- Calendario -->
+          <div class="text-subtitle1 q-mb-sm">
+            <q-icon name="calendar_month" class="q-mr-sm" />
+            Seleccione los días de vacaciones
+          </div>
+          
+          <CalendarioVacaciones
+            v-model="diasEditados"
+            :saldo-actual="solicitudEditar.empleado?.saldo_vacaciones || 0"
+          />
+
+          <!-- Reemplazo -->
+          <div class="row q-col-gutter-md q-mt-md">
+            <div class="col-12 col-sm-4">
+              <q-toggle v-model="editarTieneReemplazo" label="Tiene Reemplazo" />
+            </div>
+            <div class="col-12 col-sm-8">
+              <q-input
+                v-if="editarTieneReemplazo"
+                v-model="editarNombreReemplazo"
+                label="Nombre del Reemplazo"
+                outlined
+                dense
+              />
+            </div>
+          </div>
+
+          <!-- Resumen -->
+          <q-card flat bordered class="q-mt-md" :class="diasEditados.length > 0 ? 'bg-blue-1' : 'bg-grey-2'">
+            <q-card-section>
+              <div class="row items-center justify-between">
+                <div>
+                  <span class="text-subtitle2">Días seleccionados:</span>
+                  <span class="text-h6 text-primary q-ml-sm">{{ calcularDiasEditados }}</span>
+                </div>
+                <div>
+                  <span class="text-subtitle2">Días originales:</span>
+                  <span class="text-h6 text-grey q-ml-sm">{{ solicitudEditar?.dias_solicitados }}</span>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat label="Cancelar" v-close-popup />
+          <q-btn 
+            color="primary" 
+            label="Guardar Cambios" 
+            icon="save"
+            @click="guardarEdicion" 
+            :loading="loadingEditar"
+            :disable="diasEditados.length === 0"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -418,9 +508,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import adminService from '@/services/adminService'
+import CalendarioVacaciones from '@/components/CalendarioVacaciones.vue'
 
 const $q = useQuasar()
 
@@ -444,9 +535,25 @@ const pagination = ref({
 
 const dialogRechazo = ref(false)
 const dialogFormulario = ref(false)
+const dialogEditar = ref(false)
 const solicitudRechazo = ref(null)
+const solicitudEditar = ref(null)
 const motivoRechazo = ref('')
 const datosFormulario = ref(null)
+
+// Edit state
+const diasEditados = ref([])
+const editarTieneReemplazo = ref(false)
+const editarNombreReemplazo = ref('')
+const loadingEditar = ref(false)
+
+// Computed para calcular días editados
+const calcularDiasEditados = computed(() => {
+  return diasEditados.value.reduce((total, dia) => {
+    if (dia.tipo === 'completo') return total + 1
+    return total + 0.5
+  }, 0)
+})
 
 const estadoOptions = [
   { value: 'todos', label: 'Todos' },
@@ -542,6 +649,54 @@ function mostrarRechazo(solicitud) {
   solicitudRechazo.value = solicitud
   motivoRechazo.value = ''
   dialogRechazo.value = true
+}
+
+async function mostrarEditar(solicitud) {
+  // Cargar datos de la solicitud
+  solicitudEditar.value = solicitud
+  
+  // Cargar los días desde los detalles o reconstruir desde fecha_inicio/fecha_fin
+  if (solicitud.detalles && solicitud.detalles.length > 0) {
+    diasEditados.value = solicitud.detalles.map(d => ({
+      fecha: d.fecha.split('T')[0],
+      tipo: d.tipo
+    }))
+  } else {
+    // Si no hay detalles, crear un día por defecto
+    diasEditados.value = [{
+      fecha: solicitud.fecha_inicio.split('T')[0],
+      tipo: 'completo'
+    }]
+  }
+  
+  editarTieneReemplazo.value = solicitud.tiene_reemplazo || false
+  editarNombreReemplazo.value = solicitud.nombre_reemplazo || ''
+  dialogEditar.value = true
+}
+
+async function guardarEdicion() {
+  if (diasEditados.value.length === 0) {
+    $q.notify({ type: 'warning', message: 'Seleccione al menos un día' })
+    return
+  }
+
+  loadingEditar.value = true
+  try {
+    await adminService.actualizarSolicitud(solicitudEditar.value.id, {
+      dias: diasEditados.value,
+      tiene_reemplazo: editarTieneReemplazo.value,
+      nombre_reemplazo: editarTieneReemplazo.value ? editarNombreReemplazo.value : null
+    })
+    
+    $q.notify({ type: 'positive', message: 'Solicitud actualizada correctamente' })
+    dialogEditar.value = false
+    cargarSolicitudes()
+  } catch (error) {
+    const message = error.response?.data?.message || 'Error al actualizar solicitud'
+    $q.notify({ type: 'negative', message })
+  } finally {
+    loadingEditar.value = false
+  }
 }
 
 async function aprobar(id) {

@@ -95,6 +95,24 @@ const routes = [
         name: 'roles',
         component: () => import('@/pages/admin/RolesPage.vue'),
         meta: { title: 'SIGVA - Roles' }
+      },
+      {
+        path: 'sedes',
+        name: 'sedes',
+        component: () => import('@/pages/admin/SedesPage.vue'),
+        meta: { title: 'SIGVA - Sedes' }
+      },
+      {
+        path: 'feriados',
+        name: 'feriados',
+        component: () => import('@/pages/admin/FeriadosPage.vue'),
+        meta: { title: 'SIGVA - Feriados' }
+      },
+      {
+        path: 'documentacion',
+        name: 'documentacion',
+        component: () => import('@/pages/admin/DocumentacionPage.vue'),
+        meta: { title: 'SIGVA - Documentación' }
       }
     ]
   },

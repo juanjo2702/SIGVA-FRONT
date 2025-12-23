@@ -19,7 +19,7 @@
           </div>
           
           <p class="text-grey-7 text-center q-mb-lg">
-            Ingrese su número de Cédula de Identidad para consultar su saldo de vacaciones y realizar solicitudes.
+            Ingrese su Cédula de Identidad y Fecha de Ingreso para consultar su saldo de vacaciones y realizar solicitudes.
           </p>
 
           <q-form @submit="buscarEmpleado" class="q-gutter-md">
@@ -27,14 +27,30 @@
               v-model="ci"
               label="Cédula de Identidad (CI)"
               outlined
-              :error="!!error"
-              :error-message="error"
+              :error="!!errorCi"
+              :error-message="errorCi"
               :loading="loading"
               hide-bottom-space
               class="q-mb-md"
             >
               <template v-slot:prepend>
                 <q-icon name="badge" />
+              </template>
+            </q-input>
+
+            <q-input
+              v-model="fechaIngreso"
+              label="Fecha de Ingreso"
+              outlined
+              type="date"
+              :error="!!errorFecha"
+              :error-message="errorFecha"
+              :loading="loading"
+              hide-bottom-space
+              class="q-mb-md"
+            >
+              <template v-slot:prepend>
+                <q-icon name="event" />
               </template>
             </q-input>
 
@@ -60,7 +76,7 @@
             <q-icon name="info" size="24px" />
             <div class="col">
               <span class="text-body2">
-                Si es la primera vez que consulta, verifique que sus datos estén actualizados en RRHH.
+                Si no recuerda su fecha de ingreso o sus datos están incorrectos, comuníquese con RRHH.
               </span>
             </div>
           </div>
@@ -80,35 +96,63 @@ const router = useRouter()
 const $q = useQuasar()
 
 const ci = ref('')
+const fechaIngreso = ref('')
 const loading = ref(false)
-const error = ref('')
+const errorCi = ref('')
+const errorFecha = ref('')
 
 async function buscarEmpleado() {
+  // Limpiar errores
+  errorCi.value = ''
+  errorFecha.value = ''
+
+  // Validar campos
   if (!ci.value.trim()) {
-    error.value = 'Por favor ingrese su CI'
+    errorCi.value = 'Por favor ingrese su CI'
+    return
+  }
+
+  if (!fechaIngreso.value) {
+    errorFecha.value = 'Por favor ingrese su fecha de ingreso'
     return
   }
 
   loading.value = true
-  error.value = ''
 
   try {
-    const response = await empleadoService.buscarPorCi(ci.value.trim())
+    const response = await empleadoService.buscarEmpleado(ci.value.trim(), fechaIngreso.value)
     
     if (response.success) {
+      // Guardar datos en sessionStorage para las páginas siguientes
+      sessionStorage.setItem('empleadoSearch', JSON.stringify({
+        ci: ci.value.trim(),
+        fechaIngreso: fechaIngreso.value,
+        empleado: response.data.empleado
+      }))
+      
       router.push(`/empleado/${ci.value.trim()}`)
     }
   } catch (err) {
     if (err.response?.status === 404) {
-      error.value = 'No se encontró un empleado con el CI proporcionado'
+      $q.notify({
+        type: 'negative',
+        message: 'No se encontró un empleado con el CI y fecha de ingreso proporcionados',
+        icon: 'error',
+        position: 'top'
+      })
+    } else if (err.response?.status === 422) {
+      // Errores de validación
+      const errors = err.response.data.errors || {}
+      if (errors.ci) errorCi.value = errors.ci[0]
+      if (errors.fecha_ingreso) errorFecha.value = errors.fecha_ingreso[0]
     } else {
-      error.value = 'Error al buscar empleado. Intente nuevamente.'
+      $q.notify({
+        type: 'negative',
+        message: 'Error al buscar empleado. Intente nuevamente.',
+        icon: 'error',
+        position: 'top'
+      })
     }
-    $q.notify({
-      type: 'negative',
-      message: error.value,
-      icon: 'error'
-    })
   } finally {
     loading.value = false
   }
