@@ -281,13 +281,117 @@
                 </div>
                 <div class="feature-item">
                   <q-icon name="badge" color="purple" size="sm" />
-                  <span><strong>RRHH:</strong> Gestión de vacaciones y empleados</span>
+                  <span><strong>Talento Humano:</strong> Gestión de vacaciones y empleados</span>
                 </div>
                 <div class="feature-item">
                   <q-icon name="security" color="red" size="sm" />
                   <span><strong>Admin:</strong> Acceso completo al sistema</span>
                 </div>
               </div>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+
+        <q-separator />
+
+        <!-- Importación de Empleados Mejorada -->
+        <q-expansion-item
+          icon="upload_file"
+          label="Importación de Empleados Mejorada"
+          caption="Mejora de funcionalidad"
+          header-class="text-primary"
+          default-opened
+        >
+          <q-card>
+            <q-card-section class="q-pt-none">
+              <q-badge color="blue" class="q-mb-md">MEJORADO</q-badge>
+              
+              <p class="text-body1">
+                El proceso de <strong>importación masiva de empleados</strong> desde Excel ha sido rediseñado completamente.
+              </p>
+
+              <div class="feature-list q-mt-md">
+                <div class="feature-item">
+                  <q-icon name="business" color="primary" size="sm" />
+                  <span><strong>Selector de Sede:</strong> Ahora se selecciona la sede al importar</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="people" color="green" size="sm" />
+                  <span>Todos los empleados importados se asignan a la sede seleccionada</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="remove_circle" color="orange" size="sm" />
+                  <span>Ya no es necesaria la columna "Sede" en el Excel</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="design_services" color="purple" size="sm" />
+                  <span>Diseño del modal mejorado con pasos claros</span>
+                </div>
+              </div>
+
+              <q-separator class="q-my-md" />
+
+              <div class="text-subtitle2 text-weight-bold q-mb-sm">Columnas del Excel:</div>
+              <div class="row q-gutter-xs">
+                <q-chip size="sm" color="green-1" text-color="green-9">1° Apellido *</q-chip>
+                <q-chip size="sm" color="grey-3" text-color="grey-8">2° Apellido</q-chip>
+                <q-chip size="sm" color="green-1" text-color="green-9">Nombres *</q-chip>
+                <q-chip size="sm" color="green-1" text-color="green-9">CI *</q-chip>
+                <q-chip size="sm" color="grey-3" text-color="grey-8">Género</q-chip>
+                <q-chip size="sm" color="grey-3" text-color="grey-8">Tipo Contrato</q-chip>
+                <q-chip size="sm" color="grey-3" text-color="grey-8">Cargo</q-chip>
+                <q-chip size="sm" color="green-1" text-color="green-9">Fecha Ingreso *</q-chip>
+                <q-chip size="sm" color="grey-3" text-color="grey-8">Saldo Días</q-chip>
+              </div>
+              <div class="text-caption text-grey-7 q-mt-sm">* Campos obligatorios. Verde = requerido, Gris = opcional</div>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+
+        <q-separator />
+
+        <!-- Vacaciones por Etapas -->
+        <q-expansion-item
+          icon="layers"
+          label="Vacaciones por Etapas"
+          caption="Nueva funcionalidad"
+          header-class="text-primary"
+          default-opened
+        >
+          <q-card>
+            <q-card-section class="q-pt-none">
+              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
+              
+              <p class="text-body1">
+                Ahora las vacaciones discontinuas pueden mostrarse como <strong>etapas separadas</strong> en el formulario.
+              </p>
+
+              <div class="feature-list q-mt-md">
+                <div class="feature-item">
+                  <q-icon name="check_box" color="primary" size="sm" />
+                  <span><strong>Opción manual:</strong> Checkbox "Mostrar por etapas en formulario"</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="calendar_month" color="green" size="sm" />
+                  <span>Los días consecutivos se agrupan automáticamente</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="picture_as_pdf" color="red" size="sm" />
+                  <span>El PDF muestra cada etapa en una fila separada</span>
+                </div>
+              </div>
+
+              <q-separator class="q-my-md" />
+
+              <div class="text-subtitle2 text-weight-bold q-mb-sm">Ejemplo de visualización:</div>
+              <q-banner class="bg-grey-2 q-pa-md" rounded>
+                <div class="text-body2">
+                  <div><strong>Sin etapas:</strong> del 20/12/2024 al 31/12/2024</div>
+                  <div class="q-mt-sm"><strong>Con etapas:</strong></div>
+                  <div class="q-ml-md">• Etapa 1: del 20/12/2024 al 25/12/2024</div>
+                  <div class="q-ml-md">• Etapa 2: del 29/12/2024 al 31/12/2024</div>
+                </div>
+              </q-banner>
             </q-card-section>
           </q-card>
         </q-expansion-item>

@@ -76,7 +76,7 @@
             <q-icon name="info" size="24px" />
             <div class="col">
               <span class="text-body2">
-                Si no recuerda su fecha de ingreso o sus datos están incorrectos, comuníquese con RRHH.
+                Si no recuerda su fecha de ingreso o sus datos están incorrectos, comuníquese con Talento Humano.
               </span>
             </div>
           </div>

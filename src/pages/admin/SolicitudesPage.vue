@@ -341,7 +341,21 @@
                       <td style="padding: 2px; text-align: center; font-size: 9px; font-weight: bold;">mes</td>
                       <td style="padding: 2px; text-align: center; font-size: 9px; font-weight: bold;">año</td>
                     </tr>
-                    <tr>
+                    <!-- Si tiene etapas, mostrar cada una -->
+                    <template v-if="datosFormulario.etapas && datosFormulario.etapas.length > 1">
+                      <tr v-for="(etapa, index) in datosFormulario.etapas" :key="index">
+                        <td style="padding: 2px; font-weight: bold;">{{ index === 0 ? 'del' : 'y del' }}</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(etapa.fecha_inicio).dia }}</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(etapa.fecha_inicio).mes }}</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(etapa.fecha_inicio).anio }}</td>
+                        <td style="padding: 2px; font-weight: bold; padding-left: 15px;">al</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(etapa.fecha_fin).dia }}</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(etapa.fecha_fin).mes }}</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(etapa.fecha_fin).anio }}</td>
+                      </tr>
+                    </template>
+                    <!-- Si no tiene etapas o solo una, mostrar rango normal -->
+                    <tr v-else>
                       <td style="padding: 2px; font-weight: bold;">del</td>
                       <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datosFormulario.solicitud.fecha_inicio).dia }}</td>
                       <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datosFormulario.solicitud.fecha_inicio).mes }}</td>

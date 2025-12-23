@@ -111,7 +111,7 @@
                   </div>
                   <div class="col-12 col-sm-4 text-center">
                     <div class="firma-linea"></div>
-                    <div class="text-caption">Autorización RRHH</div>
+                    <div class="text-caption">Autorización Talento Humano</div>
                   </div>
                 </div>
               </div>
@@ -187,7 +187,7 @@
                   </div>
                   <div class="col-12 col-sm-6 text-center">
                     <div class="firma-linea"></div>
-                    <div class="text-caption">Jefe de RRHH</div>
+                    <div class="text-caption">Jefe Talento Humano</div>
                   </div>
                 </div>
               </div>

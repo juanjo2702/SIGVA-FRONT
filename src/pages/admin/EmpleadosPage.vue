@@ -128,7 +128,16 @@
                 />
               </div>
             </div>
-            <q-input v-model="form.sede" label="Sede / Ubicación" outlined dense />
+            <q-select
+              v-model="form.sede_id"
+              label="Sede"
+              :options="sedesOptions"
+              emit-value
+              map-options
+              outlined
+              dense
+              clearable
+            />
             <div class="row q-col-gutter-sm">
               <div class="col-6">
                 <q-input v-model="form.fecha_ingreso" label="Fecha Ingreso *" type="date" outlined dense :rules="[v => !!v || 'Requerido']" />
@@ -173,29 +182,112 @@
 
     <!-- Dialog Importar Excel -->
     <q-dialog v-model="dialogImport">
-      <q-card style="min-width: 450px">
-        <q-card-section class="row items-center">
-          <div class="text-h6">Importar Empleados</div>
+      <q-card style="min-width: 550px">
+        <q-card-section class="row items-center bg-secondary text-white">
+          <q-icon name="upload_file" size="md" class="q-mr-sm" />
+          <div class="text-h6">Importar Empleados desde Excel</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
-        <q-card-section>
-          <q-file v-model="archivoImport" label="Seleccionar archivo Excel" accept=".xlsx,.xls,.csv" outlined>
-            <template v-slot:prepend><q-icon name="attach_file" /></template>
-          </q-file>
-          <div class="q-mt-md">
-            <q-btn flat color="primary" icon="download" label="Descargar Plantilla" @click="descargarPlantilla" :loading="loadingPlantilla" />
+        <q-card-section class="q-pb-none">
+          <!-- Paso 1: Seleccionar Sede -->
+          <div class="q-mb-md">
+            <div class="text-subtitle2 text-weight-bold q-mb-sm">
+              <q-icon name="looks_one" color="primary" class="q-mr-xs" />
+              Seleccionar Sede
+            </div>
+            <q-select
+              v-model="importSedeId"
+              label="Sede a asignar a todos los empleados *"
+              :options="sedesOptions"
+              emit-value
+              map-options
+              outlined
+              dense
+              :rules="[v => !!v || 'Seleccione una sede']"
+            >
+              <template v-slot:prepend><q-icon name="business" /></template>
+            </q-select>
+            <div class="text-caption text-grey-7 q-mt-xs">
+              Todos los empleados importados serán asignados a esta sede
+            </div>
           </div>
-          <p class="text-caption q-mt-md">
-            <strong>Columnas requeridas:</strong><br>
-            Apellido Paterno, Apellido Materno, Nombres, CI, Género (Masculino/Femenino), Tipo Contrato (Completo/Medio Tiempo), Cargo, Fecha de Ingreso, Saldo de Días
-          </p>
+
+          <q-separator class="q-my-md" />
+
+          <!-- Paso 2: Archivo -->
+          <div class="q-mb-md">
+            <div class="text-subtitle2 text-weight-bold q-mb-sm">
+              <q-icon name="looks_two" color="primary" class="q-mr-xs" />
+              Seleccionar Archivo
+            </div>
+            <q-file 
+              v-model="archivoImport" 
+              label="Archivo Excel (.xlsx, .xls, .csv)" 
+              accept=".xlsx,.xls,.csv" 
+              outlined
+              dense
+            >
+              <template v-slot:prepend><q-icon name="attach_file" /></template>
+              <template v-slot:append v-if="archivoImport">
+                <q-icon name="check_circle" color="positive" />
+              </template>
+            </q-file>
+          </div>
+
+          <q-separator class="q-my-md" />
+
+          <!-- Información de columnas -->
+          <q-expansion-item
+            icon="help_outline"
+            label="Columnas requeridas en el Excel"
+            caption="Click para ver formato"
+            header-class="text-primary"
+          >
+            <q-card flat bordered class="q-mt-sm">
+              <q-card-section class="q-pa-sm">
+                <div class="text-caption">
+                  <ul class="q-ma-none q-pl-md">
+                    <li><strong>1° Apellido</strong> - Apellido paterno (obligatorio)</li>
+                    <li><strong>2° Apellido</strong> - Apellido materno (opcional)</li>
+                    <li><strong>Nombres</strong> - Nombres del empleado (obligatorio)</li>
+                    <li><strong>CI</strong> - Carnet de identidad (obligatorio)</li>
+                    <li><strong>Género</strong> - Masculino / Femenino (opcional)</li>
+                    <li><strong>Tipo Contrato</strong> - Completo / Medio Tiempo (opcional)</li>
+                    <li><strong>Cargo</strong> - Cargo del empleado (opcional)</li>
+                    <li><strong>Fecha de Ingreso</strong> - DD/MM/AAAA (obligatorio)</li>
+                    <li><strong>Saldo de Días</strong> - Saldo inicial de vacaciones (opcional)</li>
+                  </ul>
+                </div>
+              </q-card-section>
+            </q-card>
+          </q-expansion-item>
+
+          <div class="q-mt-md">
+            <q-btn 
+              flat 
+              color="primary" 
+              icon="download" 
+              label="Descargar Plantilla de Ejemplo" 
+              @click="descargarPlantilla" 
+              :loading="loadingPlantilla"
+              no-caps
+            />
+          </div>
         </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" v-close-popup />
-          <q-btn color="primary" label="Importar" @click="importarExcel" :loading="loadingImport" :disable="!archivoImport" />
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat label="Cancelar" v-close-popup no-caps />
+          <q-btn 
+            color="primary" 
+            icon="upload" 
+            label="Importar Empleados" 
+            @click="importarExcel" 
+            :loading="loadingImport" 
+            :disable="!archivoImport || !importSedeId"
+            no-caps
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -277,6 +369,17 @@
             class="q-mt-sm"
           />
 
+          <q-separator class="q-my-md" />
+
+          <div class="text-subtitle2 q-mb-sm">Opciones del Formulario</div>
+          <q-toggle
+            v-model="programar.mostrar_por_etapas"
+            label="Mostrar por etapas en el formulario"
+          />
+          <div class="text-caption text-grey-7">
+            Si está activo, el formulario mostrará cada bloque de días consecutivos como una etapa separada.
+          </div>
+
           <q-banner class="bg-info text-white q-mt-md" rounded>
             <template v-slot:avatar>
               <q-icon name="info" />
@@ -330,10 +433,12 @@ const empleadoHistorial = ref(null)
 const empleadoProgramar = ref(null)
 const historial = ref([])
 const archivoImport = ref(null)
+const importSedeId = ref(null)
+const sedes = ref([])
 
-const form = ref({ apellido_paterno: '', apellido_materno: '', nombres: '', ci: '', genero: null, tipo_contrato: 'completo', sede: '', cargo: '', fecha_ingreso: '', saldo_vacaciones: 0 })
+const form = ref({ apellido_paterno: '', apellido_materno: '', nombres: '', ci: '', genero: null, tipo_contrato: 'completo', sede_id: null, cargo: '', fecha_ingreso: '', saldo_vacaciones: 0 })
 const ajuste = ref({ nuevo_saldo: 0, descripcion: '' })
-const programar = ref({ dias: [], tiene_reemplazo: false, nombre_reemplazo: '' })
+const programar = ref({ dias: [], tiene_reemplazo: false, nombre_reemplazo: '', mostrar_por_etapas: false })
 const calendarioInfo = ref({ total: 0, saldoResultante: 0 })
 
 const today = computed(() => new Date().toISOString().split('T')[0])
@@ -354,12 +459,16 @@ const opcionesTipoContrato = [
   { label: 'Medio Tiempo', value: 'medio_tiempo' }
 ]
 
+const sedesOptions = computed(() => 
+  sedes.value.map(s => ({ label: s.nombre, value: s.id }))
+)
+
 const columns = [
   { name: 'ci', label: 'C.I.', field: 'ci', align: 'left' },
   { name: 'nombre', label: 'Nombre', align: 'left' },
   { name: 'genero', label: 'Género', field: row => row.genero || '-', align: 'center' },
   { name: 'contrato', label: 'Contrato', field: row => row.tipo_contrato === 'medio_tiempo' ? 'Medio T.' : 'Completo', align: 'center' },
-  { name: 'sede', label: 'Sede', field: row => row.sede || '-', align: 'left' },
+  { name: 'sede', label: 'Sede', field: row => row.sede?.nombre || '-', align: 'left' },
   { name: 'fecha_ingreso', label: 'Ingreso', field: row => formatDate(row.fecha_ingreso), align: 'left' },
   { name: 'saldo', label: 'Saldo', align: 'center' },
   { name: 'acciones', label: 'Acciones', align: 'center' }
@@ -375,9 +484,9 @@ function traducirTipoCambio(tipo) {
 function abrirFormulario(emp = null) {
   empleadoEditar.value = emp
   if (emp) {
-    form.value = { ...emp }
+    form.value = { ...emp, sede_id: emp.sede_id || emp.sede?.id || null }
   } else {
-    form.value = { apellido_paterno: '', apellido_materno: '', nombres: '', ci: '', genero: null, tipo_contrato: 'completo', sede: '', cargo: '', fecha_ingreso: '', saldo_vacaciones: 0 }
+    form.value = { apellido_paterno: '', apellido_materno: '', nombres: '', ci: '', genero: null, tipo_contrato: 'completo', sede_id: null, cargo: '', fecha_ingreso: '', saldo_vacaciones: 0 }
   }
   dialogForm.value = true
 }
@@ -402,7 +511,8 @@ function abrirProgramar(emp) {
   programar.value = { 
     dias: [], 
     tiene_reemplazo: false,
-    nombre_reemplazo: ''
+    nombre_reemplazo: '',
+    mostrar_por_etapas: false
   }
   calendarioInfo.value = { total: 0, saldoResultante: emp.saldo_vacaciones }
   dialogProgramar.value = true
@@ -429,7 +539,8 @@ async function guardarProgramacion() {
       empleado_id: empleadoProgramar.value.id,
       dias: programar.value.dias,
       tiene_reemplazo: programar.value.tiene_reemplazo,
-      nombre_reemplazo: programar.value.nombre_reemplazo || null
+      nombre_reemplazo: programar.value.nombre_reemplazo || null,
+      mostrar_por_etapas: programar.value.mostrar_por_etapas || false
     })
     
     $q.notify({ 
@@ -483,12 +594,17 @@ async function guardarAjuste() {
 }
 
 async function importarExcel() {
+  if (!importSedeId.value) {
+    $q.notify({ type: 'warning', message: 'Seleccione una sede para asignar a los empleados' })
+    return
+  }
   loadingImport.value = true
   try {
-    const res = await adminService.importarEmpleados(archivoImport.value)
+    const res = await adminService.importarEmpleados(archivoImport.value, importSedeId.value)
     $q.notify({ type: 'positive', message: `Importados: ${res.data.creados} nuevos, ${res.data.actualizados} actualizados` })
     dialogImport.value = false
     archivoImport.value = null
+    importSedeId.value = null
     cargarEmpleados()
   } catch (e) {
     $q.notify({ type: 'negative', message: e.response?.data?.message || 'Error importando' })
@@ -526,5 +642,15 @@ async function cargarEmpleados() {
   finally { loading.value = false }
 }
 
-onMounted(cargarEmpleados)
+async function cargarSedes() {
+  try {
+    const res = await adminService.getSedes()
+    sedes.value = res.data || []
+  } catch { sedes.value = [] }
+}
+
+onMounted(() => {
+  cargarEmpleados()
+  cargarSedes()
+})
 </script>

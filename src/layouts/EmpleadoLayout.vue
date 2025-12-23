@@ -12,7 +12,7 @@
         </q-toolbar-title>
         <q-btn 
           flat 
-          label="Portal RRHH" 
+          label="Portal Talento Humano" 
           icon="admin_panel_settings"
           to="/admin/login"
           class="q-ml-md"

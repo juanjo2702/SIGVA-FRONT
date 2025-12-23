@@ -249,7 +249,7 @@ async function enviarSolicitud() {
       $q.notify({
         type: 'positive',
         message: 'Solicitud creada correctamente',
-        caption: 'Pendiente de aprobación por RRHH',
+        caption: 'Pendiente de aprobación por Talento Humano',
         icon: 'check_circle'
       })
       

@@ -108,12 +108,12 @@
             </q-card-section>
           </q-card>
 
-          <!-- Vacaciones Programadas por RRHH -->
+          <!-- Vacaciones Programadas por Talento Humano -->
           <q-card v-if="vacacionesProgramadas.length" class="shadow-2 q-mb-md">
             <q-card-section>
               <div class="text-h6 q-mb-md">
                 <q-icon name="event_available" color="orange" class="q-mr-sm" />
-                Vacaciones Programadas por RRHH
+                Vacaciones Programadas por Talento Humano
                 <q-badge color="orange" class="q-ml-sm">{{ vacacionesProgramadas.length }}</q-badge>
               </div>
 
@@ -507,14 +507,14 @@ const saldoClass = computed(() => {
 const vacacionesProgramadas = computed(() => {
   if (!empleado.value?.solicitudes) return []
   return empleado.value.solicitudes.filter(s => 
-    s.lugar_solicitud === 'Programada por RRHH'
+    s.lugar_solicitud === 'Programada por Talento Humano'
   )
 })
 
 const solicitudesPropias = computed(() => {
   if (!empleado.value?.solicitudes) return []
   return empleado.value.solicitudes.filter(s => 
-    s.lugar_solicitud !== 'Programada por RRHH'
+    s.lugar_solicitud !== 'Programada por Talento Humano'
   )
 })
 

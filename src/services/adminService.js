@@ -37,9 +37,10 @@ export const adminService = {
     return response.data
   },
 
-  async importarEmpleados(file) {
+  async importarEmpleados(file, sedeId) {
     const formData = new FormData()
     formData.append('archivo', file)
+    formData.append('sede_id', sedeId)
     
     const response = await api.post('/admin/empleados/importar', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }

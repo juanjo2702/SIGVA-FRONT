@@ -100,7 +100,7 @@ async function handleLogin() {
     
     $q.notify({
       type: 'positive',
-      message: 'Bienvenido al portal de RRHH',
+      message: 'Bienvenido al portal de Talento Humano',
       icon: 'check_circle'
     })
     

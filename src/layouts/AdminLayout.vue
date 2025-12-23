@@ -17,7 +17,7 @@
           </q-item-section>
           <q-item-section>
             <q-item-label class="text-h6 text-weight-bold text-primary">SIGVA</q-item-label>
-            <q-item-label caption>Portal RRHH</q-item-label>
+            <q-item-label caption>Portal Talento Humano</q-item-label>
           </q-item-section>
         </q-item>
 
