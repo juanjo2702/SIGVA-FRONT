@@ -11,10 +11,11 @@
               <q-icon name="account_balance" color="primary" class="q-mr-sm" />
               Saldos de Vacaciones
             </div>
-            
+
             <q-checkbox v-model="filtrosSaldos.solo_negativos" label="Solo saldo negativo" class="q-mb-md" />
-            
-            <q-btn color="primary" label="Generar Reporte" @click="cargarSaldos" :loading="loadingSaldos" unelevated no-caps class="q-mr-sm" />
+
+            <q-btn color="primary" label="Generar Reporte" @click="cargarSaldos" :loading="loadingSaldos" unelevated
+              no-caps class="q-mr-sm" />
             <q-btn flat color="primary" icon="download" label="Exportar Excel" @click="exportarEmpleados" no-caps />
           </q-card-section>
 
@@ -59,17 +60,19 @@
               <q-icon name="event_note" color="secondary" class="q-mr-sm" />
               Solicitudes por Período
             </div>
-            
+
             <div class="row q-col-gutter-sm q-mb-md">
               <div class="col-6">
                 <q-select v-model="filtrosSolicitudes.ano" :options="anosOptions" label="Año" outlined dense />
               </div>
               <div class="col-6">
-                <q-select v-model="filtrosSolicitudes.estado" :options="estadoOptions" label="Estado" outlined dense emit-value map-options />
+                <q-select v-model="filtrosSolicitudes.estado" :options="estadoOptions" label="Estado" outlined dense
+                  emit-value map-options />
               </div>
             </div>
-            
-            <q-btn color="secondary" label="Generar Reporte" @click="cargarSolicitudes" :loading="loadingSolicitudes" unelevated no-caps class="q-mr-sm" />
+
+            <q-btn color="secondary" label="Generar Reporte" @click="cargarSolicitudes" :loading="loadingSolicitudes"
+              unelevated no-caps class="q-mr-sm" />
             <q-btn flat color="secondary" icon="download" label="Exportar Excel" @click="exportarSolicitudes" no-caps />
           </q-card-section>
 
@@ -98,7 +101,8 @@
               <q-item v-for="sol in reporteSolicitudes.solicitudes.slice(0, 20)" :key="sol.id">
                 <q-item-section>
                   <q-item-label>{{ sol.empleado?.nombre_completo }}</q-item-label>
-                  <q-item-label caption>{{ formatDate(sol.fecha_inicio) }} - {{ formatDate(sol.fecha_fin) }}</q-item-label>
+                  <q-item-label caption>{{ formatDate(sol.fecha_inicio) }} - {{ formatDate(sol.fecha_fin)
+                    }}</q-item-label>
                 </q-item-section>
                 <q-item-section side>
                   <q-badge :color="getEstadoColor(sol.estado)">{{ sol.dias_solicitados }} días</q-badge>
@@ -136,7 +140,14 @@ const estadoOptions = [
   { value: 'rechazada', label: 'Rechazadas' }
 ]
 
-function formatDate(d) { return d ? new Date(d).toLocaleDateString('es-BO') : '-' }
+function formatDate(d) {
+  if (!d) return '-'
+  if (typeof d === 'string' && d.includes('-')) {
+    const [year, month, day] = d.split('T')[0].split('-')
+    return `${parseInt(day)}/${parseInt(month)}/${year}`
+  }
+  return new Date(d).toLocaleDateString('es-BO')
+}
 function getEstadoColor(estado) { return { pendiente: 'warning', aprobada: 'positive', rechazada: 'negative' }[estado] || 'grey' }
 
 async function cargarSaldos() {

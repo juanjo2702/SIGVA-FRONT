@@ -42,7 +42,7 @@
                 <q-item-section>
                   <q-item-label>{{ sol.empleado?.nombre_completo }}</q-item-label>
                   <q-item-label caption>
-                    {{ formatDate(sol.fecha_inicio) }} - {{ formatDate(sol.fecha_fin) }} 
+                    {{ formatDate(sol.fecha_inicio) }} - {{ formatDate(sol.fecha_fin) }}
                     ({{ sol.dias_solicitados }} días)
                   </q-item-label>
                 </q-item-section>
@@ -142,13 +142,7 @@
         </q-card-section>
 
         <q-card-section>
-          <q-input
-            v-model="motivoRechazo"
-            label="Motivo del rechazo"
-            type="textarea"
-            outlined
-            rows="3"
-          />
+          <q-input v-model="motivoRechazo" label="Motivo del rechazo" type="textarea" outlined rows="3" />
         </q-card-section>
 
         <q-card-actions align="right">
@@ -207,6 +201,11 @@ const kpis = computed(() => [
 
 function formatDate(dateStr) {
   if (!dateStr) return '-'
+  // Parsear fecha sin problemas de timezone
+  if (typeof dateStr === 'string' && dateStr.includes('-')) {
+    const [year, month, day] = dateStr.split('T')[0].split('-')
+    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+  }
   return new Date(dateStr).toLocaleDateString('es-BO', {
     day: '2-digit',
     month: '2-digit',

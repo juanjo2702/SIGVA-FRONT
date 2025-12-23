@@ -85,26 +85,10 @@
           <!-- Acciones -->
           <q-card class="q-mb-md shadow-2">
             <q-card-section>
-              <q-btn
-                color="primary"
-                icon="add_circle"
-                label="Solicitar Vacaciones"
-                size="lg"
-                class="full-width q-mb-sm"
-                unelevated
-                no-caps
-                @click="irASolicitud"
-              />
-              
-              <q-btn
-                flat
-                color="grey-7"
-                icon="arrow_back"
-                label="Volver a buscar"
-                class="full-width"
-                no-caps
-                to="/"
-              />
+              <q-btn color="primary" icon="add_circle" label="Solicitar Vacaciones" size="lg" class="full-width q-mb-sm"
+                unelevated no-caps @click="irASolicitud" />
+
+              <q-btn flat color="grey-7" icon="arrow_back" label="Volver a buscar" class="full-width" no-caps to="/" />
             </q-card-section>
           </q-card>
 
@@ -134,15 +118,8 @@
                   </q-item-section>
                   <q-item-section side>
                     <div class="row items-center q-gutter-xs">
-                      <q-btn 
-                        flat 
-                        round 
-                        dense 
-                        icon="description" 
-                        color="primary"
-                        @click="descargarFormulario(solicitud.id)"
-                        :loading="loadingFormulario === solicitud.id"
-                      >
+                      <q-btn flat round dense icon="description" color="primary"
+                        @click="descargarFormulario(solicitud.id)" :loading="loadingFormulario === solicitud.id">
                         <q-tooltip>Descargar Formulario</q-tooltip>
                       </q-btn>
                       <q-badge :color="getEstadoColor(solicitud.estado)">
@@ -181,15 +158,8 @@
                   </q-item-section>
                   <q-item-section side>
                     <div class="row items-center q-gutter-xs">
-                      <q-btn 
-                        flat 
-                        round 
-                        dense 
-                        icon="description" 
-                        color="primary"
-                        @click="descargarFormulario(solicitud.id)"
-                        :loading="loadingFormulario === solicitud.id"
-                      >
+                      <q-btn flat round dense icon="description" color="primary"
+                        @click="descargarFormulario(solicitud.id)" :loading="loadingFormulario === solicitud.id">
                         <q-tooltip>Descargar Formulario</q-tooltip>
                       </q-btn>
                       <q-badge :color="getEstadoColor(solicitud.estado)">
@@ -231,8 +201,9 @@
         </q-card-section>
 
         <q-card-section v-if="datosFormulario && datosFormulario.solicitud" class="q-pa-md" id="formulario-print">
-          <div class="formulario-oficial" style="max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif; font-size: 11px;">
-            
+          <div class="formulario-oficial"
+            style="max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif; font-size: 11px;">
+
             <!-- HEADER -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
               <div style="width: 140px;">
@@ -244,7 +215,8 @@
               </div>
               <div style="text-align: right;">
                 <span style="font-weight: bold;">No.</span>
-                <span style="border: 1px solid #000; padding: 2px 15px; margin-left: 5px;">{{ datosFormulario.solicitud?.id }}</span>
+                <span style="border: 1px solid #000; padding: 2px 15px; margin-left: 5px;">{{
+                  datosFormulario.solicitud?.id }}</span>
               </div>
             </div>
 
@@ -258,7 +230,8 @@
                   <td style="border: 1px solid #000; padding: 2px 5px; font-weight: bold;">Año</td>
                 </tr>
                 <tr>
-                  <td style="border: 1px solid #000; padding: 2px 8px;">{{ datosFormulario.empleado?.sede || 'CBBA' }}</td>
+                  <td style="border: 1px solid #000; padding: 2px 8px;">{{ datosFormulario.empleado?.sede || 'CBBA' }}
+                  </td>
                   <td style="border: 1px solid #000; padding: 2px 8px;">{{ new Date().getDate() }}</td>
                   <td style="border: 1px solid #000; padding: 2px 8px;">{{ new Date().getMonth() + 1 }}</td>
                   <td style="border: 1px solid #000; padding: 2px 8px;">{{ new Date().getFullYear() }}</td>
@@ -271,7 +244,8 @@
               <tr>
                 <td style="padding: 5px; border: 1px solid #000;">
                   <strong>Nombres y Apellidos:</strong>
-                  <span style="margin-left: 10px; text-transform: uppercase;">{{ datosFormulario.empleado?.nombre_completo }}</span>
+                  <span style="margin-left: 10px; text-transform: uppercase;">{{
+                    datosFormulario.empleado?.nombre_completo }}</span>
                 </td>
                 <td style="padding: 5px; border: 1px solid #000; width: 200px;">
                   <strong>Código de empleado-C.I.:</strong>
@@ -295,7 +269,8 @@
               <tr>
                 <td style="border: 1px solid #000; padding: 3px; width: 80px; text-align: center;">
                   <div style="font-weight: bold; font-size: 9px;">No. de días</div>
-                  <div style="font-size: 14px; font-weight: bold;">{{ datosFormulario.solicitud?.dias_solicitados }}</div>
+                  <div style="font-size: 14px; font-weight: bold;">{{ datosFormulario.solicitud?.dias_solicitados }}
+                  </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 3px;">
                   <table style="width: 100%; border-collapse: collapse;">
@@ -311,23 +286,32 @@
                     </tr>
                     <tr>
                       <td style="padding: 2px; font-weight: bold;">del</td>
-                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datosFormulario.solicitud?.fecha_inicio).dia }}</td>
-                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datosFormulario.solicitud?.fecha_inicio).mes }}</td>
-                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datosFormulario.solicitud?.fecha_inicio).anio }}</td>
+                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                        getFechaPartes(datosFormulario.solicitud?.fecha_inicio).dia }}</td>
+                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                        getFechaPartes(datosFormulario.solicitud?.fecha_inicio).mes }}</td>
+                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                        getFechaPartes(datosFormulario.solicitud?.fecha_inicio).anio }}</td>
                       <td style="padding: 2px; font-weight: bold; padding-left: 15px;">al</td>
-                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datosFormulario.solicitud?.fecha_fin).dia }}</td>
-                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datosFormulario.solicitud?.fecha_fin).mes }}</td>
-                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datosFormulario.solicitud?.fecha_fin).anio }}</td>
+                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                        getFechaPartes(datosFormulario.solicitud?.fecha_fin).dia }}</td>
+                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                        getFechaPartes(datosFormulario.solicitud?.fecha_fin).mes }}</td>
+                      <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                        getFechaPartes(datosFormulario.solicitud?.fecha_fin).anio }}</td>
                     </tr>
                   </table>
                 </td>
                 <td style="border: 1px solid #000; padding: 3px; width: 150px;">
                   <div style="display: flex; justify-content: space-around;">
-                    <span>Mañana <span style="border: 1px solid #000; padding: 0 5px;">{{ tieneTipoParcial('manana') ? 'X' : '' }}</span></span>
-                    <span>Tarde <span style="border: 1px solid #000; padding: 0 5px;">{{ tieneTipoParcial('tarde') ? 'X' : '' }}</span></span>
+                    <span>Mañana <span style="border: 1px solid #000; padding: 0 5px;">{{ tieneTipoParcial('manana') ?
+                        'X' : '' }}</span></span>
+                    <span>Tarde <span style="border: 1px solid #000; padding: 0 5px;">{{ tieneTipoParcial('tarde') ? 'X'
+                        : '' }}</span></span>
                   </div>
                 </td>
-                <td rowspan="2" style="border: 1px solid #000; padding: 5px; width: 100px; text-align: center; vertical-align: bottom;">
+                <td rowspan="2"
+                  style="border: 1px solid #000; padding: 5px; width: 100px; text-align: center; vertical-align: bottom;">
                   <strong>Firma empleado</strong>
                 </td>
               </tr>
@@ -358,14 +342,18 @@
               <tr>
                 <td style="padding: 5px; border: 1px solid #000;" colspan="2">
                   <em><strong>Nombre de la persona que REEMPLAZA:</strong></em>
-                  <span style="margin-left: 10px; border-bottom: 1px dashed #000; display: inline-block; min-width: 300px;">
-                    {{ datosFormulario.solicitud?.reemplazo !== 'Sin Reemplazo' ? datosFormulario.solicitud?.reemplazo : '' }}
+                  <span
+                    style="margin-left: 10px; border-bottom: 1px dashed #000; display: inline-block; min-width: 300px;">
+                    {{ datosFormulario.solicitud?.reemplazo !== 'Sin Reemplazo' ? datosFormulario.solicitud?.reemplazo :
+                    '' }}
                   </span>
                 </td>
               </tr>
               <tr>
-                <td style="padding: 5px; border: 1px solid #000;">Reemplazo con designación de interino (a. i.) mediante memorándum</td>
-                <td style="padding: 5px; border: 1px solid #000; font-weight: bold; text-align: center;" rowspan="2">Comentarios</td>
+                <td style="padding: 5px; border: 1px solid #000;">Reemplazo con designación de interino (a. i.) mediante
+                  memorándum</td>
+                <td style="padding: 5px; border: 1px solid #000; font-weight: bold; text-align: center;" rowspan="2">
+                  Comentarios</td>
               </tr>
               <tr>
                 <td style="padding: 5px; border: 1px solid #000;">Reemplazo solo de funciones con memorándum</td>
@@ -373,16 +361,19 @@
             </table>
 
             <!-- AUTORIZACION -->
-            <div style="text-align: center; font-weight: bold; font-size: 14px; margin: 15px 0;">AUTORIZACIÓN DE VACACIONES</div>
-            
+            <div style="text-align: center; font-weight: bold; font-size: 14px; margin: 15px 0;">AUTORIZACIÓN DE
+              VACACIONES</div>
+
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
               <tr>
                 <td style="padding: 5px;">
-                  <span style="border: 1px solid #000; padding: 0 5px; margin-right: 5px;">{{ datosFormulario.solicitud?.estado === 'Aprobada' ? 'X' : '' }}</span>
+                  <span style="border: 1px solid #000; padding: 0 5px; margin-right: 5px;">{{
+                    datosFormulario.solicitud?.estado === 'Aprobada' ? 'X' : '' }}</span>
                   Se acepta
                 </td>
                 <td style="padding: 5px;">
-                  <span style="border: 1px solid #000; padding: 0 5px; margin-right: 5px;">{{ datosFormulario.solicitud?.estado === 'Rechazada' ? 'X' : '' }}</span>
+                  <span style="border: 1px solid #000; padding: 0 5px; margin-right: 5px;">{{
+                    datosFormulario.solicitud?.estado === 'Rechazada' ? 'X' : '' }}</span>
                   Se rechaza
                 </td>
               </tr>
@@ -415,7 +406,8 @@
 
             <!-- CONTROL DE VACACIONES -->
             <div style="text-align: center; font-weight: bold; font-size: 12px;">CONTROL DE VACACIONES</div>
-            <div style="text-align: center; font-size: 9px; margin-bottom: 10px;">(Para uso exclusivo de Recursos Humanos y Personal)</div>
+            <div style="text-align: center; font-size: 9px; margin-bottom: 10px;">(Para uso exclusivo de Recursos
+              Humanos y Personal)</div>
 
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
               <tr>
@@ -438,19 +430,31 @@
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
               <tr>
                 <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">Gestiones</td>
-                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">años de<br>servicios</td>
-                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">días que le<br>corresponden</td>
-                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">días<br>pendientes</td>
-                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">días a<br>utilizar</td>
-                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">saldo<br>actual</td>
+                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">años
+                  de<br>servicios</td>
+                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">días que
+                  le<br>corresponden</td>
+                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">
+                  días<br>pendientes</td>
+                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">días
+                  a<br>utilizar</td>
+                <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">saldo<br>actual
+                </td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ new Date().getFullYear() }}</td>
-                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.empleado?.anos_servicio }}</td>
-                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.empleado?.dias_correspondientes || getDiasCorrespondientes(datosFormulario.empleado?.anos_servicio) }}</td>
-                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.saldo?.actual }}</td>
-                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.solicitud?.dias_solicitados }}</td>
-                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.saldo?.despues }}</td>
+                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ new Date().getFullYear() }}
+                </td>
+                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{
+                  datosFormulario.empleado?.anos_servicio }}</td>
+                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{
+                  datosFormulario.empleado?.dias_correspondientes ||
+                  getDiasCorrespondientes(datosFormulario.empleado?.anos_servicio) }}</td>
+                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.saldo?.actual
+                  }}</td>
+                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{
+                  datosFormulario.solicitud?.dias_solicitados }}</td>
+                <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.saldo?.despues
+                  }}</td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
@@ -464,7 +468,8 @@
 
             <div style="text-align: right; margin-bottom: 15px;">
               <strong>SALDO TOTAL PENDIENTE</strong>
-              <span style="border: 1px solid #000; padding: 3px 15px; margin-left: 10px;">{{ datosFormulario.saldo?.despues }}</span>
+              <span style="border: 1px solid #000; padding: 3px 15px; margin-left: 10px;">{{
+                datosFormulario.saldo?.despues }}</span>
             </div>
 
             <div style="font-weight: bold;">JEFE DE R.S.C Y GESTION DE TALENTO<br>HUMANO</div>
@@ -506,20 +511,25 @@ const saldoClass = computed(() => {
 // Separar solicitudes propias de las programadas por RRHH
 const vacacionesProgramadas = computed(() => {
   if (!empleado.value?.solicitudes) return []
-  return empleado.value.solicitudes.filter(s => 
+  return empleado.value.solicitudes.filter(s =>
     s.lugar_solicitud === 'Programada por Talento Humano'
   )
 })
 
 const solicitudesPropias = computed(() => {
   if (!empleado.value?.solicitudes) return []
-  return empleado.value.solicitudes.filter(s => 
+  return empleado.value.solicitudes.filter(s =>
     s.lugar_solicitud !== 'Programada por Talento Humano'
   )
 })
 
 function formatDate(dateStr) {
   if (!dateStr) return '-'
+  // Parsear fecha sin problemas de timezone
+  if (typeof dateStr === 'string' && dateStr.includes('-')) {
+    const [year, month, day] = dateStr.split('T')[0].split('-')
+    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+  }
   return new Date(dateStr).toLocaleDateString('es-BO', {
     day: '2-digit',
     month: '2-digit',
@@ -528,39 +538,39 @@ function formatDate(dateStr) {
 }
 
 function getEstadoColor(estado) {
-  const colors = { 
-    pendiente: 'warning', 
+  const colors = {
+    pendiente: 'warning',
     pendiente_documento: 'orange',
-    aprobada: 'positive', 
-    rechazada: 'negative' 
+    aprobada: 'positive',
+    rechazada: 'negative'
   }
   return colors[estado] || 'grey'
 }
 
 function getEstadoIcon(estado) {
-  const icons = { 
-    pendiente: 'schedule', 
+  const icons = {
+    pendiente: 'schedule',
     pendiente_documento: 'description',
-    aprobada: 'check_circle', 
-    rechazada: 'cancel' 
+    aprobada: 'check_circle',
+    rechazada: 'cancel'
   }
   return icons[estado] || 'help'
 }
 
 function traducirEstado(estado) {
-  const estados = { 
-    pendiente: 'Pendiente', 
+  const estados = {
+    pendiente: 'Pendiente',
     pendiente_documento: 'Pend. Documento',
-    aprobada: 'Aprobada', 
-    rechazada: 'Rechazada' 
+    aprobada: 'Aprobada',
+    rechazada: 'Rechazada'
   }
   return estados[estado] || estado
 }
 
 function traducirTipo(tipo) {
-  const tipos = { 
-    completo: 'Día Completo', 
-    parcial_manana: 'Mañana', 
+  const tipos = {
+    completo: 'Día Completo',
+    parcial_manana: 'Mañana',
     parcial_tarde: 'Tarde',
     completa_continua: 'Continua',
     completa_discontinua: 'Discontinua',
@@ -661,7 +671,7 @@ async function cargarEmpleado() {
   try {
     // Intentar obtener datos desde sessionStorage
     const storedData = sessionStorage.getItem('empleadoSearch')
-    
+
     if (storedData) {
       const parsed = JSON.parse(storedData)
       // Verificar que el CI coincida con el de la ruta
@@ -671,7 +681,7 @@ async function cargarEmpleado() {
         return
       }
     }
-    
+
     // Si no hay datos en sessionStorage o el CI no coincide, redirigir a búsqueda
     router.push('/')
   } catch (error) {
@@ -702,11 +712,12 @@ onMounted(cargarEmpleado)
   body * {
     visibility: hidden;
   }
-  
-  #formulario-print, #formulario-print * {
+
+  #formulario-print,
+  #formulario-print * {
     visibility: visible;
   }
-  
+
   #formulario-print {
     position: absolute;
     left: 0;

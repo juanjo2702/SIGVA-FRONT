@@ -4,7 +4,8 @@
     <div class="row items-center justify-between q-mb-md">
       <div class="text-h5">Gestión de Empleados</div>
       <div class="row q-gutter-sm">
-        <q-btn color="secondary" icon="upload_file" label="Importar Excel" @click="dialogImport = true" unelevated no-caps />
+        <q-btn color="secondary" icon="upload_file" label="Importar Excel" @click="dialogImport = true" unelevated
+          no-caps />
         <q-btn color="primary" icon="add" label="Nuevo Empleado" @click="abrirFormulario()" unelevated no-caps />
       </div>
     </div>
@@ -14,7 +15,8 @@
       <q-card-section>
         <div class="row q-col-gutter-md items-end">
           <div class="col-12 col-sm-4">
-            <q-input v-model="filtros.buscar" label="Buscar (CI, Nombre)" outlined dense clearable @keyup.enter="cargarEmpleados">
+            <q-input v-model="filtros.buscar" label="Buscar (CI, Nombre)" outlined dense clearable
+              @keyup.enter="cargarEmpleados">
               <template v-slot:prepend><q-icon name="search" /></template>
             </q-input>
           </div>
@@ -30,15 +32,8 @@
 
     <!-- Tabla -->
     <q-card class="shadow-2">
-      <q-table
-        :rows="empleados"
-        :columns="columns"
-        row-key="id"
-        :loading="loading"
-        :pagination="pagination"
-        @request="onRequest"
-        flat
-      >
+      <q-table :rows="empleados" :columns="columns" row-key="id" :loading="loading" :pagination="pagination"
+        @request="onRequest" flat>
         <template v-slot:body-cell-nombre="props">
           <q-td :props="props">
             <div class="text-weight-medium">{{ props.row.nombre_completo }}</div>
@@ -48,7 +43,8 @@
 
         <template v-slot:body-cell-saldo="props">
           <q-td :props="props">
-            <q-badge :color="props.row.saldo_vacaciones < 0 ? 'negative' : props.row.saldo_vacaciones === 0 ? 'warning' : 'positive'">
+            <q-badge
+              :color="props.row.saldo_vacaciones < 0 ? 'negative' : props.row.saldo_vacaciones === 0 ? 'warning' : 'positive'">
               {{ props.row.saldo_vacaciones }} días
             </q-badge>
           </q-td>
@@ -88,7 +84,8 @@
           <q-form @submit="guardarEmpleado" class="q-gutter-sm">
             <div class="row q-col-gutter-sm">
               <div class="col-6">
-                <q-input v-model="form.apellido_paterno" label="Primer Apellido *" outlined dense :rules="[v => !!v || 'Requerido']" />
+                <q-input v-model="form.apellido_paterno" label="Primer Apellido *" outlined dense
+                  :rules="[v => !!v || 'Requerido']" />
               </div>
               <div class="col-6">
                 <q-input v-model="form.apellido_materno" label="Segundo Apellido" outlined dense />
@@ -105,45 +102,24 @@
             </div>
             <div class="row q-col-gutter-sm">
               <div class="col-6">
-                <q-select
-                  v-model="form.genero"
-                  label="Género"
-                  :options="opcionesGenero"
-                  emit-value
-                  map-options
-                  outlined
-                  dense
-                  clearable
-                />
+                <q-select v-model="form.genero" label="Género" :options="opcionesGenero" emit-value map-options outlined
+                  dense clearable />
               </div>
               <div class="col-6">
-                <q-select
-                  v-model="form.tipo_contrato"
-                  label="Tipo de Contrato"
-                  :options="opcionesTipoContrato"
-                  emit-value
-                  map-options
-                  outlined
-                  dense
-                />
+                <q-select v-model="form.tipo_contrato" label="Tipo de Contrato" :options="opcionesTipoContrato"
+                  emit-value map-options outlined dense />
               </div>
             </div>
-            <q-select
-              v-model="form.sede_id"
-              label="Sede"
-              :options="sedesOptions"
-              emit-value
-              map-options
-              outlined
-              dense
-              clearable
-            />
+            <q-select v-model="form.sede_id" label="Sede" :options="sedesOptions" emit-value map-options outlined dense
+              clearable />
             <div class="row q-col-gutter-sm">
               <div class="col-6">
-                <q-input v-model="form.fecha_ingreso" label="Fecha Ingreso *" type="date" outlined dense :rules="[v => !!v || 'Requerido']" />
+                <q-input v-model="form.fecha_ingreso" label="Fecha Ingreso *" type="date" outlined dense
+                  :rules="[v => !!v || 'Requerido']" />
               </div>
               <div class="col-6" v-if="!empleadoEditar">
-                <q-input v-model.number="form.saldo_vacaciones" label="Saldo Inicial" type="number" step="0.5" outlined dense />
+                <q-input v-model.number="form.saldo_vacaciones" label="Saldo Inicial" type="number" step="0.5" outlined
+                  dense />
               </div>
             </div>
           </q-form>
@@ -168,9 +144,10 @@
         <q-card-section>
           <p><strong>{{ empleadoAjuste?.nombre_completo }}</strong></p>
           <p class="q-mb-md">Saldo actual: <strong>{{ empleadoAjuste?.saldo_vacaciones }}</strong> días</p>
-          
+
           <q-input v-model.number="ajuste.nuevo_saldo" label="Nuevo Saldo" type="number" step="0.5" outlined />
-          <q-input v-model="ajuste.descripcion" label="Motivo del ajuste *" type="textarea" rows="2" outlined class="q-mt-sm" />
+          <q-input v-model="ajuste.descripcion" label="Motivo del ajuste *" type="textarea" rows="2" outlined
+            class="q-mt-sm" />
         </q-card-section>
 
         <q-card-actions align="right">
@@ -197,16 +174,8 @@
               <q-icon name="looks_one" color="primary" class="q-mr-xs" />
               Seleccionar Sede
             </div>
-            <q-select
-              v-model="importSedeId"
-              label="Sede a asignar a todos los empleados *"
-              :options="sedesOptions"
-              emit-value
-              map-options
-              outlined
-              dense
-              :rules="[v => !!v || 'Seleccione una sede']"
-            >
+            <q-select v-model="importSedeId" label="Sede a asignar a todos los empleados *" :options="sedesOptions"
+              emit-value map-options outlined dense :rules="[v => !!v || 'Seleccione una sede']">
               <template v-slot:prepend><q-icon name="business" /></template>
             </q-select>
             <div class="text-caption text-grey-7 q-mt-xs">
@@ -222,13 +191,8 @@
               <q-icon name="looks_two" color="primary" class="q-mr-xs" />
               Seleccionar Archivo
             </div>
-            <q-file 
-              v-model="archivoImport" 
-              label="Archivo Excel (.xlsx, .xls, .csv)" 
-              accept=".xlsx,.xls,.csv" 
-              outlined
-              dense
-            >
+            <q-file v-model="archivoImport" label="Archivo Excel (.xlsx, .xls, .csv)" accept=".xlsx,.xls,.csv" outlined
+              dense>
               <template v-slot:prepend><q-icon name="attach_file" /></template>
               <template v-slot:append v-if="archivoImport">
                 <q-icon name="check_circle" color="positive" />
@@ -239,12 +203,8 @@
           <q-separator class="q-my-md" />
 
           <!-- Información de columnas -->
-          <q-expansion-item
-            icon="help_outline"
-            label="Columnas requeridas en el Excel"
-            caption="Click para ver formato"
-            header-class="text-primary"
-          >
+          <q-expansion-item icon="help_outline" label="Columnas requeridas en el Excel" caption="Click para ver formato"
+            header-class="text-primary">
             <q-card flat bordered class="q-mt-sm">
               <q-card-section class="q-pa-sm">
                 <div class="text-caption">
@@ -265,29 +225,15 @@
           </q-expansion-item>
 
           <div class="q-mt-md">
-            <q-btn 
-              flat 
-              color="primary" 
-              icon="download" 
-              label="Descargar Plantilla de Ejemplo" 
-              @click="descargarPlantilla" 
-              :loading="loadingPlantilla"
-              no-caps
-            />
+            <q-btn flat color="primary" icon="download" label="Descargar Plantilla de Ejemplo"
+              @click="descargarPlantilla" :loading="loadingPlantilla" no-caps />
           </div>
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
           <q-btn flat label="Cancelar" v-close-popup no-caps />
-          <q-btn 
-            color="primary" 
-            icon="upload" 
-            label="Importar Empleados" 
-            @click="importarExcel" 
-            :loading="loadingImport" 
-            :disable="!archivoImport || !importSedeId"
-            no-caps
-          />
+          <q-btn color="primary" icon="upload" label="Importar Empleados" @click="importarExcel"
+            :loading="loadingImport" :disable="!archivoImport || !importSedeId" no-caps />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -308,7 +254,7 @@
                 {{ traducirTipoCambio(h.tipo_cambio) }}
               </template>
               <div>
-                {{ h.dias_anteriores }} → {{ h.dias_nuevos }} días 
+                {{ h.dias_anteriores }} → {{ h.dias_nuevos }} días
                 (<span :class="h.dias_cambio >= 0 ? 'text-positive' : 'text-negative'">
                   {{ h.dias_cambio >= 0 ? '+' : '' }}{{ h.dias_cambio }}
                 </span>)
@@ -334,8 +280,8 @@
           <div class="q-mb-md">
             <div class="text-subtitle1 text-weight-medium">{{ empleadoProgramar?.nombre_completo }}</div>
             <div class="text-caption">
-              CI: {{ empleadoProgramar?.ci }} | 
-              {{ empleadoProgramar?.genero || 'Sin género' }} | 
+              CI: {{ empleadoProgramar?.ci }} |
+              {{ empleadoProgramar?.genero || 'Sin género' }} |
               {{ empleadoProgramar?.tipo_contrato === 'medio_tiempo' ? 'Medio Tiempo' : 'Tiempo Completo' }}
             </div>
             <q-badge :color="empleadoProgramar?.saldo_vacaciones < 0 ? 'negative' : 'positive'" class="q-mt-xs">
@@ -346,36 +292,20 @@
           <q-separator class="q-mb-md" />
 
           <!-- Calendario interactivo -->
-          <CalendarioVacaciones
-            v-if="empleadoProgramar"
-            :empleado="empleadoProgramar"
-            v-model="programar.dias"
-            @change="onCalendarioChange"
-          />
+          <CalendarioVacaciones v-if="empleadoProgramar" :empleado="empleadoProgramar" v-model="programar.dias"
+            @change="onCalendarioChange" />
 
           <q-separator class="q-my-md" />
 
           <div class="text-subtitle2 q-mb-sm">Reemplazo</div>
-          <q-toggle
-            v-model="programar.tiene_reemplazo"
-            label="¿Hay reemplazo para este empleado?"
-          />
-          <q-input
-            v-if="programar.tiene_reemplazo"
-            v-model="programar.nombre_reemplazo"
-            label="Nombre del Reemplazo *"
-            outlined
-            dense
-            class="q-mt-sm"
-          />
+          <q-toggle v-model="programar.tiene_reemplazo" label="¿Hay reemplazo para este empleado?" />
+          <q-input v-if="programar.tiene_reemplazo" v-model="programar.nombre_reemplazo" label="Nombre del Reemplazo *"
+            outlined dense class="q-mt-sm" />
 
           <q-separator class="q-my-md" />
 
           <div class="text-subtitle2 q-mb-sm">Opciones del Formulario</div>
-          <q-toggle
-            v-model="programar.mostrar_por_etapas"
-            label="Mostrar por etapas en el formulario"
-          />
+          <q-toggle v-model="programar.mostrar_por_etapas" label="Mostrar por etapas en el formulario" />
           <div class="text-caption text-grey-7">
             Si está activo, el formulario mostrará cada bloque de días consecutivos como una etapa separada.
           </div>
@@ -390,13 +320,8 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" v-close-popup />
-          <q-btn 
-            color="primary" 
-            label="Programar Vacaciones" 
-            @click="guardarProgramacion" 
-            :loading="loadingProgramar"
-            :disable="!programar.dias || programar.dias.length === 0"
-          />
+          <q-btn color="primary" label="Programar Vacaciones" @click="guardarProgramacion" :loading="loadingProgramar"
+            :disable="!programar.dias || programar.dias.length === 0" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -459,7 +384,7 @@ const opcionesTipoContrato = [
   { label: 'Medio Tiempo', value: 'medio_tiempo' }
 ]
 
-const sedesOptions = computed(() => 
+const sedesOptions = computed(() =>
   sedes.value.map(s => ({ label: s.nombre, value: s.id }))
 )
 
@@ -474,7 +399,16 @@ const columns = [
   { name: 'acciones', label: 'Acciones', align: 'center' }
 ]
 
-function formatDate(d) { return d ? new Date(d).toLocaleDateString('es-BO') : '-' }
+// Formatear fecha sin problemas de timezone (la fecha viene como YYYY-MM-DD)
+function formatDate(d) {
+  if (!d) return '-'
+  // Si es string en formato YYYY-MM-DD, parsear manualmente para evitar offset
+  if (typeof d === 'string' && d.includes('-')) {
+    const [year, month, day] = d.split('T')[0].split('-')
+    return `${parseInt(day)}/${parseInt(month)}/${year}`
+  }
+  return new Date(d).toLocaleDateString('es-BO')
+}
 function formatDateTime(d) { return d ? new Date(d).toLocaleString('es-BO') : '-' }
 
 function traducirTipoCambio(tipo) {
@@ -484,7 +418,25 @@ function traducirTipoCambio(tipo) {
 function abrirFormulario(emp = null) {
   empleadoEditar.value = emp
   if (emp) {
-    form.value = { ...emp, sede_id: emp.sede_id || emp.sede?.id || null }
+    // Formatear fecha a YYYY-MM-DD para el input type=date
+    let fechaFormateada = ''
+    if (emp.fecha_ingreso) {
+      const fecha = new Date(emp.fecha_ingreso)
+      fechaFormateada = fecha.toISOString().split('T')[0]
+    }
+
+    form.value = {
+      apellido_paterno: emp.apellido_paterno || '',
+      apellido_materno: emp.apellido_materno || '',
+      nombres: emp.nombres || '',
+      ci: emp.ci || '',
+      genero: emp.genero || null,
+      tipo_contrato: emp.tipo_contrato || 'completo',
+      sede_id: emp.sede_id || null,
+      cargo: emp.cargo || '',
+      fecha_ingreso: fechaFormateada,
+      saldo_vacaciones: emp.saldo_vacaciones || 0
+    }
   } else {
     form.value = { apellido_paterno: '', apellido_materno: '', nombres: '', ci: '', genero: null, tipo_contrato: 'completo', sede_id: null, cargo: '', fecha_ingreso: '', saldo_vacaciones: 0 }
   }
@@ -508,8 +460,8 @@ async function verHistorial(emp) {
 
 function abrirProgramar(emp) {
   empleadoProgramar.value = emp
-  programar.value = { 
-    dias: [], 
+  programar.value = {
+    dias: [],
     tiene_reemplazo: false,
     nombre_reemplazo: '',
     mostrar_por_etapas: false
@@ -542,12 +494,12 @@ async function guardarProgramacion() {
       nombre_reemplazo: programar.value.nombre_reemplazo || null,
       mostrar_por_etapas: programar.value.mostrar_por_etapas || false
     })
-    
-    $q.notify({ 
-      type: 'positive', 
-      message: res.message || 'Vacaciones programadas. Pendiente documento.' 
+
+    $q.notify({
+      type: 'positive',
+      message: res.message || 'Vacaciones programadas. Pendiente documento.'
     })
-    
+
     dialogProgramar.value = false
     cargarEmpleados()
   } catch (e) {

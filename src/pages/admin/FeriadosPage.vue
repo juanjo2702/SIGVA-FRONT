@@ -15,28 +15,12 @@
       <q-card-section>
         <div class="row q-col-gutter-md items-end">
           <div class="col-12 col-sm-3">
-            <q-select
-              v-model="filtros.tipo"
-              :options="tipoOptions"
-              label="Tipo"
-              emit-value
-              map-options
-              outlined
-              dense
-              clearable
-            />
+            <q-select v-model="filtros.tipo" :options="tipoOptions" label="Tipo" emit-value map-options outlined dense
+              clearable />
           </div>
           <div class="col-12 col-sm-3">
-            <q-select
-              v-model="filtros.sede_id"
-              :options="sedesOptions"
-              label="Sede"
-              emit-value
-              map-options
-              outlined
-              dense
-              clearable
-            />
+            <q-select v-model="filtros.sede_id" :options="sedesOptions" label="Sede" emit-value map-options outlined
+              dense clearable />
           </div>
           <div class="col-12 col-sm-2">
             <q-input v-model="filtros.ano" label="Año" type="number" outlined dense />
@@ -50,14 +34,8 @@
 
     <!-- Tabla -->
     <q-card class="shadow-2">
-      <q-table
-        :rows="feriados"
-        :columns="columns"
-        row-key="id"
-        :loading="loading"
-        flat
-        :pagination="{ rowsPerPage: 20 }"
-      >
+      <q-table :rows="feriados" :columns="columns" row-key="id" :loading="loading" flat
+        :pagination="{ rowsPerPage: 20 }">
         <template v-slot:body-cell-fecha="props">
           <q-td :props="props">
             {{ formatDate(props.row.fecha) }}
@@ -80,7 +58,8 @@
 
         <template v-slot:body-cell-activo="props">
           <q-td :props="props">
-            <q-icon :name="props.row.activo ? 'check_circle' : 'cancel'" :color="props.row.activo ? 'positive' : 'grey'" />
+            <q-icon :name="props.row.activo ? 'check_circle' : 'cancel'"
+              :color="props.row.activo ? 'positive' : 'grey'" />
           </q-td>
         </template>
 
@@ -107,47 +86,20 @@
         </q-card-section>
 
         <q-card-section class="q-gutter-md">
-          <q-input
-            v-model="form.nombre"
-            label="Nombre del feriado *"
-            outlined
-            dense
-            :rules="[val => !!val || 'El nombre es obligatorio']"
-          />
-          
-          <q-input
-            v-model="form.fecha"
-            label="Fecha *"
-            type="date"
-            outlined
-            dense
-            :rules="[val => !!val || 'La fecha es obligatoria']"
-          />
+          <q-input v-model="form.nombre" label="Nombre del feriado *" outlined dense
+            :rules="[val => !!val || 'El nombre es obligatorio']" />
 
-          <q-select
-            v-model="form.tipo"
-            :options="[
-              { value: 'nacional', label: 'Nacional (aplica a todas las sedes)' },
-              { value: 'departamental', label: 'Departamental (solo una sede)' }
-            ]"
-            label="Tipo *"
-            emit-value
-            map-options
-            outlined
-            dense
-          />
+          <q-input v-model="form.fecha" label="Fecha *" type="date" outlined dense
+            :rules="[val => !!val || 'La fecha es obligatoria']" />
 
-          <q-select
-            v-if="form.tipo === 'departamental'"
-            v-model="form.sede_id"
-            :options="sedesOptions"
-            label="Sede *"
-            emit-value
-            map-options
-            outlined
-            dense
-            :rules="[val => !!val || 'La sede es obligatoria para feriados departamentales']"
-          />
+          <q-select v-model="form.tipo" :options="[
+            { value: 'nacional', label: 'Nacional (aplica a todas las sedes)' },
+            { value: 'departamental', label: 'Departamental (solo una sede)' }
+          ]" label="Tipo *" emit-value map-options outlined dense />
+
+          <q-select v-if="form.tipo === 'departamental'" v-model="form.sede_id" :options="sedesOptions" label="Sede *"
+            emit-value map-options outlined dense
+            :rules="[val => !!val || 'La sede es obligatoria para feriados departamentales']" />
 
           <q-toggle v-model="form.activo" label="Activo" />
         </q-card-section>
@@ -208,10 +160,15 @@ const columns = [
 
 function formatDate(dateStr) {
   if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleDateString('es-BO', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric' 
+  // Parsear fecha sin problemas de timezone
+  if (typeof dateStr === 'string' && dateStr.includes('-')) {
+    const [year, month, day] = dateStr.split('T')[0].split('-')
+    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`
+  }
+  return new Date(dateStr).toLocaleDateString('es-BO', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
   })
 }
 
