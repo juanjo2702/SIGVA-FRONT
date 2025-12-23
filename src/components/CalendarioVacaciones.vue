@@ -1,5 +1,69 @@
 <template>
   <div class="calendario-vacaciones">
+    <!-- Panel de Etapas -->
+    <div class="etapas-container q-mb-md">
+      <div class="text-subtitle1 text-weight-bold q-mb-sm">
+        <q-icon name="layers" class="q-mr-xs" />
+        Etapas de Vacaciones
+      </div>
+
+      <!-- Lista de Etapas -->
+      <div v-for="(etapa, idx) in etapas" :key="idx" class="etapa-card q-mb-sm"
+        :class="{ 'etapa-activa': idx === etapaActiva }" :style="{ borderLeftColor: coloresEtapas[idx] }"
+        @click="seleccionarEtapa(idx)">
+
+        <div class="row items-center justify-between q-mb-xs">
+          <div class="etapa-header">
+            <q-badge :style="{ backgroundColor: coloresEtapas[idx] }" class="q-mr-sm">
+              Etapa {{ idx + 1 }}
+            </q-badge>
+            <span v-if="etapa.dias.length > 0" class="text-caption text-grey-7">
+              {{ getRangoFechas(etapa) }}
+            </span>
+            <span v-else class="text-caption text-grey-5 text-italic">
+              (sin días seleccionados)
+            </span>
+          </div>
+          <div>
+            <q-btn v-if="etapas.length > 1" flat round size="sm" icon="delete" color="negative"
+              @click.stop="eliminarEtapa(idx)">
+              <q-tooltip>Eliminar etapa</q-tooltip>
+            </q-btn>
+          </div>
+        </div>
+
+        <!-- Previsualización de días de la etapa -->
+        <div v-if="etapa.dias.length > 0" class="etapa-preview">
+          <q-chip v-for="dia in getDiasOrdenados(etapa.dias)" :key="dia.fecha" removable size="sm"
+            @remove="quitarDiaDeEtapa(idx, dia.fecha)" :style="{ backgroundColor: coloresEtapas[idx], color: 'white' }">
+            {{ formatFechaCorta(dia.fecha) }} - {{ getTipoLabel(dia.tipo) }}
+          </q-chip>
+        </div>
+
+        <!-- Resumen de la etapa -->
+        <div v-if="etapa.dias.length > 0" class="etapa-resumen text-caption q-mt-xs">
+          <q-icon name="schedule" size="xs" class="q-mr-xs" />
+          {{ calcularDiasEtapa(etapa) }} día(s) en esta etapa
+        </div>
+      </div>
+
+      <!-- Botón Añadir Etapa -->
+      <q-btn outline color="primary" icon="add" label="Añadir nueva etapa" class="full-width q-mt-sm" no-caps
+        @click="agregarEtapa" :disable="etapas.length >= 6" />
+      <div v-if="etapas.length >= 6" class="text-caption text-grey-6 text-center q-mt-xs">
+        Máximo 6 etapas permitidas
+      </div>
+    </div>
+
+    <q-separator class="q-my-md" />
+
+    <!-- Indicador de etapa activa -->
+    <div class="row items-center q-mb-sm">
+      <q-icon name="edit_calendar" class="q-mr-xs" :style="{ color: coloresEtapas[etapaActiva] }" />
+      <span class="text-body2">Seleccionando días para <strong :style="{ color: coloresEtapas[etapaActiva] }">Etapa {{
+        etapaActiva + 1 }}</strong></span>
+    </div>
+
     <!-- Header con navegación de mes -->
     <div class="row items-center justify-between q-mb-md">
       <q-btn flat round icon="chevron_left" @click="mesAnterior" />
@@ -9,7 +73,8 @@
 
     <!-- Días de la semana -->
     <div class="row calendario-header">
-      <div v-for="dia in diasSemana" :key="dia" class="col calendario-header-dia text-center text-caption text-weight-bold">
+      <div v-for="dia in diasSemana" :key="dia"
+        class="col calendario-header-dia text-center text-caption text-weight-bold">
         {{ dia }}
       </div>
     </div>
@@ -17,20 +82,15 @@
     <!-- Grilla del calendario -->
     <div class="calendario-grid">
       <div v-for="(semana, idx) in semanasDelMes" :key="idx" class="row">
-        <div
-          v-for="dia in semana"
-          :key="dia.fecha"
-          class="col calendario-dia"
-          :class="getDiaClasses(dia)"
-          @click="toggleDia(dia)"
-        >
+        <div v-for="dia in semana" :key="dia.fecha" class="col calendario-dia" :class="getDiaClasses(dia)"
+          :style="getDiaStyle(dia)" @click="toggleDia(dia)">
           <div class="dia-numero">{{ dia.numero }}</div>
           <div v-if="dia.esFeriado" class="dia-feriado-icono">
             <q-icon name="celebration" size="12px" color="red" />
           </div>
-          <div v-else-if="diaSeleccionado(dia)" class="dia-tipo">
-            <q-badge :color="getTipoColor(getDiaInfo(dia)?.tipo)" size="xs">
-              {{ getTipoLabel(getDiaInfo(dia)?.tipo) }}
+          <div v-else-if="getDiaEtapa(dia) !== null" class="dia-etapa-badge">
+            <q-badge :style="{ backgroundColor: coloresEtapas[getDiaEtapa(dia)] }" size="xs">
+              E{{ getDiaEtapa(dia) + 1 }}
             </q-badge>
           </div>
           <q-tooltip v-if="dia.esFeriado">{{ dia.feriadoNombre }}</q-tooltip>
@@ -38,31 +98,24 @@
       </div>
     </div>
 
-    <!-- Panel de resumen -->
+    <!-- Leyenda de colores -->
+    <div class="q-mt-sm">
+      <div class="row q-gutter-sm items-center">
+        <div class="text-caption text-grey-7">Leyenda:</div>
+        <div v-for="(etapa, idx) in etapas" :key="idx" class="row items-center">
+          <div class="leyenda-color" :style="{ backgroundColor: coloresEtapas[idx] }"></div>
+          <span class="text-caption q-ml-xs">E{{ idx + 1 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de resumen total -->
     <q-card class="q-mt-md" flat bordered>
       <q-card-section class="q-pa-sm">
         <div class="text-subtitle2 q-mb-sm">
-          <q-icon name="event_note" class="q-mr-xs" />
-          Días Seleccionados: {{ diasSeleccionados.length }}
+          <q-icon name="summarize" class="q-mr-xs" />
+          Resumen Total
         </div>
-        
-        <div v-if="diasSeleccionados.length > 0" class="dias-lista q-mb-md" style="max-height: 150px; overflow-y: auto;">
-          <q-chip
-            v-for="dia in diasSeleccionadosOrdenados"
-            :key="dia.fecha"
-            removable
-            @remove="quitarDia(dia.fecha)"
-            :color="getTipoColor(dia.tipo)"
-            text-color="white"
-            size="sm"
-            class="q-ma-xs"
-          >
-            {{ formatFechaCorta(dia.fecha) }} - {{ getTipoLabel(dia.tipo) }}
-            <q-tooltip>{{ dia.diaSemana }} - {{ dia.diasDescontados }} día(s)</q-tooltip>
-          </q-chip>
-        </div>
-
-        <q-separator class="q-my-sm" />
 
         <div class="row justify-between items-center">
           <div>
@@ -76,25 +129,30 @@
             </div>
           </div>
         </div>
+
+        <!-- Desglose por etapas -->
+        <q-separator class="q-my-sm" />
+        <div class="row q-gutter-sm">
+          <div v-for="(etapa, idx) in etapas" :key="idx" class="text-caption">
+            <q-badge :style="{ backgroundColor: coloresEtapas[idx] }">
+              E{{ idx + 1 }}: {{ calcularDiasEtapa(etapa) }} días
+            </q-badge>
+          </div>
+        </div>
       </q-card-section>
     </q-card>
 
     <!-- Dialog para seleccionar tipo de día -->
     <q-dialog v-model="dialogTipo" persistent>
       <q-card style="min-width: 280px">
-        <q-card-section class="bg-primary text-white">
+        <q-card-section class="text-white" :style="{ backgroundColor: coloresEtapas[etapaActiva] }">
           <div class="text-h6">{{ fechaSeleccionada?.diaSemana }} {{ formatFecha(fechaSeleccionada?.fecha) }}</div>
+          <div class="text-caption">Etapa {{ etapaActiva + 1 }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-md">
-          <q-btn-toggle
-            v-model="tipoSeleccionado"
-            spread
-            no-caps
-            toggle-color="primary"
-            :options="opcionesTipo"
-            class="q-mb-md"
-          />
+          <q-btn-toggle v-model="tipoSeleccionado" spread no-caps toggle-color="primary" :options="opcionesTipo"
+            class="q-mb-md" />
 
           <q-banner v-if="fechaSeleccionada?.esSabado" class="bg-info text-white q-mt-sm" rounded dense>
             <template v-slot:avatar>
@@ -112,7 +170,8 @@
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" color="grey" @click="cancelarSeleccion" />
           <q-btn flat label="Quitar día" color="negative" @click="quitarDiaActual" v-if="diaYaSeleccionado" />
-          <q-btn unelevated label="Confirmar" color="primary" @click="confirmarSeleccion" />
+          <q-btn unelevated label="Confirmar" :style="{ backgroundColor: coloresEtapas[etapaActiva], color: 'white' }"
+            @click="confirmarSeleccion" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -130,9 +189,20 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'change'])
 
+// Colores distintivos para las etapas
+const coloresEtapas = [
+  '#1976d2', // Azul
+  '#388e3c', // Verde
+  '#f57c00', // Naranja
+  '#7b1fa2', // Púrpura
+  '#0097a7', // Cyan
+  '#c2185b'  // Rosa
+]
+
 // Estado
 const mesActualDate = ref(new Date())
-const diasSeleccionados = ref([])
+const etapas = ref([{ dias: [] }]) // Siempre empieza con una etapa
+const etapaActiva = ref(0)
 const dialogTipo = ref(false)
 const fechaSeleccionada = ref(null)
 const tipoSeleccionado = ref('completo')
@@ -173,15 +243,15 @@ const semanasDelMes = computed(() => {
   const month = mesActualDate.value.getMonth()
   const primerDia = new Date(year, month, 1)
   const ultimoDia = new Date(year, month + 1, 0)
-  
+
   const semanas = []
   let semana = []
-  
+
   // Rellenar días vacíos al inicio
   for (let i = 0; i < primerDia.getDay(); i++) {
     semana.push({ numero: '', fecha: null, deshabilitado: true })
   }
-  
+
   // Días del mes
   for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
     const fecha = new Date(year, month, dia)
@@ -191,10 +261,10 @@ const semanasDelMes = computed(() => {
     const esAnterior = fecha < new Date(new Date().setHours(0, 0, 0, 0))
     const feriadoInfo = getFeriadoInfo(fechaStr)
     const esFeriado = !!feriadoInfo
-    
+
     // Mujer medio tiempo no puede seleccionar sábados, y feriados nunca se pueden seleccionar
     const deshabilitado = esDomingo || esAnterior || esFeriado || (esMujerMedioTiempo.value && esSabado)
-    
+
     semana.push({
       numero: dia,
       fecha: fechaStr,
@@ -206,13 +276,13 @@ const semanasDelMes = computed(() => {
       deshabilitado,
       diaSemana: diasSemana[fecha.getDay()]
     })
-    
+
     if (semana.length === 7) {
       semanas.push(semana)
       semana = []
     }
   }
-  
+
   // Rellenar días vacíos al final
   while (semana.length > 0 && semana.length < 7) {
     semana.push({ numero: '', fecha: null, deshabilitado: true })
@@ -220,22 +290,74 @@ const semanasDelMes = computed(() => {
   if (semana.length > 0) {
     semanas.push(semana)
   }
-  
+
   return semanas
 })
 
-// Días ordenados por fecha
-const diasSeleccionadosOrdenados = computed(() => {
-  return [...diasSeleccionados.value].sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+// Todos los días seleccionados (de todas las etapas)
+const todosDias = computed(() => {
+  if (!Array.isArray(etapas.value)) return []
+  return etapas.value.flatMap((etapa, idx) =>
+    (etapa?.dias || []).map(d => ({ ...d, etapaIdx: idx }))
+  )
 })
 
 // Cálculos de días
 const totalDias = computed(() => {
-  return diasSeleccionados.value.reduce((sum, d) => sum + d.diasDescontados, 0)
+  return todosDias.value.reduce((sum, d) => sum + (d.diasDescontados || 0), 0)
 })
 
 const saldoActual = computed(() => props.empleado?.saldo_vacaciones || 0)
 const saldoResultante = computed(() => saldoActual.value - totalDias.value)
+
+// Funciones de etapas
+function agregarEtapa() {
+  if (etapas.value.length < 6) {
+    etapas.value.push({ dias: [] })
+    etapaActiva.value = etapas.value.length - 1
+  }
+}
+
+function eliminarEtapa(idx) {
+  if (etapas.value.length > 1) {
+    etapas.value.splice(idx, 1)
+    if (etapaActiva.value >= etapas.value.length) {
+      etapaActiva.value = etapas.value.length - 1
+    }
+    emitChange()
+  }
+}
+
+function seleccionarEtapa(idx) {
+  etapaActiva.value = idx
+}
+
+function getRangoFechas(etapa) {
+  if (!etapa?.dias || etapa.dias.length === 0) return ''
+  const ordenados = getDiasOrdenados(etapa.dias)
+  if (ordenados.length === 0) return ''
+  const primera = ordenados[0].fecha
+  const ultima = ordenados[ordenados.length - 1].fecha
+  if (primera === ultima) {
+    return formatFechaCorta(primera)
+  }
+  return `${formatFechaCorta(primera)} al ${formatFechaCorta(ultima)}`
+}
+
+function getDiasOrdenados(dias) {
+  if (!Array.isArray(dias)) return []
+  return [...dias].sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+}
+
+function calcularDiasEtapa(etapa) {
+  if (!etapa?.dias) return 0
+  return etapa.dias.reduce((sum, d) => sum + (d.diasDescontados || 0), 0)
+}
+
+function quitarDiaDeEtapa(etapaIdx, fecha) {
+  etapas.value[etapaIdx].dias = etapas.value[etapaIdx].dias.filter(d => d.fecha !== fecha)
+  emitChange()
+}
 
 // Métodos de navegación
 function mesAnterior() {
@@ -261,13 +383,18 @@ function formatFechaCorta(fechaStr) {
   return new Date(fechaStr + 'T12:00:00').toLocaleDateString('es-BO', { day: 'numeric', month: 'short' })
 }
 
-function diaSeleccionado(dia) {
-  if (!dia.fecha) return false
-  return diasSeleccionados.value.some(d => d.fecha === dia.fecha)
+function getDiaEtapa(dia) {
+  if (!dia.fecha) return null
+  for (let i = 0; i < etapas.value.length; i++) {
+    if (etapas.value[i].dias.some(d => d.fecha === dia.fecha)) {
+      return i
+    }
+  }
+  return null
 }
 
-function getDiaInfo(dia) {
-  return diasSeleccionados.value.find(d => d.fecha === dia.fecha)
+function diaSeleccionado(dia) {
+  return getDiaEtapa(dia) !== null
 }
 
 function getDiaClasses(dia) {
@@ -279,21 +406,25 @@ function getDiaClasses(dia) {
   if (dia.esFeriado) classes.push('feriado')
   if (diaSeleccionado(dia)) {
     classes.push('seleccionado')
-    const info = getDiaInfo(dia)
-    if (info?.tipo === 'parcial_manana') classes.push('tipo-manana')
-    else if (info?.tipo === 'parcial_tarde') classes.push('tipo-tarde')
-    else classes.push('tipo-completo')
   }
   return classes
+}
+
+function getDiaStyle(dia) {
+  const etapaIdx = getDiaEtapa(dia)
+  if (etapaIdx !== null) {
+    const color = coloresEtapas[etapaIdx]
+    return {
+      backgroundColor: color,
+      color: 'white'
+    }
+  }
+  return {}
 }
 
 // Helper para obtener info de feriado
 function getFeriadoInfo(fechaStr) {
   return feriados.value.find(f => f.fecha.split('T')[0] === fechaStr)
-}
-
-function getTipoColor(tipo) {
-  return { completo: 'primary', parcial_manana: 'orange', parcial_tarde: 'purple' }[tipo] || 'grey'
 }
 
 function getTipoLabel(tipo) {
@@ -303,32 +434,41 @@ function getTipoLabel(tipo) {
 // Toggle día
 function toggleDia(dia) {
   if (dia.deshabilitado || !dia.fecha) return
-  
+
   fechaSeleccionada.value = dia
-  diaYaSeleccionado.value = diaSeleccionado(dia)
-  tipoSeleccionado.value = diaYaSeleccionado.value ? getDiaInfo(dia).tipo : 'completo'
-  
+  const etapaDelDia = getDiaEtapa(dia)
+  diaYaSeleccionado.value = etapaDelDia !== null
+
+  if (diaYaSeleccionado.value) {
+    // Si el día ya está seleccionado, cambiamos a esa etapa para editarlo
+    etapaActiva.value = etapaDelDia
+    const diaInfo = etapas.value[etapaDelDia].dias.find(d => d.fecha === dia.fecha)
+    tipoSeleccionado.value = diaInfo?.tipo || 'completo'
+  } else {
+    tipoSeleccionado.value = 'completo'
+  }
+
   // Sábado siempre completo
   if (dia.esSabado) {
     tipoSeleccionado.value = 'completo'
   }
-  
+
   dialogTipo.value = true
 }
 
 function getDiasDescontados() {
   if (!fechaSeleccionada.value) return 0
-  
+
   const tipo = tipoSeleccionado.value
-  
+
   // Sábado siempre 1
   if (fechaSeleccionada.value.esSabado) return 1
-  
+
   // Parcial
   if (tipo !== 'completo') {
     return esMedioTiempo.value ? 1 : 0.5
   }
-  
+
   return 1
 }
 
@@ -340,15 +480,15 @@ function confirmarSeleccion() {
     diaSemana: fechaSeleccionada.value.diaSemana,
     esSabado: fechaSeleccionada.value.esSabado
   }
-  
-  // Actualizar o agregar
-  const idx = diasSeleccionados.value.findIndex(d => d.fecha === diaInfo.fecha)
-  if (idx >= 0) {
-    diasSeleccionados.value[idx] = diaInfo
-  } else {
-    diasSeleccionados.value.push(diaInfo)
+
+  // Si el día ya estaba en alguna etapa, lo quitamos primero
+  for (let i = 0; i < etapas.value.length; i++) {
+    etapas.value[i].dias = etapas.value[i].dias.filter(d => d.fecha !== diaInfo.fecha)
   }
-  
+
+  // Agregamos a la etapa activa
+  etapas.value[etapaActiva.value].dias.push(diaInfo)
+
   dialogTipo.value = false
   emitChange()
 }
@@ -358,23 +498,28 @@ function cancelarSeleccion() {
 }
 
 function quitarDiaActual() {
-  quitarDia(fechaSeleccionada.value.fecha)
+  for (let i = 0; i < etapas.value.length; i++) {
+    etapas.value[i].dias = etapas.value[i].dias.filter(d => d.fecha !== fechaSeleccionada.value.fecha)
+  }
   dialogTipo.value = false
-}
-
-function quitarDia(fecha) {
-  diasSeleccionados.value = diasSeleccionados.value.filter(d => d.fecha !== fecha)
   emitChange()
 }
 
 function emitChange() {
-  const datos = diasSeleccionados.value.map(d => ({
+  // Generar datos aplanados para el modelValue (compatibilidad)
+  const datos = todosDias.value.map(d => ({
     fecha: d.fecha,
-    tipo: d.tipo
+    tipo: d.tipo,
+    etapa: d.etapaIdx + 1
   }))
   emit('update:modelValue', datos)
   emit('change', {
     dias: datos,
+    etapas: etapas.value.map((e, idx) => ({
+      numero: idx + 1,
+      dias: e.dias.map(d => ({ fecha: d.fecha, tipo: d.tipo })),
+      total: calcularDiasEtapa(e)
+    })),
     total: totalDias.value,
     saldoResultante: saldoResultante.value
   })
@@ -382,18 +527,31 @@ function emitChange() {
 
 // Watch para sincronizar con v-model
 watch(() => props.modelValue, (newVal) => {
-  if (Array.isArray(newVal)) {
-    // Reconstruir diasSeleccionados desde modelValue si es necesario
-    diasSeleccionados.value = newVal.map(d => {
+  if (Array.isArray(newVal) && newVal.length > 0) {
+    // Agrupar por etapa
+    const etapasMap = {}
+    newVal.forEach(d => {
+      const etapaNum = d.etapa || 1
+      if (!etapasMap[etapaNum]) etapasMap[etapaNum] = []
       const fecha = new Date(d.fecha + 'T12:00:00')
-      return {
+      etapasMap[etapaNum].push({
         fecha: d.fecha,
         tipo: d.tipo,
         diasDescontados: calcularDiasDescontados(d.fecha, d.tipo),
         diaSemana: diasSemana[fecha.getDay()],
         esSabado: fecha.getDay() === 6
-      }
+      })
     })
+
+    const nuevasEtapas = []
+    const keys = Object.keys(etapasMap).sort((a, b) => a - b)
+    keys.forEach(k => {
+      nuevasEtapas.push({ dias: etapasMap[k] })
+    })
+
+    if (nuevasEtapas.length > 0) {
+      etapas.value = nuevasEtapas
+    }
   }
 }, { immediate: true })
 
@@ -412,7 +570,7 @@ async function cargarFeriados() {
     const sedeId = props.empleado?.sede_id || props.empleado?.sede?.id
     const params = { ano: mesActualDate.value.getFullYear() }
     if (sedeId) params.sede_id = sedeId
-    
+
     const response = await api.get('/feriados', { params })
     if (response.data?.success) {
       feriados.value = response.data.data || []
@@ -435,6 +593,48 @@ onMounted(() => {
 <style scoped>
 .calendario-vacaciones {
   max-width: 100%;
+}
+
+.etapas-container {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.etapa-card {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 4px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.etapa-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.etapa-card.etapa-activa {
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+.etapa-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.etapa-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.etapa-resumen {
+  color: #666;
 }
 
 .calendario-header {
@@ -466,6 +666,7 @@ onMounted(() => {
 
 .calendario-dia:hover:not(.deshabilitado) {
   background: #e3f2fd;
+  transform: scale(1.05);
 }
 
 .calendario-dia.deshabilitado {
@@ -488,19 +689,8 @@ onMounted(() => {
 }
 
 .calendario-dia.seleccionado {
-  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
-  color: white;
   font-weight: bold;
-}
-
-.calendario-dia.seleccionado.tipo-manana {
-  background: linear-gradient(to bottom, #ff9800 50%, #fff8e1 50%);
-  color: #333;
-}
-
-.calendario-dia.seleccionado.tipo-tarde {
-  background: linear-gradient(to bottom, #f3e5f5 50%, #9c27b0 50%);
-  color: #333;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
 .dia-numero {
@@ -508,15 +698,22 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.dia-tipo {
+.dia-etapa-badge {
   position: absolute;
   bottom: 2px;
   font-size: 8px;
 }
 
-.dias-lista {
-  display: flex;
-  flex-wrap: wrap;
+.dia-feriado-icono {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+}
+
+.leyenda-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
 }
 
 .calendario-dia.feriado {
@@ -530,4 +727,3 @@ onMounted(() => {
   font-weight: bold;
 }
 </style>
-

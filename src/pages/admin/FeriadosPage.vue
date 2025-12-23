@@ -14,19 +14,19 @@
     <q-card class="q-mb-md shadow-2">
       <q-card-section>
         <div class="row q-col-gutter-md items-end">
-          <div class="col-12 col-sm-3">
+          <div class="col-12 col-sm-4">
             <q-select v-model="filtros.tipo" :options="tipoOptions" label="Tipo" emit-value map-options outlined dense
-              clearable />
+              clearable @update:model-value="cargarFeriados" />
+          </div>
+          <div class="col-12 col-sm-4">
+            <q-select v-model="filtros.sede_id" :options="sedesOptions" label="Sede" emit-value map-options outlined
+              dense clearable @update:model-value="cargarFeriados" />
           </div>
           <div class="col-12 col-sm-3">
-            <q-select v-model="filtros.sede_id" :options="sedesOptions" label="Sede" emit-value map-options outlined
-              dense clearable />
-          </div>
-          <div class="col-12 col-sm-2">
-            <q-input v-model="filtros.ano" label="Año" type="number" outlined dense />
-          </div>
-          <div class="col-12 col-sm-2">
-            <q-btn color="primary" icon="search" label="Buscar" @click="cargarFeriados" unelevated no-caps />
+            <q-input v-model="filtros.ano" label="Año" type="number" outlined dense
+              @update:model-value="buscarConDebounce">
+              <template v-slot:append v-if="loading"><q-spinner size="xs" /></template>
+            </q-input>
           </div>
         </div>
       </q-card-section>
@@ -116,9 +116,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
+import { useDebounceFn } from '@vueuse/core'
 import adminService from '@/services/adminService'
 
 const $q = useQuasar()
+
+// Debounce para filtro de año
+const buscarConDebounce = useDebounceFn(() => {
+  cargarFeriados()
+}, 300)
 
 const loading = ref(false)
 const loadingGuardar = ref(false)
@@ -257,10 +263,12 @@ function confirmarEliminar(feriado) {
 async function cargarSedes() {
   try {
     const response = await adminService.getSedes({ all: true })
-    sedes.value = response.data || []
+    sedes.value = Array.isArray(response.data) ? response.data : []
     sedesOptions.value = sedes.value.map(s => ({ value: s.id, label: s.nombre }))
   } catch (error) {
     console.error('Error cargando sedes:', error)
+    sedes.value = []
+    sedesOptions.value = []
   }
 }
 

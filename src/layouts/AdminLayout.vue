@@ -1,18 +1,13 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <!-- Sidebar -->
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      class="bg-grey-1"
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered class="bg-grey-1">
       <q-list>
         <!-- Logo -->
         <q-item class="q-py-lg">
           <q-item-section avatar>
-            <q-avatar color="primary" text-color="white" size="48px">
-              <q-icon name="beach_access" size="28px" />
+            <q-avatar size="48px">
+              <img src="/logo-unitepc.png" alt="UNITEPC" style="object-fit: contain;" />
             </q-avatar>
           </q-item-section>
           <q-item-section>
@@ -24,14 +19,8 @@
         <q-separator />
 
         <!-- Navigation -->
-        <q-item 
-          v-for="item in menuItems" 
-          :key="item.to"
-          :to="item.to" 
-          clickable 
-          v-ripple
-          active-class="bg-primary text-white"
-        >
+        <q-item v-for="item in menuItems" :key="item.to" :to="item.to" clickable v-ripple
+          active-class="bg-primary text-white">
           <q-item-section avatar>
             <q-icon :name="item.icon" />
           </q-item-section>
@@ -65,13 +54,7 @@
     <!-- Header -->
     <q-header class="bg-white text-grey-8" bordered>
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
+        <q-btn flat dense round icon="menu" @click="leftDrawerOpen = !leftDrawerOpen" />
         <q-toolbar-title class="text-weight-medium">
           {{ pageTitle }}
         </q-toolbar-title>

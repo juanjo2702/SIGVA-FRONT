@@ -6,23 +6,24 @@
         <div class="row q-col-gutter-md items-end">
           <div class="col-12 col-sm-3">
             <q-select v-model="filtros.estado" :options="estadoOptions" label="Estado" emit-value map-options outlined
-              dense />
+              dense @update:model-value="cargarSolicitudes" />
           </div>
           <div class="col-12 col-sm-3">
-            <q-input v-model="filtros.buscar" label="Buscar empleado" outlined dense clearable>
+            <q-input v-model="filtros.buscar" label="Buscar empleado" outlined dense clearable
+              @update:model-value="buscarConDebounce">
               <template v-slot:prepend>
                 <q-icon name="search" />
               </template>
+              <template v-slot:append v-if="loading"><q-spinner size="xs" /></template>
             </q-input>
           </div>
           <div class="col-12 col-sm-2">
-            <q-input v-model="filtros.fecha_desde" label="Desde" type="date" outlined dense />
+            <q-input v-model="filtros.fecha_desde" label="Desde" type="date" outlined dense
+              @update:model-value="cargarSolicitudes" />
           </div>
           <div class="col-12 col-sm-2">
-            <q-input v-model="filtros.fecha_hasta" label="Hasta" type="date" outlined dense />
-          </div>
-          <div class="col-12 col-sm-2">
-            <q-btn color="primary" icon="search" label="Buscar" @click="cargarSolicitudes" unelevated no-caps />
+            <q-input v-model="filtros.fecha_hasta" label="Hasta" type="date" outlined dense
+              @update:model-value="cargarSolicitudes" />
           </div>
         </div>
       </q-card-section>
@@ -235,7 +236,7 @@
                 <span style="font-weight: bold;">No.</span>
                 <span style="border: 1px solid #000; padding: 2px 15px; margin-left: 5px;">{{
                   datosFormulario.solicitud.id
-                  }}</span>
+                }}</span>
               </div>
             </div>
 
@@ -265,7 +266,7 @@
                   <strong>Nombres y Apellidos:</strong>
                   <span style="margin-left: 10px; text-transform: uppercase;">{{
                     datosFormulario.empleado.nombre_completo
-                    }}</span>
+                  }}</span>
                 </td>
                 <td style="padding: 5px; border: 1px solid #000; width: 200px;">
                   <strong>Código de empleado-C.I.:</strong>
@@ -345,11 +346,11 @@
                 <td style="border: 1px solid #000; padding: 3px; width: 150px;">
                   <div style="display: flex; justify-content: space-around;">
                     <span>Mañana <span style="border: 1px solid #000; padding: 0 5px;">{{ tieneTipo('parcial_manana') ?
-                        'X'
-                        : '' }}</span></span>
+                      'X'
+                      : '' }}</span></span>
                     <span>Tarde <span style="border: 1px solid #000; padding: 0 5px;">{{ tieneTipo('parcial_tarde') ?
-                        'X' :
-                        '' }}</span></span>
+                      'X' :
+                      '' }}</span></span>
                   </div>
                 </td>
                 <td rowspan="2"
@@ -387,7 +388,7 @@
                   <span
                     style="margin-left: 10px; border-bottom: 1px dashed #000; display: inline-block; min-width: 300px;">
                     {{ datosFormulario.solicitud.reemplazo !== 'Sin Reemplazo' ? datosFormulario.solicitud.reemplazo :
-                    '' }}
+                      '' }}
                   </span>
                 </td>
               </tr>
@@ -500,7 +501,7 @@
                 <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{
                   datosFormulario.solicitud.dias_solicitados }}</td>
                 <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.saldo.despues
-                  }}
+                }}
                 </td>
               </tr>
               <tr>
@@ -517,7 +518,7 @@
               <strong>SALDO TOTAL PENDIENTE</strong>
               <span style="border: 1px solid #000; padding: 3px 15px; margin-left: 10px;">{{
                 datosFormulario.saldo.despues
-                }}</span>
+              }}</span>
             </div>
 
             <div style="font-weight: bold;">JEFE DE R.S.C Y GESTION DE TALENTO<br>HUMANO</div>
@@ -531,10 +532,17 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
+import { useDebounceFn } from '@vueuse/core'
 import adminService from '@/services/adminService'
 import CalendarioVacaciones from '@/components/CalendarioVacaciones.vue'
 
 const $q = useQuasar()
+
+// Debounce para búsqueda dinámica
+const buscarConDebounce = useDebounceFn(() => {
+  pagination.value.page = 1
+  cargarSolicitudes()
+}, 300)
 
 const loading = ref(false)
 const loadingAction = ref(false)

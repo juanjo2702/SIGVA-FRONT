@@ -3,20 +3,14 @@
     <!-- Header -->
     <q-header class="bg-primary text-white">
       <q-toolbar>
-        <q-avatar square size="42px" class="q-mr-sm">
-          <q-icon name="beach_access" size="32px" />
+        <q-avatar square size="42px" class="q-mr-sm bg-white">
+          <img src="/logo-unitepc.png" alt="UNITEPC" style="object-fit: contain; padding: 4px;" />
         </q-avatar>
         <q-toolbar-title>
           <span class="text-weight-bold">SIGVA</span>
           <span class="text-caption q-ml-sm">Sistema de Gestión de Vacaciones</span>
         </q-toolbar-title>
-        <q-btn 
-          flat 
-          label="Portal Talento Humano" 
-          icon="admin_panel_settings"
-          to="/admin/login"
-          class="q-ml-md"
-        />
+        <q-btn flat label="Portal Talento Humano" icon="admin_panel_settings" to="/admin/login" class="q-ml-md" />
       </q-toolbar>
     </q-header>
 

@@ -7,14 +7,7 @@
         <p class="text-grey-7 q-mb-none">Administra los usuarios del sistema SIGVA</p>
       </div>
       <div class="col-auto">
-        <q-btn
-          color="primary"
-          icon="person_add"
-          label="Nuevo Usuario"
-          unelevated
-          no-caps
-          @click="abrirDialogoCrear"
-        />
+        <q-btn color="primary" icon="person_add" label="Nuevo Usuario" unelevated no-caps @click="abrirDialogoCrear" />
       </div>
     </div>
 
@@ -23,44 +16,20 @@
       <q-card-section>
         <div class="row q-col-gutter-md">
           <div class="col-12 col-md-4">
-            <q-input
-              v-model="filtros.buscar"
-              label="Buscar por CI o nombre"
-              outlined
-              dense
-              clearable
-              @update:model-value="buscar"
-            >
+            <q-input v-model="filtros.buscar" label="Buscar por CI o nombre" outlined dense clearable
+              @update:model-value="buscar">
               <template v-slot:prepend>
                 <q-icon name="search" />
               </template>
             </q-input>
           </div>
           <div class="col-12 col-md-3">
-            <q-select
-              v-model="filtros.rol_id"
-              label="Rol"
-              :options="opcionesRolFiltro"
-              emit-value
-              map-options
-              outlined
-              dense
-              clearable
-              @update:model-value="cargarUsuarios"
-            />
+            <q-select v-model="filtros.rol_id" label="Rol" :options="opcionesRolFiltro" emit-value map-options outlined
+              dense clearable @update:model-value="cargarUsuarios" />
           </div>
           <div class="col-12 col-md-3">
-            <q-select
-              v-model="filtros.activo"
-              label="Estado"
-              :options="opcionesEstado"
-              emit-value
-              map-options
-              outlined
-              dense
-              clearable
-              @update:model-value="cargarUsuarios"
-            />
+            <q-select v-model="filtros.activo" label="Estado" :options="opcionesEstado" emit-value map-options outlined
+              dense clearable @update:model-value="cargarUsuarios" />
           </div>
         </div>
       </q-card-section>
@@ -68,16 +37,8 @@
 
     <!-- Tabla -->
     <q-card flat bordered>
-      <q-table
-        :rows="usuarios"
-        :columns="columnas"
-        row-key="id"
-        :loading="loading"
-        :pagination="paginacion"
-        @request="onRequest"
-        flat
-        bordered
-      >
+      <q-table :rows="usuarios" :columns="columnas" row-key="id" :loading="loading" :pagination="paginacion"
+        @request="onRequest" flat bordered>
         <template v-slot:body-cell-nombre_completo="props">
           <q-td :props="props">
             <div class="text-weight-medium">{{ props.row.nombre_completo }}</div>
@@ -87,53 +48,28 @@
 
         <template v-slot:body-cell-rol="props">
           <q-td :props="props">
-            <q-badge
-              :color="props.row.rol?.nombre?.toLowerCase().includes('admin') ? 'primary' : 'secondary'"
-              :label="props.row.rol?.nombre || 'Sin rol'"
-            />
+            <q-badge :color="props.row.rol?.nombre?.toLowerCase().includes('admin') ? 'primary' : 'secondary'"
+              :label="props.row.rol?.nombre || 'Sin rol'" />
           </q-td>
         </template>
 
         <template v-slot:body-cell-activo="props">
           <q-td :props="props">
-            <q-badge
-              :color="props.row.activo ? 'positive' : 'negative'"
-              :label="props.row.activo ? 'Activo' : 'Inactivo'"
-            />
+            <q-badge :color="props.row.activo ? 'positive' : 'negative'"
+              :label="props.row.activo ? 'Activo' : 'Inactivo'" />
           </q-td>
         </template>
 
         <template v-slot:body-cell-acciones="props">
           <q-td :props="props" class="q-gutter-xs">
-            <q-btn
-              flat
-              round
-              dense
-              icon="edit"
-              color="primary"
-              @click="abrirDialogoEditar(props.row)"
-            >
+            <q-btn flat round dense icon="edit" color="primary" @click="abrirDialogoEditar(props.row)">
               <q-tooltip>Editar</q-tooltip>
             </q-btn>
-            <q-btn
-              flat
-              round
-              dense
-              icon="lock_reset"
-              color="warning"
-              @click="confirmarResetPassword(props.row)"
-            >
+            <q-btn flat round dense icon="lock_reset" color="warning" @click="confirmarResetPassword(props.row)">
               <q-tooltip>Restablecer contraseña</q-tooltip>
             </q-btn>
-            <q-btn
-              v-if="props.row.activo && props.row.id !== authStore.user?.id"
-              flat
-              round
-              dense
-              icon="person_off"
-              color="negative"
-              @click="confirmarDesactivar(props.row)"
-            >
+            <q-btn v-if="props.row.activo && props.row.id !== authStore.user?.id" flat round dense icon="person_off"
+              color="negative" @click="confirmarDesactivar(props.row)">
               <q-tooltip>Desactivar</q-tooltip>
             </q-btn>
           </q-td>
@@ -159,56 +95,22 @@
 
         <q-card-section class="q-pt-lg">
           <q-form @submit="guardarUsuario" class="q-gutter-md">
-            <q-input
-              v-model="formUsuario.ci"
-              label="CI *"
-              outlined
-              dense
-              :rules="[val => !!val || 'El CI es obligatorio']"
-              :disable="modoEdicion"
-            />
+            <q-input v-model="formUsuario.ci" label="CI *" outlined dense
+              :rules="[val => !!val || 'El CI es obligatorio']" :disable="modoEdicion" />
 
-            <q-input
-              v-model="formUsuario.name"
-              label="Nombres *"
-              outlined
-              dense
-              :rules="[val => !!val || 'El nombre es obligatorio']"
-            />
+            <q-input v-model="formUsuario.name" label="Nombres *" outlined dense
+              :rules="[val => !!val || 'El nombre es obligatorio']" />
 
-            <q-input
-              v-model="formUsuario.apellido_paterno"
-              label="Apellido Paterno *"
-              outlined
-              dense
-              :rules="[val => !!val || 'El apellido paterno es obligatorio']"
-            />
+            <q-input v-model="formUsuario.apellido_paterno" label="Apellido Paterno *" outlined dense
+              :rules="[val => !!val || 'El apellido paterno es obligatorio']" />
 
-            <q-input
-              v-model="formUsuario.apellido_materno"
-              label="Apellido Materno"
-              outlined
-              dense
-            />
+            <q-input v-model="formUsuario.apellido_materno" label="Apellido Materno" outlined dense />
 
-            <q-select
-              v-model="formUsuario.rol_id"
-              label="Rol *"
-              :options="rolesDisponibles"
-              option-value="id"
-              option-label="nombre"
-              emit-value
-              map-options
-              outlined
-              dense
-              :rules="[val => !!val || 'El rol es obligatorio']"
-            />
+            <q-select v-model="formUsuario.rol_id" label="Rol *" :options="rolesDisponibles" option-value="id"
+              option-label="nombre" emit-value map-options outlined dense
+              :rules="[val => !!val || 'El rol es obligatorio']" />
 
-            <q-toggle
-              v-if="modoEdicion"
-              v-model="formUsuario.activo"
-              label="Usuario activo"
-            />
+            <q-toggle v-if="modoEdicion" v-model="formUsuario.activo" label="Usuario activo" />
 
             <div v-if="!modoEdicion" class="text-caption text-grey-6">
               <q-icon name="info" /> La contraseña inicial será el CI del usuario
@@ -218,13 +120,8 @@
 
         <q-card-actions align="right" class="q-pa-md">
           <q-btn flat label="Cancelar" color="grey" v-close-popup />
-          <q-btn
-            unelevated
-            :label="modoEdicion ? 'Guardar' : 'Crear'"
-            color="primary"
-            :loading="guardando"
-            @click="guardarUsuario"
-          />
+          <q-btn unelevated :label="modoEdicion ? 'Guardar' : 'Crear'" color="primary" :loading="guardando"
+            @click="guardarUsuario" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -266,9 +163,10 @@ const paginacion = ref({
 
 // Opciones para filtros
 const opcionesRolFiltro = computed(() => {
+  const roles = Array.isArray(rolesDisponibles.value) ? rolesDisponibles.value : []
   return [
     { label: 'Todos', value: null },
-    ...rolesDisponibles.value.map(r => ({ label: r.nombre, value: r.id }))
+    ...roles.map(r => ({ label: r.nombre, value: r.id }))
   ]
 })
 
@@ -356,7 +254,7 @@ function abrirDialogoCrear() {
 
 function abrirDialogoEditar(usuario) {
   modoEdicion.value = true
-  formUsuario.value = { 
+  formUsuario.value = {
     ...usuario,
     rol_id: usuario.rol_id || usuario.rol?.id
   }
