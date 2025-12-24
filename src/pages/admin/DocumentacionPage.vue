@@ -184,6 +184,74 @@
 
         <q-separator />
 
+        <!-- Calendario Compartido -->
+        <q-expansion-item icon="calendar_month" label="Calendario Compartido"
+          caption="Nueva funcionalidad - Diciembre 2025" header-class="text-primary" default-opened>
+          <q-card>
+            <q-card-section class="q-pt-none">
+              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
+
+              <p class="text-body1">
+                Vista de <strong>calendario mensual</strong> que muestra todas las vacaciones del equipo.
+              </p>
+
+              <div class="feature-list q-mt-md">
+                <div class="feature-item">
+                  <q-icon name="visibility" color="primary" size="sm" />
+                  <span>Vista general de vacaciones de todos los empleados</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="palette" color="purple" size="sm" />
+                  <span>Colores diferenciados por sede</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="filter_alt" color="blue" size="sm" />
+                  <span>Filtro por sede para ver solo un equipo</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="touch_app" color="orange" size="sm" />
+                  <span>Click en un día para ver detalle de empleados</span>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+
+        <q-separator />
+
+        <!-- Devolución por Feriados -->
+        <q-expansion-item icon="sync" label="Devolución Automática por Feriados"
+          caption="Nueva funcionalidad - Diciembre 2025" header-class="text-primary" default-opened>
+          <q-card>
+            <q-card-section class="q-pt-none">
+              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
+
+              <p class="text-body1">
+                Devolución automática de días de vacaciones cuando se crea un feriado que afecta fechas ya programadas.
+              </p>
+
+              <div class="feature-list q-mt-md">
+                <div class="feature-item">
+                  <q-icon name="auto_fix_high" color="primary" size="sm" />
+                  <span>Procesamiento automático al crear feriado</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="sync" color="orange" size="sm" />
+                  <span>Botón para procesar feriados existentes</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="history" color="blue" size="sm" />
+                  <span>Registro en historial del empleado</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="account_balance" color="green" size="sm" />
+                  <span>Devolución de días al saldo del empleado</span>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+
         <q-separator />
 
         <!-- Módulo de Sedes -->
@@ -550,12 +618,6 @@
           <q-timeline-entry title="Reportes Avanzados" subtitle="En planificación" icon="assessment">
             <div>
               Exportación de reportes en Excel con filtros avanzados y gráficos estadísticos.
-            </div>
-          </q-timeline-entry>
-
-          <q-timeline-entry title="Calendario Compartido" subtitle="En planificación" icon="calendar_today">
-            <div>
-              Vista de calendario con todas las vacaciones del equipo para mejor coordinación.
             </div>
           </q-timeline-entry>
         </q-timeline>

@@ -205,7 +205,7 @@ async function cargarEmpleado() {
       // Verificar que el CI coincida con el de la ruta
       if (parsed.ci === ci && parsed.empleado) {
         empleado.value = parsed.empleado
-        form.value.lugar = empleado.value.sede || ''
+        form.value.lugar = empleado.value.sede?.nombre || ''
         loading.value = false
         return
       }

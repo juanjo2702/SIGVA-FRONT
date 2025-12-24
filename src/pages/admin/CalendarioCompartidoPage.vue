@@ -11,7 +11,9 @@
                         </div>
                         <div class="text-caption">Vista general de vacaciones del equipo</div>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-auto q-gutter-sm row">
+                        <q-select v-model="filtroEstado" :options="estadoOptions" label="Estado" emit-value map-options
+                            outlined dense dark style="min-width: 180px" @update:model-value="cargarVacaciones" />
                         <q-select v-model="filtroSede" :options="sedesOptions" label="Filtrar por sede" emit-value
                             map-options outlined dense dark style="min-width: 200px"
                             @update:model-value="cargarVacaciones" />
@@ -104,7 +106,7 @@
                             <q-item-section>
                                 <q-item-label>{{ vac.nombre_completo }}</q-item-label>
                                 <q-item-label caption>{{ vac.sede_nombre }} • {{ getTipoLabel(vac.tipo)
-                                }}</q-item-label>
+                                    }}</q-item-label>
                             </q-item-section>
                             <q-item-section side>
                                 <q-badge :color="vac.tipo === 'completo' ? 'primary' : 'orange'">
@@ -137,11 +139,17 @@ const fechaActual = ref(new Date())
 const vacaciones = ref([])
 const sedes = ref([])
 const filtroSede = ref(null)
+const filtroEstado = ref('aprobada') // Por defecto solo aprobadas
 
 const dialogDetalle = ref(false)
 const diaSeleccionado = ref(null)
 
 const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+
+const estadoOptions = [
+    { value: 'aprobada', label: 'Solo Aprobadas' },
+    { value: 'todos', label: 'Aprobadas + Pend. Doc.' }
+]
 
 // Colores para sedes
 const coloresSedes = [
@@ -298,7 +306,8 @@ async function cargarVacaciones() {
         const params = {
             mes,
             ano: año,
-            sede_id: filtroSede.value || undefined
+            sede_id: filtroSede.value || undefined,
+            estado: filtroEstado.value || undefined
         }
 
         const res = await adminService.getVacacionesCalendario(params)
