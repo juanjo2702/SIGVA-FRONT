@@ -90,6 +90,7 @@ const pendingCount = ref(0)
 const menuItems = [
   { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
   { to: '/admin/solicitudes', icon: 'event_note', label: 'Solicitudes' },
+  { to: '/admin/calendario', icon: 'calendar_month', label: 'Calendario' },
   { to: '/admin/empleados', icon: 'people', label: 'Empleados' },
   { to: '/admin/sedes', icon: 'business', label: 'Sedes' },
   { to: '/admin/feriados', icon: 'event', label: 'Feriados' },

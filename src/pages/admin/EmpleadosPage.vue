@@ -18,7 +18,7 @@
             <q-input v-model="filtros.buscar" label="Buscar (CI, Nombre)" outlined dense clearable
               @update:model-value="buscarConDebounce">
               <template v-slot:prepend><q-icon name="search" /></template>
-              <template v-slot:append v-if="pagination.loading"><q-spinner size="xs" /></template>
+              <template v-slot:append v-if="loading"><q-spinner size="xs" /></template>
             </q-input>
           </div>
           <div class="col-12 col-sm-6 col-md-4">
@@ -31,8 +31,8 @@
 
     <!-- Tabla -->
     <q-card class="shadow-2">
-      <q-table :rows="pagination.data" :columns="columns" row-key="id" :loading="pagination.loading"
-        :pagination="pagination.pagination" @request="onTableRequest" flat>
+      <q-table :rows="empleados" :columns="columns" row-key="id" :loading="loading" v-model:pagination="pagination"
+        @request="onRequest" :rows-per-page-options="[10, 15, 25, 50, 100]" flat>
         <template v-slot:body-cell-nombre="props">
           <q-td :props="props">
             <div class="text-weight-medium">{{ props.row.nombre_completo }}</div>
@@ -93,7 +93,6 @@ import { ref, onMounted } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import adminService from '@/services/adminService'
 import { useNotify } from '@/composables/useNotify'
-import { usePagination } from '@/composables/usePagination'
 import {
   DialogEmpleadoForm,
   DialogAjusteSaldo,
@@ -104,14 +103,17 @@ import {
 
 // Composables
 const notify = useNotify()
-const pagination = usePagination(
-  (params) => adminService.getEmpleados(params),
-  15
-)
 
 // State
+const loading = ref(false)
+const empleados = ref([])
 const filtros = ref({ buscar: '', saldo_negativo: false })
 const sedes = ref([])
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 15,
+  rowsNumber: 0
+})
 
 // Dialog states
 const dialogForm = ref(false)
@@ -148,6 +150,7 @@ const columns = [
 
 // Debounce search
 const buscarConDebounce = useDebounceFn(() => {
+  pagination.value.page = 1
   cargarEmpleados()
 }, 300)
 
@@ -178,7 +181,7 @@ async function verHistorial(emp) {
   dialogHistorial.value = true
   try {
     const res = await adminService.getHistorialEmpleado(emp.id)
-    historial.value = res.data?.historial || []
+    historial.value = Array.isArray(res.data?.historial) ? res.data.historial : []
   } catch {
     historial.value = []
     notify.error('Error al cargar historial')
@@ -288,19 +291,27 @@ async function descargarPlantilla() {
 }
 
 // Table request handler
-async function onTableRequest(props) {
-  pagination.onRequest(props)
+async function onRequest(props) {
+  pagination.value.page = props.pagination.page
+  pagination.value.rowsPerPage = props.pagination.rowsPerPage
   await cargarEmpleados()
 }
 
 async function cargarEmpleados() {
+  loading.value = true
   try {
-    await pagination.cargar({
+    const res = await adminService.getEmpleados({
+      page: pagination.value.page,
+      per_page: pagination.value.rowsPerPage,
       buscar: filtros.value.buscar || undefined,
       saldo_negativo: filtros.value.saldo_negativo || undefined
     })
+    empleados.value = Array.isArray(res.data?.data) ? res.data.data : []
+    pagination.value.rowsNumber = res.data?.total || 0
   } catch {
     notify.error('Error cargando empleados')
+  } finally {
+    loading.value = false
   }
 }
 

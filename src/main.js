@@ -30,6 +30,15 @@ app.use(Quasar, {
     Loading
   },
   config: {
+    brand: {
+      primary: '#663399',
+      secondary: '#009999',
+      accent: '#00AAAA',
+      positive: '#21BA45',
+      negative: '#C10015',
+      warning: '#F2C037',
+      info: '#009999'
+    },
     notify: {
       position: 'top-right',
       timeout: 3000

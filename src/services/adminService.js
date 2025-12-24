@@ -116,6 +116,11 @@ export const adminService = {
     return response.data
   },
 
+  async getVacacionesCalendario(params = {}) {
+    const response = await api.get('/admin/vacaciones-calendario', { params })
+    return response.data
+  },
+
   // =============================================
   // Reportes
   // =============================================
@@ -197,6 +202,16 @@ export const adminService = {
 
   async eliminarFeriado(id) {
     const response = await api.delete(`/admin/feriados/${id}`)
+    return response.data
+  },
+
+  async previewAfectadosFeriado(id) {
+    const response = await api.get(`/admin/feriados/${id}/preview-afectados`)
+    return response.data
+  },
+
+  async procesarDevolucionesFeriado(id) {
+    const response = await api.post(`/admin/feriados/${id}/procesar-devoluciones`)
     return response.data
   }
 }

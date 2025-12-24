@@ -135,8 +135,10 @@ import { useAuthStore } from '@/stores/auth'
 import userService from '@/services/userService'
 import rolService from '@/services/rolService'
 import { useDebounceFn } from '@vueuse/core'
+import { useNotify } from '@/composables/useNotify'
 
 const $q = useQuasar()
+const notify = useNotify()
 const authStore = useAuthStore()
 
 // Estado
@@ -218,11 +220,7 @@ async function cargarUsuarios() {
     usuarios.value = response.data.data
     paginacion.value.rowsNumber = response.data.total
   } catch (error) {
-    $q.notify({
-      type: 'negative',
-      message: 'Error al cargar usuarios',
-      icon: 'error'
-    })
+    notify.error('Error al cargar usuarios')
   } finally {
     loading.value = false
   }
@@ -283,11 +281,7 @@ async function guardarUsuario() {
     cargarUsuarios()
   } catch (error) {
     const mensaje = error.response?.data?.message || 'Error al guardar usuario'
-    $q.notify({
-      type: 'negative',
-      message: mensaje,
-      icon: 'error'
-    })
+    notify.error(mensaje)
   } finally {
     guardando.value = false
   }
@@ -303,17 +297,9 @@ function confirmarResetPassword(usuario) {
   }).onOk(async () => {
     try {
       await userService.resetPassword(usuario.id)
-      $q.notify({
-        type: 'positive',
-        message: 'Contraseña restablecida correctamente',
-        icon: 'lock_reset'
-      })
+      notify.success('Contraseña restablecida correctamente')
     } catch (error) {
-      $q.notify({
-        type: 'negative',
-        message: 'Error al restablecer contraseña',
-        icon: 'error'
-      })
+      notify.error('Error al restablecer contraseña')
     }
   })
 }
@@ -328,18 +314,10 @@ function confirmarDesactivar(usuario) {
   }).onOk(async () => {
     try {
       await userService.desactivarUsuario(usuario.id)
-      $q.notify({
-        type: 'positive',
-        message: 'Usuario desactivado correctamente',
-        icon: 'check_circle'
-      })
+      notify.success('Usuario desactivado correctamente')
       cargarUsuarios()
     } catch (error) {
-      $q.notify({
-        type: 'negative',
-        message: error.response?.data?.message || 'Error al desactivar usuario',
-        icon: 'error'
-      })
+      notify.error(error.response?.data?.message || 'Error al desactivar usuario')
     }
   })
 }

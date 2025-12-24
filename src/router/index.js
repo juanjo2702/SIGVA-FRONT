@@ -109,6 +109,12 @@ const routes = [
         meta: { title: 'SIGVA - Feriados' }
       },
       {
+        path: 'calendario',
+        name: 'calendario-compartido',
+        component: () => import('@/pages/admin/CalendarioCompartidoPage.vue'),
+        meta: { title: 'SIGVA - Calendario de Vacaciones' }
+      },
+      {
         path: 'documentacion',
         name: 'documentacion',
         component: () => import('@/pages/admin/DocumentacionPage.vue'),

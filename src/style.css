@@ -1,11 +1,24 @@
-/* SIGVA - Sistema de Gestión de Vacaciones */
+/* SIGVA - Sistema de Gestión de Vacaciones UNITEPC */
 
 :root {
-  --primary: #1976d2;
-  --secondary: #26a69a;
+  /* Paleta UNITEPC */
+  --unitepc-purple: #663399;
+  --unitepc-teal: #009999;
+  --unitepc-light-teal: #00AAAA;
+  --unitepc-white: #FFFFFF;
+  
+  /* Colores del sistema basados en UNITEPC */
+  --primary: #663399;
+  --secondary: #009999;
+  --accent: #00AAAA;
   --positive: #21ba45;
   --negative: #c10015;
   --warning: #f2c037;
+  --info: #009999;
+  
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, #663399 0%, #4a2475 100%);
+  --gradient-teal: linear-gradient(135deg, #009999 0%, #00AAAA 100%);
 }
 
 * {
@@ -15,13 +28,12 @@
 }
 
 body {
-  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling con colores UNITEPC */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -32,12 +44,35 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #663399;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: #4a2475;
+}
+
+/* Override Quasar primary colors */
+.bg-primary {
+  background: var(--unitepc-purple) !important;
+}
+
+.text-primary {
+  color: var(--unitepc-purple) !important;
+}
+
+.bg-secondary {
+  background: var(--unitepc-teal) !important;
+}
+
+.text-secondary {
+  color: var(--unitepc-teal) !important;
+}
+
+/* Custom button styles */
+.q-btn--flat.text-primary,
+.q-btn.text-primary {
+  color: var(--unitepc-purple) !important;
 }
 
 /* Print styles */

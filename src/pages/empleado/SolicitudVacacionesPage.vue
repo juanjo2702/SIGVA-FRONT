@@ -27,42 +27,19 @@
               <!-- Lugar de Solicitud y Reemplazo -->
               <div class="row q-col-gutter-md">
                 <div class="col-12 col-sm-6">
-                  <q-input
-                    v-model="form.lugar"
-                    label="Lugar de Solicitud"
-                    outlined
-                    hint="Ciudad desde donde solicita"
-                  >
+                  <q-input v-model="form.lugar" label="Lugar de Solicitud" outlined hint="Ciudad desde donde solicita">
                     <template v-slot:prepend>
                       <q-icon name="location_on" />
                     </template>
                   </q-input>
                 </div>
                 <div class="col-12 col-sm-6">
-                  <q-select
-                    v-model="form.reemplazoId"
-                    :options="empleadosReemplazo"
-                    option-value="id"
-                    option-label="nombre_completo"
-                    label="Persona que Reemplaza"
-                    emit-value
-                    map-options
-                    outlined
-                    clearable
-                    use-input
-                    input-debounce="300"
-                    @filter="filtrarEmpleados"
-                    hint="Opcional - quien cubrirá sus funciones"
-                  >
+                  <q-input v-model="form.reemplazoNombre" label="Persona que Reemplaza" outlined clearable
+                    hint="Opcional - quien cubrirá sus funciones">
                     <template v-slot:prepend>
-                      <q-icon name="person_search" />
+                      <q-icon name="person" />
                     </template>
-                    <template v-slot:no-option>
-                      <q-item>
-                        <q-item-section class="text-grey">Sin resultados</q-item-section>
-                      </q-item>
-                    </template>
-                  </q-select>
+                  </q-input>
                 </div>
               </div>
 
@@ -71,12 +48,8 @@
                 <q-icon name="calendar_month" class="q-mr-sm" />
                 Seleccione los días de vacaciones
               </div>
-              
-              <CalendarioVacaciones
-                v-model="diasSeleccionados"
-                :saldo-actual="empleado.saldo_vacaciones"
-                :fecha-minima="fechaMinima"
-              />
+
+              <CalendarioVacaciones v-model="diasSeleccionados" :empleado="empleado" :fecha-minima="fechaMinima" />
 
               <!-- Resumen -->
               <q-card flat bordered :class="saldoResultanteClass">
@@ -107,7 +80,8 @@
                 <template v-slot:avatar>
                   <q-icon name="info" />
                 </template>
-                Su saldo resultante será negativo. La solicitud aún puede ser procesada pero requiere aprobación especial.
+                Su saldo resultante será negativo. La solicitud aún puede ser procesada pero requiere aprobación
+                especial.
               </q-banner>
 
               <!-- Aviso 5 días anticipación -->
@@ -122,18 +96,8 @@
 
               <!-- Botón Enviar -->
               <div class="row q-gutter-sm q-mt-md">
-                <q-btn
-                  type="submit"
-                  label="Enviar Solicitud"
-                  icon="send"
-                  color="primary"
-                  size="lg"
-                  class="col"
-                  :loading="submitting"
-                  :disable="diasSeleccionados.length === 0"
-                  unelevated
-                  no-caps
-                />
+                <q-btn type="submit" label="Enviar Solicitud" icon="send" color="primary" size="lg" class="col"
+                  :loading="submitting" :disable="diasSeleccionados.length === 0" unelevated no-caps />
               </div>
             </q-form>
           </q-card-section>
@@ -148,7 +112,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import empleadoService from '@/services/empleadoService'
-import adminService from '@/services/adminService'
 import CalendarioVacaciones from '@/components/CalendarioVacaciones.vue'
 
 const route = useRoute()
@@ -159,8 +122,6 @@ const ci = route.params.ci
 const empleado = ref(null)
 const loading = ref(true)
 const submitting = ref(false)
-const empleadosReemplazo = ref([])
-const empleadosAll = ref([])
 const diasSeleccionados = ref([])
 
 // Fecha mínima: 5 días desde hoy
@@ -172,7 +133,7 @@ const fechaMinima = computed(() => {
 
 const form = ref({
   lugar: '',
-  reemplazoId: null
+  reemplazoNombre: ''
 })
 
 // Total de días
@@ -194,34 +155,6 @@ const saldoResultanteClass = computed(() => {
   return 'bg-green-1'
 })
 
-// Filtrar empleados para reemplazo
-function filtrarEmpleados(val, update) {
-  if (val === '') {
-    update(() => {
-      empleadosReemplazo.value = empleadosAll.value.filter(e => e.id !== empleado.value?.id).slice(0, 20)
-    })
-    return
-  }
-
-  update(() => {
-    const needle = val.toLowerCase()
-    empleadosReemplazo.value = empleadosAll.value.filter(e => 
-      e.id !== empleado.value?.id && 
-      e.nombre_completo.toLowerCase().includes(needle)
-    ).slice(0, 20)
-  })
-}
-
-async function cargarEmpleadosReemplazo() {
-  try {
-    const response = await adminService.getEmpleados({ per_page: 500 })
-    if (response.data) {
-      empleadosAll.value = response.data
-    }
-  } catch (error) {
-    console.error('Error cargando empleados:', error)
-  }
-}
 
 async function enviarSolicitud() {
   if (diasSeleccionados.value.length === 0) {
@@ -230,19 +163,13 @@ async function enviarSolicitud() {
   }
 
   submitting.value = true
-  
-  try {
-    let reemplazoNombre = null
-    if (form.value.reemplazoId) {
-      const reemplazoEmpleado = empleadosAll.value.find(e => e.id === form.value.reemplazoId)
-      reemplazoNombre = reemplazoEmpleado?.nombre_completo
-    }
 
+  try {
     const response = await empleadoService.crearSolicitudConDias({
       empleado_id: empleado.value.id,
       dias: diasSeleccionados.value,
       lugar_solicitud: form.value.lugar,
-      reemplazo: reemplazoNombre
+      reemplazo: form.value.reemplazoNombre || null
     })
 
     if (response.success) {
@@ -252,7 +179,7 @@ async function enviarSolicitud() {
         caption: 'Pendiente de aprobación por Talento Humano',
         icon: 'check_circle'
       })
-      
+
       router.push(`/empleado/${ci}`)
     }
   } catch (error) {
@@ -272,7 +199,7 @@ async function cargarEmpleado() {
   try {
     // Intentar obtener datos desde sessionStorage
     const storedData = sessionStorage.getItem('empleadoSearch')
-    
+
     if (storedData) {
       const parsed = JSON.parse(storedData)
       // Verificar que el CI coincida con el de la ruta
@@ -283,7 +210,7 @@ async function cargarEmpleado() {
         return
       }
     }
-    
+
     // Si no hay datos en sessionStorage o el CI no coincide, redirigir a búsqueda
     router.push('/')
   } catch (error) {
@@ -296,6 +223,5 @@ async function cargarEmpleado() {
 
 onMounted(() => {
   cargarEmpleado()
-  cargarEmpleadosReemplazo()
 })
 </script>

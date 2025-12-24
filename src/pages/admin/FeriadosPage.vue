@@ -65,6 +65,10 @@
 
         <template v-slot:body-cell-acciones="props">
           <q-td :props="props">
+            <q-btn size="sm" round flat color="orange" icon="sync" @click="procesarDevoluciones(props.row)"
+              :loading="loadingProc === props.row.id">
+              <q-tooltip>Procesar Devoluciones de Vacaciones</q-tooltip>
+            </q-btn>
             <q-btn size="sm" round flat color="primary" icon="edit" @click="mostrarEditar(props.row)">
               <q-tooltip>Editar</q-tooltip>
             </q-btn>
@@ -128,6 +132,7 @@ const buscarConDebounce = useDebounceFn(() => {
 
 const loading = ref(false)
 const loadingGuardar = ref(false)
+const loadingProc = ref(null)
 const feriados = ref([])
 const sedes = ref([])
 const dialogForm = ref(false)
@@ -288,6 +293,44 @@ async function cargarFeriados() {
     $q.notify({ type: 'negative', message: 'Error al cargar feriados' })
   } finally {
     loading.value = false
+  }
+}
+
+async function procesarDevoluciones(feriado) {
+  loadingProc.value = feriado.id
+  try {
+    // Primero obtener preview de afectados
+    const preview = await adminService.previewAfectadosFeriado(feriado.id)
+
+    if (!preview.data.total_empleados || preview.data.total_empleados === 0) {
+      $q.notify({ type: 'info', message: 'No hay empleados con vacaciones en esta fecha para procesar.' })
+      loadingProc.value = null
+      return
+    }
+
+    // Mostrar diálogo de confirmación con preview
+    $q.dialog({
+      title: 'Procesar Devoluciones',
+      message: `Se devolverán ${preview.data.total_dias} días a ${preview.data.total_empleados} empleados por el feriado "${feriado.nombre}" del ${formatDate(feriado.fecha)}. ¿Continuar?`,
+      ok: { label: 'Procesar', color: 'primary' },
+      cancel: { label: 'Cancelar', flat: true },
+      persistent: true
+    }).onOk(async () => {
+      try {
+        const result = await adminService.procesarDevolucionesFeriado(feriado.id)
+        $q.notify({
+          type: 'positive',
+          message: result.message,
+          timeout: 5000
+        })
+      } catch (err) {
+        $q.notify({ type: 'negative', message: 'Error al procesar devoluciones' })
+      }
+    })
+  } catch (error) {
+    $q.notify({ type: 'negative', message: 'Error al obtener información de afectados' })
+  } finally {
+    loadingProc.value = null
   }
 }
 

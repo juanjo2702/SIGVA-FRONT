@@ -4,12 +4,16 @@
     <q-card class="q-mb-md shadow-2">
       <q-card-section>
         <div class="row q-col-gutter-md items-end">
-          <div class="col-12 col-sm-3">
+          <div class="col-12 col-sm-2">
             <q-select v-model="filtros.estado" :options="estadoOptions" label="Estado" emit-value map-options outlined
               dense @update:model-value="cargarSolicitudes" />
           </div>
+          <div class="col-12 col-sm-2">
+            <q-select v-model="filtros.sede_id" :options="sedesOptions" label="Sede" emit-value map-options outlined
+              dense clearable @update:model-value="cargarSolicitudes" />
+          </div>
           <div class="col-12 col-sm-3">
-            <q-input v-model="filtros.buscar" label="Buscar empleado" outlined dense clearable
+            <q-input v-model="filtros.buscar" label="Buscar (nombre, CI)" outlined dense clearable
               @update:model-value="buscarConDebounce">
               <template v-slot:prepend>
                 <q-icon name="search" />
@@ -161,8 +165,7 @@
             Seleccione los días de vacaciones
           </div>
 
-          <CalendarioVacaciones v-model="diasEditados"
-            :saldo-actual="solicitudEditar.empleado?.saldo_vacaciones || 0" />
+          <CalendarioVacaciones v-model="diasEditados" :empleado="solicitudEditar?.empleado" />
 
           <!-- Reemplazo -->
           <div class="row q-col-gutter-md q-mt-md">
@@ -552,6 +555,7 @@ const solicitudes = ref([])
 const filtros = ref({
   estado: 'todos',
   buscar: '',
+  sede_id: null,
   fecha_desde: '',
   fecha_hasta: ''
 })
@@ -591,6 +595,12 @@ const estadoOptions = [
   { value: 'aprobada', label: 'Aprobadas' },
   { value: 'rechazada', label: 'Rechazadas' }
 ]
+
+const sedes = ref([])
+const sedesOptions = computed(() => [
+  { value: null, label: 'Todas las sedes' },
+  ...sedes.value.map(s => ({ value: s.id, label: s.nombre }))
+])
 
 const columns = [
   { name: 'empleado', label: 'Empleado', field: 'empleado', align: 'left' },
@@ -874,6 +884,8 @@ async function cargarSolicitudes() {
       page: pagination.value.page,
       per_page: pagination.value.rowsPerPage,
       estado: filtros.value.estado !== 'todos' ? filtros.value.estado : undefined,
+      buscar: filtros.value.buscar || undefined,
+      sede_id: filtros.value.sede_id || undefined,
       fecha_desde: filtros.value.fecha_desde || undefined,
       fecha_hasta: filtros.value.fecha_hasta || undefined
     }
@@ -888,7 +900,19 @@ async function cargarSolicitudes() {
   }
 }
 
-onMounted(cargarSolicitudes)
+async function cargarSedes() {
+  try {
+    const res = await adminService.getSedes({ all: true })
+    sedes.value = Array.isArray(res.data) ? res.data : []
+  } catch {
+    sedes.value = []
+  }
+}
+
+onMounted(() => {
+  cargarSolicitudes()
+  cargarSedes()
+})
 </script>
 
 <style>
