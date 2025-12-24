@@ -1,13 +1,13 @@
 <template>
   <q-page class="flex flex-center bg-gradient">
-    <div class="column items-center q-gutter-lg" style="max-width: 500px; width: 100%;">
-      <!-- Logo y título -->
-      <div class="text-center q-mb-lg">
-        <q-avatar size="100px" color="primary" text-color="white" class="shadow-4">
-          <q-icon name="beach_access" size="60px" />
-        </q-avatar>
-        <h4 class="text-white text-weight-bold q-mt-md q-mb-none">SIGVA</h4>
-        <p class="text-white text-subtitle1">Sistema de Gestión de Vacaciones</p>
+    <div class="search-container">
+      <!-- Logo y título centrados -->
+      <div class="header-section">
+        <div class="logo-wrapper">
+          <img src="/logo-unitepc.png" alt="UNITEPC" class="logo-img" />
+        </div>
+        <h1 class="app-title">SIGVA</h1>
+        <p class="app-subtitle">Sistema de Gestión de Vacaciones</p>
       </div>
 
       <!-- Card de búsqueda -->
@@ -163,10 +163,84 @@ async function buscarEmpleado() {
 .bg-gradient {
   background: linear-gradient(135deg, #1976d2 0%, #0d47a1 50%, #002984 100%);
   min-height: 100vh;
+  padding: 24px 16px;
+}
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  max-width: 450px;
+  width: 100%;
+}
+
+/* Header Section - Centrado */
+.header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.logo-wrapper {
+  width: 120px;
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  margin-bottom: 20px;
+}
+
+.logo-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.app-title {
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.app-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 8px 0 0;
+  font-weight: 400;
 }
 
 .bg-white-alpha {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .bg-gradient {
+    padding: 16px 12px;
+  }
+
+  .search-container {
+    gap: 20px;
+  }
+
+  .logo-wrapper {
+    width: 100px;
+    padding: 12px;
+  }
+
+  .app-title {
+    font-size: 2rem;
+  }
+
+  .app-subtitle {
+    font-size: 0.9rem;
+  }
 }
 </style>

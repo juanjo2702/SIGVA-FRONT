@@ -95,6 +95,11 @@ export const adminService = {
     return response.data
   },
 
+  async cancelarSolicitud(id, motivo) {
+    const response = await api.put(`/admin/solicitudes/${id}/cancelar`, { motivo })
+    return response.data
+  },
+
   async getFormularioData(id) {
     const response = await api.get(`/admin/solicitudes/${id}/formulario-pdf`)
     return response.data

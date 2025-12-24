@@ -1,42 +1,121 @@
 <template>
-  <q-page class="q-pa-md">
-    <!-- Filtros -->
-    <q-card class="q-mb-md shadow-2">
-      <q-card-section>
-        <div class="row q-col-gutter-md items-end">
-          <div class="col-12 col-sm-2">
-            <q-select v-model="filtros.estado" :options="estadoOptions" label="Estado" emit-value map-options outlined
-              dense @update:model-value="cargarSolicitudes" />
+  <q-page class="solicitudes-page">
+    <!-- Header moderno -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="title-icon">
+            <q-icon name="assignment" size="28px" />
           </div>
-          <div class="col-12 col-sm-2">
-            <q-select v-model="filtros.sede_id" :options="sedesOptions" label="Sede" emit-value map-options outlined
-              dense clearable @update:model-value="cargarSolicitudes" />
-          </div>
-          <div class="col-12 col-sm-3">
-            <q-input v-model="filtros.buscar" label="Buscar (nombre, CI)" outlined dense clearable
-              @update:model-value="buscarConDebounce">
-              <template v-slot:prepend>
-                <q-icon name="search" />
-              </template>
-              <template v-slot:append v-if="loading"><q-spinner size="xs" /></template>
-            </q-input>
-          </div>
-          <div class="col-12 col-sm-2">
-            <q-input v-model="filtros.fecha_desde" label="Desde" type="date" outlined dense
-              @update:model-value="cargarSolicitudes" />
-          </div>
-          <div class="col-12 col-sm-2">
-            <q-input v-model="filtros.fecha_hasta" label="Hasta" type="date" outlined dense
-              @update:model-value="cargarSolicitudes" />
+          <div>
+            <h1>Gestión de Solicitudes</h1>
+            <p class="subtitle">Administra las solicitudes de vacaciones</p>
           </div>
         </div>
-      </q-card-section>
-    </q-card>
+        <div class="header-stats" v-if="estadisticas">
+          <div class="stat-item pendiente">
+            <span class="stat-value">{{ estadisticas.pendientes || 0 }}</span>
+            <span class="stat-label">Pendientes</span>
+          </div>
+          <div class="stat-item documento">
+            <span class="stat-value">{{ estadisticas.pendientes_documento || 0 }}</span>
+            <span class="stat-label">Por Documento</span>
+          </div>
+          <div class="stat-item aprobada">
+            <span class="stat-value">{{ estadisticas.aprobadas || 0 }}</span>
+            <span class="stat-label">Aprobadas</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <!-- Tabla -->
-    <q-card class="shadow-2">
-      <q-table :rows="solicitudes" :columns="columns" row-key="id" :loading="loading" :pagination="pagination"
-        @request="onRequest" flat>
+    <!-- Filtros mejorados -->
+    <div class="filters-section">
+      <div class="filters-grid">
+        <q-select
+          v-model="filtros.estado"
+          :options="estadoOptions"
+          label="Estado"
+          emit-value
+          map-options
+          outlined
+          dense
+          class="filter-item"
+          @update:model-value="cargarSolicitudes"
+        >
+          <template v-slot:prepend>
+            <q-icon name="filter_list" color="primary" />
+          </template>
+        </q-select>
+
+        <q-select
+          v-model="filtros.sede_id"
+          :options="sedesOptions"
+          label="Sede"
+          emit-value
+          map-options
+          outlined
+          dense
+          clearable
+          class="filter-item"
+          @update:model-value="cargarSolicitudes"
+        >
+          <template v-slot:prepend>
+            <q-icon name="location_on" color="primary" />
+          </template>
+        </q-select>
+
+        <q-input
+          v-model="filtros.buscar"
+          label="Buscar empleado..."
+          outlined
+          dense
+          clearable
+          class="filter-item search-input"
+          @update:model-value="buscarConDebounce"
+        >
+          <template v-slot:prepend>
+            <q-icon name="search" />
+          </template>
+          <template v-slot:append v-if="loading">
+            <q-spinner size="xs" color="primary" />
+          </template>
+        </q-input>
+
+        <q-input
+          v-model="filtros.fecha_desde"
+          label="Desde"
+          type="date"
+          outlined
+          dense
+          class="filter-item date-input"
+          @update:model-value="cargarSolicitudes"
+        >
+          <template v-slot:prepend>
+            <q-icon name="event" color="grey-7" />
+          </template>
+        </q-input>
+
+        <q-input
+          v-model="filtros.fecha_hasta"
+          label="Hasta"
+          type="date"
+          outlined
+          dense
+          class="filter-item date-input"
+          @update:model-value="cargarSolicitudes"
+        >
+          <template v-slot:prepend>
+            <q-icon name="event" color="grey-7" />
+          </template>
+        </q-input>
+      </div>
+    </div>
+
+    <!-- Tabla mejorada -->
+    <div class="table-section">
+      <q-table :rows="solicitudes" :columns="columns" row-key="id" :loading="loading" v-model:pagination="pagination"
+        @request="onRequest" :rows-per-page-options="[10, 15, 25, 50, 100]" flat>
         <template v-slot:body-cell-empleado="props">
           <q-td :props="props">
             <div>{{ props.row.empleado?.nombre_completo }}</div>
@@ -84,8 +163,8 @@
                 <q-tooltip>Descargar Formulario</q-tooltip>
               </q-btn>
 
-              <!-- Botón editar (pendientes y aprobadas) -->
-              <q-btn v-if="props.row.estado !== 'rechazada'" size="sm" round flat color="primary" icon="edit"
+              <!-- Botón editar (pendientes, pendientes documento y aprobadas) -->
+              <q-btn v-if="props.row.estado !== 'rechazada' && props.row.estado !== 'cancelada'" size="sm" round flat color="primary" icon="edit"
                 @click="mostrarEditar(props.row)">
                 <q-tooltip>Editar</q-tooltip>
               </q-btn>
@@ -105,15 +184,22 @@
                   @click="confirmarDocumento(props.row.id)" :loading="loadingConfirmar === props.row.id">
                   <q-tooltip>Confirmar Documento Recibido</q-tooltip>
                 </q-btn>
-                <q-btn size="sm" round flat color="negative" icon="close" @click="mostrarRechazo(props.row)">
-                  <q-tooltip>Rechazar</q-tooltip>
+                <q-btn size="sm" round flat color="grey" icon="cancel" @click="mostrarCancelar(props.row)">
+                  <q-tooltip>Cancelar Programación</q-tooltip>
+                </q-btn>
+              </template>
+
+              <!-- Botón cancelar para aprobadas -->
+              <template v-else-if="props.row.estado === 'aprobada'">
+                <q-btn size="sm" round flat color="grey" icon="cancel" @click="mostrarCancelar(props.row)">
+                  <q-tooltip>Cancelar Vacaciones</q-tooltip>
                 </q-btn>
               </template>
             </div>
           </q-td>
         </template>
       </q-table>
-    </q-card>
+    </div>
 
     <!-- Dialog rechazo -->
     <q-dialog v-model="dialogRechazo">
@@ -135,6 +221,35 @@
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" v-close-popup />
           <q-btn color="negative" label="Rechazar" @click="rechazar" :loading="loadingAction" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Dialog cancelar -->
+    <q-dialog v-model="dialogCancelar">
+      <q-card style="min-width: 400px">
+        <q-card-section class="row items-center bg-grey-8 text-white">
+          <q-icon name="cancel" size="sm" class="q-mr-sm" />
+          <div class="text-h6">Cancelar Solicitud</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <div class="q-mb-md">
+            <p><strong>Empleado:</strong> {{ solicitudCancelar?.empleado?.nombre_completo }}</p>
+            <p><strong>Días:</strong> {{ solicitudCancelar?.dias_solicitados }}</p>
+            <p v-if="solicitudCancelar?.estado === 'aprobada'" class="text-warning">
+              <q-icon name="info" /> Los días serán devueltos al saldo del empleado.
+            </p>
+          </div>
+          <q-input v-model="motivoCancelar" label="Motivo de la cancelación" type="textarea" outlined rows="3" 
+            hint="Ej: El empleado cambió de planes, error en la programación, etc." />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cerrar" v-close-popup />
+          <q-btn color="grey-8" label="Cancelar Solicitud" icon="cancel" @click="cancelar" :loading="loadingCancelar" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -541,6 +656,9 @@ import CalendarioVacaciones from '@/components/CalendarioVacaciones.vue'
 
 const $q = useQuasar()
 
+// Estadísticas para header
+const estadisticas = ref(null)
+
 // Debounce para búsqueda dinámica
 const buscarConDebounce = useDebounceFn(() => {
   pagination.value.page = 1
@@ -569,10 +687,14 @@ const pagination = ref({
 const dialogRechazo = ref(false)
 const dialogFormulario = ref(false)
 const dialogEditar = ref(false)
+const dialogCancelar = ref(false)
 const solicitudRechazo = ref(null)
+const solicitudCancelar = ref(null)
 const solicitudEditar = ref(null)
 const motivoRechazo = ref('')
+const motivoCancelar = ref('')
 const datosFormulario = ref(null)
+const loadingCancelar = ref(false)
 
 // Edit state
 const diasEditados = ref([])
@@ -593,7 +715,8 @@ const estadoOptions = [
   { value: 'pendiente', label: 'Pendientes' },
   { value: 'pendiente_documento', label: 'Pendiente Documento' },
   { value: 'aprobada', label: 'Aprobadas' },
-  { value: 'rechazada', label: 'Rechazadas' }
+  { value: 'rechazada', label: 'Rechazadas' },
+  { value: 'cancelada', label: 'Canceladas' }
 ]
 
 const sedes = ref([])
@@ -628,7 +751,8 @@ function getEstadoColor(estado) {
     pendiente: 'warning',
     pendiente_documento: 'orange',
     aprobada: 'positive',
-    rechazada: 'negative'
+    rechazada: 'negative',
+    cancelada: 'grey'
   }[estado] || 'grey'
 }
 
@@ -637,7 +761,8 @@ function traducirEstado(estado) {
     pendiente: 'Pendiente',
     pendiente_documento: 'Pend. Documento',
     aprobada: 'Aprobada',
-    rechazada: 'Rechazada'
+    rechazada: 'Rechazada',
+    cancelada: 'Cancelada'
   }[estado] || estado
 }
 
@@ -693,6 +818,32 @@ function mostrarRechazo(solicitud) {
   solicitudRechazo.value = solicitud
   motivoRechazo.value = ''
   dialogRechazo.value = true
+}
+
+function mostrarCancelar(solicitud) {
+  solicitudCancelar.value = solicitud
+  motivoCancelar.value = ''
+  dialogCancelar.value = true
+}
+
+async function cancelar() {
+  if (!motivoCancelar.value.trim()) {
+    $q.notify({ type: 'warning', message: 'Ingrese el motivo de la cancelación' })
+    return
+  }
+
+  loadingCancelar.value = true
+  try {
+    const res = await adminService.cancelarSolicitud(solicitudCancelar.value.id, motivoCancelar.value)
+    $q.notify({ type: 'positive', message: res.message || 'Solicitud cancelada correctamente' })
+    dialogCancelar.value = false
+    cargarSolicitudes()
+  } catch (error) {
+    const message = error.response?.data?.message || 'Error al cancelar la solicitud'
+    $q.notify({ type: 'negative', message })
+  } finally {
+    loadingCancelar.value = false
+  }
 }
 
 async function mostrarEditar(solicitud) {
@@ -909,9 +1060,19 @@ async function cargarSedes() {
   }
 }
 
+async function cargarEstadisticas() {
+  try {
+    const res = await adminService.getEstadisticasSolicitudes()
+    estadisticas.value = res.data
+  } catch {
+    estadisticas.value = null
+  }
+}
+
 onMounted(() => {
   cargarSolicitudes()
   cargarSedes()
+  cargarEstadisticas()
 })
 </script>
 
@@ -931,6 +1092,180 @@ onMounted(() => {
     left: 0;
     top: 0;
     width: 100%;
+  }
+}
+</style>
+
+<style scoped>
+.solicitudes-page {
+  padding: 24px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  min-height: 100vh;
+}
+
+/* Header */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #663399 0%, #8855bb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3);
+}
+
+.header-title h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.header-title .subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+/* Header Stats */
+.header-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  min-width: 90px;
+}
+
+.stat-item .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stat-item .stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.stat-item.pendiente .stat-value {
+  color: #f59e0b;
+}
+
+.stat-item.documento .stat-value {
+  color: #0891b2;
+}
+
+.stat-item.aprobada .stat-value {
+  color: #10b981;
+}
+
+/* Filters */
+.filters-section {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.filter-item {
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.search-input {
+  grid-column: span 1;
+}
+
+@media (min-width: 768px) {
+  .search-input {
+    grid-column: span 2;
+  }
+}
+
+/* Table */
+.table-section {
+  background: white;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.table-section :deep(.q-table__top) {
+  padding: 16px;
+}
+
+.table-section :deep(.q-table__bottom) {
+  border-top: 1px solid #e2e8f0;
+}
+
+.table-section :deep(thead th) {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table-section :deep(tbody tr:hover) {
+  background: #f1f5f9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .solicitudes-page {
+    padding: 16px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .stat-item {
+    flex: 1;
+    min-width: auto;
   }
 }
 </style>
