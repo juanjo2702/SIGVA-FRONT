@@ -1,26 +1,56 @@
 <template>
-    <q-page class="q-pa-md">
-        <!-- Header -->
-        <q-card class="q-mb-md shadow-2">
-            <q-card-section class="bg-primary text-white">
-                <div class="row items-center">
-                    <div class="col">
-                        <div class="text-h5">
-                            <q-icon name="calendar_month" class="q-mr-sm" />
-                            Calendario de Vacaciones
-                        </div>
-                        <div class="text-caption">Vista general de vacaciones del equipo</div>
+    <q-page class="calendario-page">
+        <!-- Header moderno -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <div class="title-icon">
+                        <q-icon name="calendar_month" size="28px" />
                     </div>
-                    <div class="col-auto q-gutter-sm row">
-                        <q-select v-model="filtroEstado" :options="estadoOptions" label="Estado" emit-value map-options
-                            outlined dense dark style="min-width: 180px" @update:model-value="cargarVacaciones" />
-                        <q-select v-model="filtroSede" :options="sedesOptions" label="Filtrar por sede" emit-value
-                            map-options outlined dense dark style="min-width: 200px"
-                            @update:model-value="cargarVacaciones" />
+                    <div>
+                        <h1>Calendario de Vacaciones</h1>
+                        <p class="subtitle">Vista general de vacaciones del equipo</p>
                     </div>
                 </div>
-            </q-card-section>
-        </q-card>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-section">
+            <div class="filters-grid">
+                <q-select 
+                    v-model="filtroEstado" 
+                    :options="estadoOptions" 
+                    label="Estado" 
+                    emit-value 
+                    map-options
+                    outlined 
+                    dense 
+                    class="filter-item"
+                    @update:model-value="cargarVacaciones" 
+                >
+                    <template v-slot:prepend>
+                        <q-icon name="filter_list" color="primary" />
+                    </template>
+                </q-select>
+                <q-select 
+                    v-model="filtroSede" 
+                    :options="sedesOptions" 
+                    label="Filtrar por sede" 
+                    emit-value
+                    map-options 
+                    outlined 
+                    dense 
+                    clearable
+                    class="filter-item"
+                    @update:model-value="cargarVacaciones" 
+                >
+                    <template v-slot:prepend>
+                        <q-icon name="location_on" color="primary" />
+                    </template>
+                </q-select>
+            </div>
+        </div>
 
         <!-- Navegación del Calendario -->
         <q-card class="q-mb-md shadow-2">
@@ -437,6 +467,134 @@ onMounted(() => {
 
     .vacacion-chip {
         font-size: 8px;
+    }
+}
+
+/* ================================
+   ESTILOS RESPONSIVE HEADER
+   ================================ */
+
+.calendario-page {
+    padding: 24px;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.page-header {
+    background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(219, 39, 119, 0.3);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.title-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.header-title h1 { font-size: 1.75rem; font-weight: 700; color: white; margin: 0; }
+.header-title .subtitle { font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); margin: 4px 0 0; }
+
+.filters-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.filters-grid { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.filter-item { min-width: 180px; flex: 1; max-width: 220px; }
+
+/* Tablet (768px y menos) */
+@media (max-width: 768px) {
+    .calendario-page { padding: 16px; }
+    .page-header { padding: 20px; }
+    .header-title h1 { font-size: 1.4rem; }
+    .filter-item { min-width: 140px; max-width: none; }
+}
+
+/* Móvil (576px y menos) */
+@media (max-width: 576px) {
+    .header-titulo .text-h5 {
+        font-size: 1.1rem;
+    }
+    
+    .header-titulo .text-caption {
+        font-size: 11px;
+    }
+    
+    .header-filtros {
+        flex-direction: column;
+    }
+    
+    .filtro-select {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .calendario-header-dia {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+    
+    .calendario-dia {
+        min-height: 50px;
+        padding: 3px;
+    }
+    
+    .dia-numero {
+        font-size: 12px;
+    }
+    
+    .vacacion-chip {
+        font-size: 7px;
+        padding: 1px 3px;
+    }
+}
+
+/* Móvil pequeño (400px y menos) */
+@media (max-width: 400px) {
+    .header-titulo .text-h5 {
+        font-size: 1rem;
+    }
+    
+    .calendario-dia {
+        min-height: 45px;
+        padding: 2px;
+    }
+    
+    .dia-numero {
+        font-size: 11px;
+    }
+    
+    .vacacion-chip {
+        font-size: 6px;
+    }
+    
+    .dia-hoy .dia-numero {
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
     }
 }
 </style>

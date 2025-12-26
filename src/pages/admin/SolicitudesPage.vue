@@ -201,122 +201,27 @@
       </q-table>
     </div>
 
-    <!-- Dialog rechazo -->
-    <q-dialog v-model="dialogRechazo">
-      <q-card style="min-width: 400px">
-        <q-card-section class="row items-center">
-          <div class="text-h6">Rechazar Solicitud</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
+    <!-- Diálogos usando componentes extraídos -->
+    <DialogRechazo 
+      v-model="dialogRechazo" 
+      :solicitud="solicitudRechazo" 
+      :loading="loadingAction"
+      @confirm="rechazarConMotivo"
+    />
 
-        <q-card-section>
-          <p class="q-mb-md">
-            <strong>Empleado:</strong> {{ solicitudRechazo?.empleado?.nombre_completo }}<br>
-            <strong>Días:</strong> {{ solicitudRechazo?.dias_solicitados }}
-          </p>
-          <q-input v-model="motivoRechazo" label="Motivo del rechazo" type="textarea" outlined rows="3" />
-        </q-card-section>
+    <DialogCancelar 
+      v-model="dialogCancelar" 
+      :solicitud="solicitudCancelar" 
+      :loading="loadingCancelar"
+      @confirm="cancelarConMotivo"
+    />
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" v-close-popup />
-          <q-btn color="negative" label="Rechazar" @click="rechazar" :loading="loadingAction" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- Dialog cancelar -->
-    <q-dialog v-model="dialogCancelar">
-      <q-card style="min-width: 400px">
-        <q-card-section class="row items-center bg-grey-8 text-white">
-          <q-icon name="cancel" size="sm" class="q-mr-sm" />
-          <div class="text-h6">Cancelar Solicitud</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
-
-        <q-card-section>
-          <div class="q-mb-md">
-            <p><strong>Empleado:</strong> {{ solicitudCancelar?.empleado?.nombre_completo }}</p>
-            <p><strong>Días:</strong> {{ solicitudCancelar?.dias_solicitados }}</p>
-            <p v-if="solicitudCancelar?.estado === 'aprobada'" class="text-warning">
-              <q-icon name="info" /> Los días serán devueltos al saldo del empleado.
-            </p>
-          </div>
-          <q-input v-model="motivoCancelar" label="Motivo de la cancelación" type="textarea" outlined rows="3" 
-            hint="Ej: El empleado cambió de planes, error en la programación, etc." />
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cerrar" v-close-popup />
-          <q-btn color="grey-8" label="Cancelar Solicitud" icon="cancel" @click="cancelar" :loading="loadingCancelar" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- Dialog editar solicitud -->
-    <q-dialog v-model="dialogEditar" persistent maximized>
-      <q-card>
-        <q-card-section class="row items-center bg-primary text-white">
-          <q-icon name="edit" size="sm" class="q-mr-sm" />
-          <div class="text-h6">Editar Solicitud</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
-
-        <q-card-section v-if="solicitudEditar" class="q-pa-lg" style="max-width: 900px; margin: 0 auto;">
-          <!-- Info Empleado -->
-          <q-card flat bordered class="q-mb-md">
-            <q-card-section>
-              <div class="text-subtitle1 text-weight-bold">{{ solicitudEditar.empleado?.nombre_completo }}</div>
-              <div class="text-caption text-grey">CI: {{ solicitudEditar.empleado?.ci }} | Saldo: {{
-                solicitudEditar.empleado?.saldo_vacaciones }} días</div>
-            </q-card-section>
-          </q-card>
-
-          <!-- Calendario -->
-          <div class="text-subtitle1 q-mb-sm">
-            <q-icon name="calendar_month" class="q-mr-sm" />
-            Seleccione los días de vacaciones
-          </div>
-
-          <CalendarioVacaciones v-model="diasEditados" :empleado="solicitudEditar?.empleado" />
-
-          <!-- Reemplazo -->
-          <div class="row q-col-gutter-md q-mt-md">
-            <div class="col-12 col-sm-4">
-              <q-toggle v-model="editarTieneReemplazo" label="Tiene Reemplazo" />
-            </div>
-            <div class="col-12 col-sm-8">
-              <q-input v-if="editarTieneReemplazo" v-model="editarNombreReemplazo" label="Nombre del Reemplazo" outlined
-                dense />
-            </div>
-          </div>
-
-          <!-- Resumen -->
-          <q-card flat bordered class="q-mt-md" :class="diasEditados.length > 0 ? 'bg-blue-1' : 'bg-grey-2'">
-            <q-card-section>
-              <div class="row items-center justify-between">
-                <div>
-                  <span class="text-subtitle2">Días seleccionados:</span>
-                  <span class="text-h6 text-primary q-ml-sm">{{ calcularDiasEditados }}</span>
-                </div>
-                <div>
-                  <span class="text-subtitle2">Días originales:</span>
-                  <span class="text-h6 text-grey q-ml-sm">{{ solicitudEditar?.dias_solicitados }}</span>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-card-section>
-
-        <q-card-actions align="right" class="q-pa-md">
-          <q-btn flat label="Cancelar" v-close-popup />
-          <q-btn color="primary" label="Guardar Cambios" icon="save" @click="guardarEdicion" :loading="loadingEditar"
-            :disable="diasEditados.length === 0" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <DialogEditar 
+      v-model="dialogEditar" 
+      :solicitud="solicitudEditar" 
+      :loading="loadingEditar"
+      @save="guardarEdicion"
+    />
 
     <!-- Dialog formulario oficial UNITEPC -->
     <q-dialog v-model="dialogFormulario" maximized>
@@ -653,6 +558,7 @@ import { useQuasar } from 'quasar'
 import { useDebounceFn } from '@vueuse/core'
 import adminService from '@/services/adminService'
 import CalendarioVacaciones from '@/components/CalendarioVacaciones.vue'
+import { DialogRechazo, DialogCancelar, DialogEditar } from '@/components/solicitudes'
 
 const $q = useQuasar()
 
@@ -1003,15 +909,10 @@ async function descargarWord() {
   }
 }
 
-async function rechazar() {
-  if (!motivoRechazo.value.trim()) {
-    $q.notify({ type: 'warning', message: 'Ingrese el motivo del rechazo' })
-    return
-  }
-
+async function rechazarConMotivo(motivo) {
   loadingAction.value = true
   try {
-    await adminService.rechazarSolicitud(solicitudRechazo.value.id, motivoRechazo.value)
+    await adminService.rechazarSolicitud(solicitudRechazo.value.id, motivo)
     $q.notify({ type: 'positive', message: 'Solicitud rechazada' })
     dialogRechazo.value = false
     cargarSolicitudes()
@@ -1019,6 +920,21 @@ async function rechazar() {
     $q.notify({ type: 'negative', message: 'Error al rechazar solicitud' })
   } finally {
     loadingAction.value = false
+  }
+}
+
+async function cancelarConMotivo(motivo) {
+  loadingCancelar.value = true
+  try {
+    const res = await adminService.cancelarSolicitud(solicitudCancelar.value.id, motivo)
+    $q.notify({ type: 'positive', message: res.message || 'Solicitud cancelada correctamente' })
+    dialogCancelar.value = false
+    cargarSolicitudes()
+  } catch (error) {
+    const message = error.response?.data?.message || 'Error al cancelar la solicitud'
+    $q.notify({ type: 'negative', message })
+  } finally {
+    loadingCancelar.value = false
   }
 }
 

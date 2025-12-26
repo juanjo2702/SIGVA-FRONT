@@ -1,17 +1,33 @@
 <template>
-  <q-page class="q-pa-md">
-    <!-- Header -->
-    <div class="row items-center q-mb-md">
-      <div class="text-h5 text-weight-bold">
-        <q-icon name="business" class="q-mr-sm" />
-        Gestión de Sedes
+  <q-page class="sedes-page">
+    <!-- Header moderno -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="title-icon">
+            <q-icon name="business" size="28px" />
+          </div>
+          <div>
+            <h1>Gestión de Sedes</h1>
+            <p class="subtitle">Administra las sedes de la organización</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <q-btn 
+            unelevated 
+            color="secondary"
+            icon="add" 
+            label="Nueva Sede" 
+            no-caps
+            class="action-btn"
+            @click="mostrarCrear"
+          />
+        </div>
       </div>
-      <q-space />
-      <q-btn color="primary" icon="add" label="Nueva Sede" @click="mostrarCrear" no-caps unelevated />
     </div>
 
     <!-- Tabla -->
-    <q-card class="shadow-2">
+    <q-card class="table-card">
       <q-table
         :rows="sedes"
         :columns="columns"
@@ -199,3 +215,116 @@ async function cargarSedes() {
 
 onMounted(cargarSedes)
 </script>
+
+<style scoped>
+.sedes-page {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.header-title h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.header-title .subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 4px 0 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  font-weight: 500;
+}
+
+/* Table Card */
+.table-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sedes-page {
+    padding: 16px;
+  }
+  
+  .page-header {
+    padding: 20px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-title h1 {
+    font-size: 1.4rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+  }
+  
+  .action-btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-header {
+    padding: 16px;
+  }
+  
+  .header-title h1 {
+    font-size: 1.2rem;
+  }
+  
+  .title-icon {
+    width: 44px;
+    height: 44px;
+  }
+}
+</style>

@@ -143,16 +143,24 @@
     </q-card>
 
     <!-- Dialog para seleccionar tipo de día -->
-    <q-dialog v-model="dialogTipo" persistent>
-      <q-card style="min-width: 280px">
-        <q-card-section class="text-white" :style="{ backgroundColor: coloresEtapas[etapaActiva] }">
-          <div class="text-h6">{{ fechaSeleccionada?.diaSemana }} {{ formatFecha(fechaSeleccionada?.fecha) }}</div>
-          <div class="text-caption">Etapa {{ etapaActiva + 1 }}</div>
+    <q-dialog v-model="dialogTipo" persistent position="bottom" class="dialog-tipo-dia">
+      <q-card class="dialog-tipo-card" style="width: 100%; max-width: 400px;">
+        <q-card-section class="text-white q-py-md" :style="{ backgroundColor: coloresEtapas[etapaActiva] }">
+          <div class="text-h5">{{ fechaSeleccionada?.diaSemana }} {{ formatFecha(fechaSeleccionada?.fecha) }}</div>
+          <div class="text-subtitle2 q-mt-xs">Etapa {{ etapaActiva + 1 }}</div>
         </q-card-section>
 
-        <q-card-section class="q-pt-md">
-          <q-btn-toggle v-model="tipoSeleccionado" spread no-caps toggle-color="primary" :options="opcionesTipo"
-            class="q-mb-md" />
+        <q-card-section class="q-pt-lg q-pb-md">
+          <div class="text-subtitle2 q-mb-sm text-grey-7">Tipo de día:</div>
+          <q-btn-toggle 
+            v-model="tipoSeleccionado" 
+            spread 
+            no-caps 
+            toggle-color="primary" 
+            :options="opcionesTipo"
+            class="q-mb-md tipo-toggle"
+            size="lg"
+          />
 
           <q-banner v-if="fechaSeleccionada?.esSabado" class="bg-info text-white q-mt-sm" rounded dense>
             <template v-slot:avatar>
@@ -161,17 +169,17 @@
             Sábado: siempre día completo
           </q-banner>
 
-          <div class="text-center q-mt-md">
-            <span class="text-h5">{{ getDiasDescontados() }}</span>
-            <span class="text-body2"> día(s) a descontar</span>
+          <div class="text-center q-mt-lg q-pa-md bg-grey-1 rounded-borders">
+            <span class="text-h4 text-primary text-weight-bold">{{ getDiasDescontados() }}</span>
+            <span class="text-body1 q-ml-sm">día(s) a descontar</span>
           </div>
         </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="grey" @click="cancelarSeleccion" />
-          <q-btn flat label="Quitar día" color="negative" @click="quitarDiaActual" v-if="diaYaSeleccionado" />
-          <q-btn unelevated label="Confirmar" :style="{ backgroundColor: coloresEtapas[etapaActiva], color: 'white' }"
-            @click="confirmarSeleccion" />
+        <q-card-actions class="q-pa-md q-gutter-sm" align="center">
+          <q-btn flat label="Cancelar" color="grey-7" @click="cancelarSeleccion" class="q-px-lg" />
+          <q-btn v-if="diaYaSeleccionado" flat label="Quitar" color="negative" icon="delete" @click="quitarDiaActual" class="q-px-md" />
+          <q-btn unelevated label="Confirmar" icon="check" :style="{ backgroundColor: coloresEtapas[etapaActiva], color: 'white' }"
+            @click="confirmarSeleccion" class="q-px-lg" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -725,5 +733,166 @@ onMounted(() => {
 
 .calendario-dia.feriado .dia-numero {
   font-weight: bold;
+}
+
+/* ================================
+   ESTILOS RESPONSIVE PARA MÓVILES
+   ================================ */
+
+/* Tablets y móviles grandes (768px y menos) */
+@media (max-width: 768px) {
+  .calendario-dia {
+    min-height: 50px;
+    padding: 3px;
+  }
+  
+  .dia-numero {
+    font-size: 13px;
+  }
+  
+  .etapa-preview .q-chip {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+  
+  .calendario-header-dia {
+    padding: 6px 4px;
+    font-size: 12px;
+  }
+}
+
+/* Móviles medianos (576px y menos) */
+@media (max-width: 576px) {
+  .etapas-container {
+    padding: 8px;
+  }
+  
+  .etapa-card {
+    padding: 10px;
+  }
+  
+  .etapa-header {
+    font-size: 13px;
+  }
+  
+  .etapa-preview {
+    gap: 2px;
+  }
+  
+  .etapa-preview .q-chip {
+    font-size: 10px;
+    padding: 1px 4px;
+    height: 22px;
+  }
+  
+  .calendario-dia {
+    min-height: 45px;
+    padding: 2px;
+  }
+  
+  .dia-numero {
+    font-size: 12px;
+  }
+  
+  .dia-etapa-badge {
+    font-size: 7px;
+  }
+  
+  .calendario-header-dia {
+    padding: 5px 2px;
+    font-size: 11px;
+  }
+  
+  /* Hacer los botones de navegación más grandes para touch */
+  .calendario-vacaciones :deep(.q-btn--round) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Mejorar la leyenda en móvil */
+  .leyenda-color {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Móviles pequeños (400px y menos) */
+@media (max-width: 400px) {
+  .calendario-dia {
+    min-height: 40px;
+    padding: 1px;
+  }
+  
+  .dia-numero {
+    font-size: 11px;
+  }
+  
+  .dia-etapa-badge {
+    font-size: 6px;
+    bottom: 1px;
+  }
+  
+  .dia-feriado-icono {
+    top: 1px;
+    right: 1px;
+  }
+  
+  .dia-feriado-icono :deep(.q-icon) {
+    font-size: 10px !important;
+  }
+  
+  .calendario-header-dia {
+    font-size: 10px;
+    padding: 4px 1px;
+  }
+  
+  /* Etapas más compactas */
+  .etapa-card {
+    padding: 8px;
+  }
+  
+  .etapa-preview .q-chip {
+    font-size: 9px;
+    height: 20px;
+    padding: 0 3px;
+  }
+  
+  /* Panel de resumen más compacto */
+  .calendario-vacaciones :deep(.q-card-section) {
+    padding: 8px;
+  }
+  
+  /* Título del mes más pequeño */
+  .text-h6 {
+    font-size: 1rem !important;
+  }
+}
+
+/* Touch-friendly: área de click más grande */
+@media (hover: none) and (pointer: coarse) {
+  .calendario-dia {
+    min-height: 48px;
+  }
+  
+  .calendario-dia:active:not(.deshabilitado) {
+    background: #bbdefb;
+    transform: scale(0.95);
+  }
+  
+  .etapa-card:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Orientación horizontal en móviles */
+@media (max-width: 768px) and (orientation: landscape) {
+  .etapas-container {
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  
+  .calendario-dia {
+    min-height: 38px;
+  }
 }
 </style>

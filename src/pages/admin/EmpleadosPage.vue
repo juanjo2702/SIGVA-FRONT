@@ -1,33 +1,86 @@
 <template>
-  <q-page class="q-pa-md">
-    <!-- Header -->
-    <div class="row items-center justify-between q-mb-md">
-      <div class="text-h5">Gestión de Empleados</div>
-      <div class="row q-gutter-sm">
-        <q-btn color="secondary" icon="upload_file" label="Importar Excel" @click="dialogImport = true" unelevated
-          no-caps />
-        <q-btn color="primary" icon="add" label="Nuevo Empleado" @click="abrirFormulario()" unelevated no-caps />
+  <q-page class="empleados-page">
+    <!-- Header moderno -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="title-icon">
+            <q-icon name="badge" size="28px" />
+          </div>
+          <div>
+            <h1>Gestión de Empleados</h1>
+            <p class="subtitle">Administra el personal y sus vacaciones</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <q-btn 
+            unelevated 
+            color="white" 
+            text-color="primary"
+            icon="upload_file" 
+            label="Importar" 
+            no-caps
+            class="action-btn"
+            @click="dialogImport = true"
+          />
+          <q-btn 
+            unelevated 
+            color="secondary"
+            icon="add" 
+            label="Nuevo Empleado" 
+            no-caps
+            class="action-btn"
+            @click="abrirFormulario()"
+          />
+        </div>
       </div>
     </div>
 
-    <!-- Filtros -->
-    <q-card class="q-mb-md shadow-2">
-      <q-card-section>
-        <div class="row q-col-gutter-md items-end">
-          <div class="col-12 col-sm-6 col-md-5">
-            <q-input v-model="filtros.buscar" label="Buscar (CI, Nombre)" outlined dense clearable
-              @update:model-value="buscarConDebounce">
-              <template v-slot:prepend><q-icon name="search" /></template>
-              <template v-slot:append v-if="loading"><q-spinner size="xs" /></template>
-            </q-input>
-          </div>
-          <div class="col-12 col-sm-6 col-md-4">
-            <q-checkbox v-model="filtros.saldo_negativo" label="Solo saldo negativo"
-              @update:model-value="cargarEmpleados" />
-          </div>
-        </div>
-      </q-card-section>
-    </q-card>
+    <!-- Filtros mejorados -->
+    <div class="filters-section">
+      <div class="filters-grid">
+        <q-input 
+          v-model="filtros.buscar" 
+          label="Buscar (CI, Nombre)" 
+          outlined 
+          dense 
+          clearable
+          class="filter-item search-input"
+          @update:model-value="buscarConDebounce"
+        >
+          <template v-slot:prepend>
+            <q-icon name="search" color="primary" />
+          </template>
+          <template v-slot:append v-if="loading">
+            <q-spinner size="xs" color="primary" />
+          </template>
+        </q-input>
+        
+        <q-select
+          v-model="filtros.sede_id"
+          :options="sedesOptions"
+          label="Sede"
+          emit-value
+          map-options
+          outlined
+          dense
+          clearable
+          class="filter-item"
+          @update:model-value="cargarEmpleados"
+        >
+          <template v-slot:prepend>
+            <q-icon name="location_on" color="primary" />
+          </template>
+        </q-select>
+        
+        <q-checkbox 
+          v-model="filtros.saldo_negativo" 
+          label="Solo saldo negativo"
+          class="filter-checkbox"
+          @update:model-value="cargarEmpleados" 
+        />
+      </div>
+    </div>
 
     <!-- Tabla -->
     <q-card class="shadow-2">
@@ -89,7 +142,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import adminService from '@/services/adminService'
 import { useNotify } from '@/composables/useNotify'
@@ -107,8 +160,14 @@ const notify = useNotify()
 // State
 const loading = ref(false)
 const empleados = ref([])
-const filtros = ref({ buscar: '', saldo_negativo: false })
+const filtros = ref({ buscar: '', saldo_negativo: false, sede_id: null })
 const sedes = ref([])
+
+// Computed
+const sedesOptions = computed(() => [
+  { value: null, label: 'Todas las sedes' },
+  ...sedes.value.map(s => ({ value: s.id, label: s.nombre }))
+])
 const pagination = ref({
   page: 1,
   rowsPerPage: 15,
@@ -329,3 +388,158 @@ onMounted(() => {
   cargarSedes()
 })
 </script>
+
+<style scoped>
+.empleados-page {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(30, 136, 229, 0.3);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.header-title h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.header-title .subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 4px 0 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  font-weight: 500;
+}
+
+/* Filters Section */
+.filters-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.filters-grid {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  min-width: 200px;
+  flex: 1;
+  max-width: 280px;
+}
+
+.search-input {
+  flex: 2;
+  max-width: 350px;
+}
+
+.filter-checkbox {
+  margin-left: 8px;
+}
+
+/* Table Card */
+.empleados-page :deep(.q-card) {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .empleados-page {
+    padding: 16px;
+  }
+  
+  .page-header {
+    padding: 20px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-title h1 {
+    font-size: 1.4rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+  }
+  
+  .action-btn {
+    flex: 1;
+  }
+  
+  .filters-grid {
+    flex-direction: column;
+  }
+  
+  .filter-item,
+  .search-input {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-header {
+    padding: 16px;
+  }
+  
+  .header-title h1 {
+    font-size: 1.2rem;
+  }
+  
+  .title-icon {
+    width: 44px;
+    height: 44px;
+  }
+}
+</style>
