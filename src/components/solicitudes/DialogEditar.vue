@@ -96,10 +96,18 @@ watch(() => props.modelValue, (val) => {
   if (val && props.solicitud) {
     // Cargar días desde detalles o reconstruir
     if (props.solicitud.detalles?.length > 0) {
-      diasSeleccionados.value = props.solicitud.detalles.map(d => ({
-        fecha: d.fecha,
-        tipo: d.tipo_dia || 'completo'
-      }))
+      diasSeleccionados.value = props.solicitud.detalles.map(d => {
+        // Normalizar fecha a formato YYYY-MM-DD
+        let fecha = d.fecha
+        if (fecha && fecha.includes('T')) {
+          fecha = fecha.split('T')[0]
+        }
+        return {
+          fecha: fecha,
+          tipo: d.tipo || 'completo',
+          etapa: d.etapa || 1
+        }
+      })
     } else {
       diasSeleccionados.value = []
     }

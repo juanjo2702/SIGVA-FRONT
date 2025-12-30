@@ -331,20 +331,23 @@
                     <!-- Si tiene etapas, mostrar cada una -->
                     <template v-if="datosFormulario.etapas && datosFormulario.etapas.length > 1">
                       <tr v-for="(etapa, index) in datosFormulario.etapas" :key="index">
-                        <td style="padding: 2px; font-weight: bold;">{{ index === 0 ? 'del' : 'y del' }}</td>
+                        <td style="padding: 2px; font-weight: bold; color: #1976D2;" v-if="index === 0">Etapa 1:</td>
+                        <td style="padding: 2px; font-weight: bold; color: #43A047;" v-else-if="index === 1">Etapa 2:</td>
+                        <td style="padding: 2px; font-weight: bold; color: #FB8C00;" v-else>Etapa {{ index + 1 }}:</td>
                         <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
                           getFechaPartes(etapa.fecha_inicio).dia }}</td>
                         <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
                           getFechaPartes(etapa.fecha_inicio).mes }}</td>
                         <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
                           getFechaPartes(etapa.fecha_inicio).anio }}</td>
-                        <td style="padding: 2px; font-weight: bold; padding-left: 15px;">al</td>
+                        <td style="padding: 2px; font-weight: bold; padding-left: 10px;">al</td>
                         <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
                           getFechaPartes(etapa.fecha_fin).dia }}</td>
                         <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
                           getFechaPartes(etapa.fecha_fin).mes }}</td>
                         <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
                           getFechaPartes(etapa.fecha_fin).anio }}</td>
+                        <td style="padding: 2px; font-size: 8px; color: #666;">({{ etapa.dias }} días)</td>
                       </tr>
                     </template>
                     <!-- Si no tiene etapas o solo una, mostrar rango normal -->
@@ -388,6 +391,18 @@
                 </td>
               </tr>
             </table>
+
+            <!-- CALENDARIO VISUAL (solo si hay múltiples etapas) -->
+            <div v-if="datosFormulario.etapas && datosFormulario.etapas.length > 1" 
+                 style="border: 1px solid #000; padding: 8px; margin-bottom: 10px;">
+              <div style="font-weight: bold; font-size: 10px; text-align: center; margin-bottom: 5px;">
+                CALENDARIO DE VACACIONES POR ETAPAS
+              </div>
+              <CalendarioFormulario 
+                :etapas="datosFormulario.etapas"
+                :dias-detalle="datosFormulario.detalles || []"
+              />
+            </div>
 
             <!-- ADJUNTOS -->
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
@@ -558,6 +573,7 @@ import { useQuasar } from 'quasar'
 import { useDebounceFn } from '@vueuse/core'
 import adminService from '@/services/adminService'
 import CalendarioVacaciones from '@/components/CalendarioVacaciones.vue'
+import CalendarioFormulario from '@/components/CalendarioFormulario.vue'
 import { DialogRechazo, DialogCancelar, DialogEditar } from '@/components/solicitudes'
 
 const $q = useQuasar()
@@ -775,8 +791,8 @@ async function mostrarEditar(solicitud) {
   dialogEditar.value = true
 }
 
-async function guardarEdicion() {
-  if (diasEditados.value.length === 0) {
+async function guardarEdicion(data) {
+  if (!data?.dias || data.dias.length === 0) {
     $q.notify({ type: 'warning', message: 'Seleccione al menos un día' })
     return
   }
@@ -784,9 +800,9 @@ async function guardarEdicion() {
   loadingEditar.value = true
   try {
     await adminService.actualizarSolicitud(solicitudEditar.value.id, {
-      dias: diasEditados.value,
-      tiene_reemplazo: editarTieneReemplazo.value,
-      nombre_reemplazo: editarTieneReemplazo.value ? editarNombreReemplazo.value : null
+      dias: data.dias,
+      tiene_reemplazo: data.tiene_reemplazo,
+      nombre_reemplazo: data.tiene_reemplazo ? data.nombre_reemplazo : null
     })
 
     $q.notify({ type: 'positive', message: 'Solicitud actualizada correctamente' })

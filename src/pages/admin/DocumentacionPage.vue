@@ -32,7 +32,7 @@
 
         <!-- Edición de Solicitudes Aprobadas -->
         <q-expansion-item icon="edit_note" label="Edición de Solicitudes Aprobadas" caption="Nueva funcionalidad"
-          header-class="text-primary" expand-icon-class="text-primary" default-opened>
+          header-class="text-primary">
           <q-card>
             <q-card-section class="q-pt-none">
               <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
@@ -83,9 +83,53 @@
 
         <q-separator />
 
+        <!-- Cancelación de Solicitudes -->
+        <q-expansion-item icon="cancel" label="Cancelación de Solicitudes" caption="Nueva funcionalidad - Diciembre 2025"
+          header-class="text-primary" default-opened>
+          <q-card>
+            <q-card-section class="q-pt-none">
+              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
+
+              <p class="text-body1">
+                Ahora es posible <strong>cancelar solicitudes de vacaciones</strong> desde el panel de administración.
+              </p>
+
+              <div class="feature-list q-mt-md">
+                <div class="feature-item">
+                  <q-icon name="cancel" color="negative" size="sm" />
+                  <span><strong>Estado Cancelada:</strong> Nuevo estado para solicitudes canceladas</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="edit_note" color="primary" size="sm" />
+                  <span>Requiere especificar motivo de cancelación</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="undo" color="orange" size="sm" />
+                  <span>Devolución automática de días si la solicitud estaba aprobada</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="history" color="blue" size="sm" />
+                  <span>Se registra quién canceló y cuándo</span>
+                </div>
+              </div>
+
+              <q-separator class="q-my-md" />
+
+              <div class="text-subtitle2 text-weight-bold q-mb-sm">Estados que se pueden cancelar:</div>
+              <div class="row q-gutter-xs">
+                <q-chip size="sm" color="warning" text-color="white">Pendiente</q-chip>
+                <q-chip size="sm" color="cyan" text-color="white">Pend. Documento</q-chip>
+                <q-chip size="sm" color="positive" text-color="white">Aprobada</q-chip>
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+
+        <q-separator />
+
         <!-- Branding UNITEPC -->
         <q-expansion-item icon="palette" label="Branding UNITEPC" caption="Mejora visual - Diciembre 2025"
-          header-class="text-primary" default-opened>
+          header-class="text-primary">
           <q-card>
             <q-card-section class="q-pt-none">
               <q-badge color="purple" class="q-mb-md">NUEVO DISEÑO</q-badge>
@@ -111,6 +155,54 @@
                   <q-icon name="login" color="orange" size="sm" />
                   <span>Login completamente rediseñado con gradiente</span>
                 </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+
+        <q-separator />
+
+        <!-- Diseño UI Estandarizado -->
+        <q-expansion-item icon="design_services" label="Diseño UI Estandarizado" caption="Mejora visual - Diciembre 2025"
+          header-class="text-primary" default-opened>
+          <q-card>
+            <q-card-section class="q-pt-none">
+              <q-badge color="blue" class="q-mb-md">MEJORADO</q-badge>
+
+              <p class="text-body1">
+                Todas las páginas de administración ahora tienen un <strong>diseño consistente y responsive</strong>.
+              </p>
+
+              <div class="feature-list q-mt-md">
+                <div class="feature-item">
+                  <q-icon name="gradient" color="purple" size="sm" />
+                  <span><strong>Headers con gradiente:</strong> Cada módulo tiene su color distintivo</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="filter_list" color="blue" size="sm" />
+                  <span>Filtros en sección separada con iconos</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="smartphone" color="green" size="sm" />
+                  <span>100% responsive en móviles y tablets</span>
+                </div>
+                <div class="feature-item">
+                  <q-icon name="touch_app" color="orange" size="sm" />
+                  <span>Touch-friendly: botones y áreas de click optimizadas</span>
+                </div>
+              </div>
+
+              <q-separator class="q-my-md" />
+
+              <div class="text-subtitle2 text-weight-bold q-mb-sm">Paleta de Colores por Módulo:</div>
+              <div class="row q-gutter-sm">
+                <q-chip size="sm" style="background: linear-gradient(135deg, #1e88e5, #1565c0); color: white;">Empleados</q-chip>
+                <q-chip size="sm" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white;">Sedes</q-chip>
+                <q-chip size="sm" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white;">Roles</q-chip>
+                <q-chip size="sm" style="background: linear-gradient(135deg, #ea580c, #c2410c); color: white;">Feriados</q-chip>
+                <q-chip size="sm" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">Usuarios</q-chip>
+                <q-chip size="sm" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">Reportes</q-chip>
+                <q-chip size="sm" style="background: linear-gradient(135deg, #db2777, #be185d); color: white;">Calendario</q-chip>
               </div>
             </q-card-section>
           </q-card>

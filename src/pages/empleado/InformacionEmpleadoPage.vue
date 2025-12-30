@@ -284,7 +284,30 @@
                       <td style="padding: 2px; text-align: center; font-size: 9px; font-weight: bold;">mes</td>
                       <td style="padding: 2px; text-align: center; font-size: 9px; font-weight: bold;">año</td>
                     </tr>
-                    <tr>
+                    <!-- Si tiene múltiples etapas -->
+                    <template v-if="datosFormulario.etapas && datosFormulario.etapas.length > 1">
+                      <tr v-for="(etapa, index) in datosFormulario.etapas" :key="index">
+                        <td style="padding: 2px; font-weight: bold; color: #1976D2;" v-if="index === 0">Etapa 1:</td>
+                        <td style="padding: 2px; font-weight: bold; color: #43A047;" v-else-if="index === 1">Etapa 2:</td>
+                        <td style="padding: 2px; font-weight: bold; color: #FB8C00;" v-else>Etapa {{ index + 1 }}:</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                          getFechaPartes(etapa.fecha_inicio).dia }}</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                          getFechaPartes(etapa.fecha_inicio).mes }}</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                          getFechaPartes(etapa.fecha_inicio).anio }}</td>
+                        <td style="padding: 2px; font-weight: bold; padding-left: 10px;">al</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                          getFechaPartes(etapa.fecha_fin).dia }}</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                          getFechaPartes(etapa.fecha_fin).mes }}</td>
+                        <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
+                          getFechaPartes(etapa.fecha_fin).anio }}</td>
+                        <td style="padding: 2px; font-size: 8px; color: #666;">({{ etapa.dias }} días)</td>
+                      </tr>
+                    </template>
+                    <!-- Rango normal si no hay etapas -->
+                    <tr v-else>
                       <td style="padding: 2px; font-weight: bold;">del</td>
                       <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
                         getFechaPartes(datosFormulario.solicitud?.fecha_inicio).dia }}</td>
@@ -322,6 +345,18 @@
                 </td>
               </tr>
             </table>
+
+            <!-- CALENDARIO VISUAL (solo si hay múltiples etapas) -->
+            <div v-if="datosFormulario.etapas && datosFormulario.etapas.length > 1" 
+                 style="border: 1px solid #000; padding: 8px; margin-bottom: 10px;">
+              <div style="font-weight: bold; font-size: 10px; text-align: center; margin-bottom: 5px;">
+                CALENDARIO DE VACACIONES POR ETAPAS
+              </div>
+              <CalendarioFormulario 
+                :etapas="datosFormulario.etapas"
+                :dias-detalle="datosFormulario.detalles || []"
+              />
+            </div>
 
             <!-- ADJUNTOS -->
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
@@ -489,6 +524,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import empleadoService from '@/services/empleadoService'
+import CalendarioFormulario from '@/components/CalendarioFormulario.vue'
 
 const $q = useQuasar()
 const route = useRoute()
@@ -669,16 +705,26 @@ async function descargarPDF() {
 async function cargarEmpleado() {
   loading.value = true
   try {
-    // Intentar obtener datos desde sessionStorage
+    // Obtener datos de búsqueda desde sessionStorage
     const storedData = sessionStorage.getItem('empleadoSearch')
 
     if (storedData) {
       const parsed = JSON.parse(storedData)
       // Verificar que el CI coincida con el de la ruta
-      if (parsed.ci === route.params.ci && parsed.empleado) {
-        empleado.value = parsed.empleado
-        loading.value = false
-        return
+      if (parsed.ci === route.params.ci && parsed.fechaIngreso) {
+        // Siempre hacer una llamada al API para obtener datos actualizados
+        const response = await empleadoService.buscarEmpleado(parsed.ci, parsed.fechaIngreso)
+        if (response.success && response.data?.empleado) {
+          empleado.value = response.data.empleado
+          // Actualizar el sessionStorage con los datos nuevos
+          sessionStorage.setItem('empleadoSearch', JSON.stringify({
+            ci: parsed.ci,
+            fechaIngreso: parsed.fechaIngreso,
+            empleado: response.data.empleado
+          }))
+          loading.value = false
+          return
+        }
       }
     }
 
@@ -686,6 +732,7 @@ async function cargarEmpleado() {
     router.push('/')
   } catch (error) {
     console.error('Error cargando empleado:', error)
+    $q.notify({ type: 'negative', message: 'Error al cargar datos del empleado' })
     router.push('/')
   } finally {
     loading.value = false
