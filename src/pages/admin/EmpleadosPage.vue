@@ -322,12 +322,16 @@ async function onRequest(props) {
 
 async function cargarEmpleados() {
   loading.value = true
+  console.log('[DEBUG] cargarEmpleados - Filtros:', JSON.parse(JSON.stringify(filtros.value)))
+  console.log('[DEBUG] cargarEmpleados - Sedes loaded:', sedes.value.length)
+  if (sedes.value.length > 0) console.log('[DEBUG] First Sede:', sedes.value[0])
   try {
     const res = await adminService.getEmpleados({
       page: pagination.value.page,
       per_page: pagination.value.rowsPerPage,
       buscar: filtros.value.buscar || undefined,
-      saldo_negativo: filtros.value.saldo_negativo || undefined
+      saldo_negativo: filtros.value.saldo_negativo || undefined,
+      sede_id: filtros.value.sede_id || undefined
     })
     empleados.value = Array.isArray(res.data?.data) ? res.data.data : []
     pagination.value.rowsNumber = res.data?.total || 0
