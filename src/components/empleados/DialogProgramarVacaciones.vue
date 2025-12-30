@@ -23,9 +23,9 @@
 
                 <q-separator class="q-mb-md" />
 
-                <!-- Calendario interactivo -->
+                <!-- Calendario interactivo - Admin puede seleccionar días pasados -->
                 <CalendarioVacaciones v-if="empleado" :empleado="empleado" v-model="form.dias"
-                    @change="onCalendarioChange" />
+                    @change="onCalendarioChange" :permitir-dias-pasados="true" />
 
                 <q-separator class="q-my-md" />
 

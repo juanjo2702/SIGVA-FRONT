@@ -32,48 +32,22 @@
     <!-- Filtros mejorados -->
     <div class="filters-section">
       <div class="filters-grid">
-        <q-select
-          v-model="filtros.estado"
-          :options="estadoOptions"
-          label="Estado"
-          emit-value
-          map-options
-          outlined
-          dense
-          class="filter-item"
-          @update:model-value="cargarSolicitudes"
-        >
+        <q-select v-model="filtros.estado" :options="estadoOptions" label="Estado" emit-value map-options outlined dense
+          class="filter-item" @update:model-value="cargarSolicitudes">
           <template v-slot:prepend>
             <q-icon name="filter_list" color="primary" />
           </template>
         </q-select>
 
-        <q-select
-          v-model="filtros.sede_id"
-          :options="sedesOptions"
-          label="Sede"
-          emit-value
-          map-options
-          outlined
-          dense
-          clearable
-          class="filter-item"
-          @update:model-value="cargarSolicitudes"
-        >
+        <q-select v-model="filtros.sede_id" :options="sedesOptions" label="Sede" emit-value map-options outlined dense
+          clearable class="filter-item" @update:model-value="cargarSolicitudes">
           <template v-slot:prepend>
             <q-icon name="location_on" color="primary" />
           </template>
         </q-select>
 
-        <q-input
-          v-model="filtros.buscar"
-          label="Buscar empleado..."
-          outlined
-          dense
-          clearable
-          class="filter-item search-input"
-          @update:model-value="buscarConDebounce"
-        >
+        <q-input v-model="filtros.buscar" label="Buscar empleado..." outlined dense clearable
+          class="filter-item search-input" @update:model-value="buscarConDebounce">
           <template v-slot:prepend>
             <q-icon name="search" />
           </template>
@@ -82,29 +56,15 @@
           </template>
         </q-input>
 
-        <q-input
-          v-model="filtros.fecha_desde"
-          label="Desde"
-          type="date"
-          outlined
-          dense
-          class="filter-item date-input"
-          @update:model-value="cargarSolicitudes"
-        >
+        <q-input v-model="filtros.fecha_desde" label="Desde" type="date" outlined dense class="filter-item date-input"
+          @update:model-value="cargarSolicitudes">
           <template v-slot:prepend>
             <q-icon name="event" color="grey-7" />
           </template>
         </q-input>
 
-        <q-input
-          v-model="filtros.fecha_hasta"
-          label="Hasta"
-          type="date"
-          outlined
-          dense
-          class="filter-item date-input"
-          @update:model-value="cargarSolicitudes"
-        >
+        <q-input v-model="filtros.fecha_hasta" label="Hasta" type="date" outlined dense class="filter-item date-input"
+          @update:model-value="cargarSolicitudes">
           <template v-slot:prepend>
             <q-icon name="event" color="grey-7" />
           </template>
@@ -164,14 +124,15 @@
               </q-btn>
 
               <!-- Botón editar (pendientes, pendientes documento y aprobadas) -->
-              <q-btn v-if="props.row.estado !== 'rechazada' && props.row.estado !== 'cancelada'" size="sm" round flat color="primary" icon="edit"
-                @click="mostrarEditar(props.row)">
+              <q-btn v-if="props.row.estado !== 'rechazada' && props.row.estado !== 'cancelada'" size="sm" round flat
+                color="primary" icon="edit" @click="mostrarEditar(props.row)">
                 <q-tooltip>Editar</q-tooltip>
               </q-btn>
 
               <!-- Acciones según estado -->
               <template v-if="props.row.estado === 'pendiente'">
-                <q-btn size="sm" round flat color="positive" icon="check" @click="aprobar(props.row.id)">
+                <q-btn size="sm" round flat color="positive" icon="check"
+                  @click="mostrarConfirmacionAprobar(props.row)">
                   <q-tooltip>Aprobar</q-tooltip>
                 </q-btn>
                 <q-btn size="sm" round flat color="negative" icon="close" @click="mostrarRechazo(props.row)">
@@ -181,8 +142,11 @@
 
               <template v-else-if="props.row.estado === 'pendiente_documento'">
                 <q-btn size="sm" round flat color="positive" icon="check_circle"
-                  @click="confirmarDocumento(props.row.id)" :loading="loadingConfirmar === props.row.id">
-                  <q-tooltip>Confirmar Documento Recibido</q-tooltip>
+                  @click="mostrarConfirmacionDocumento(props.row)" :loading="loadingConfirmar === props.row.id">
+                  <q-tooltip>Confirmar Documento Recibido y Aprobar</q-tooltip>
+                </q-btn>
+                <q-btn size="sm" round flat color="negative" icon="close" @click="mostrarRechazo(props.row)">
+                  <q-tooltip>Rechazar Solicitud</q-tooltip>
                 </q-btn>
                 <q-btn size="sm" round flat color="grey" icon="cancel" @click="mostrarCancelar(props.row)">
                   <q-tooltip>Cancelar Programación</q-tooltip>
@@ -202,26 +166,86 @@
     </div>
 
     <!-- Diálogos usando componentes extraídos -->
-    <DialogRechazo 
-      v-model="dialogRechazo" 
-      :solicitud="solicitudRechazo" 
-      :loading="loadingAction"
-      @confirm="rechazarConMotivo"
-    />
+    <DialogRechazo v-model="dialogRechazo" :solicitud="solicitudRechazo" :loading="loadingAction"
+      @confirm="rechazarConMotivo" />
 
-    <DialogCancelar 
-      v-model="dialogCancelar" 
-      :solicitud="solicitudCancelar" 
-      :loading="loadingCancelar"
-      @confirm="cancelarConMotivo"
-    />
+    <DialogCancelar v-model="dialogCancelar" :solicitud="solicitudCancelar" :loading="loadingCancelar"
+      @confirm="cancelarConMotivo" />
 
-    <DialogEditar 
-      v-model="dialogEditar" 
-      :solicitud="solicitudEditar" 
-      :loading="loadingEditar"
-      @save="guardarEdicion"
-    />
+    <DialogEditar v-model="dialogEditar" :solicitud="solicitudEditar" :loading="loadingEditar" @save="guardarEdicion" />
+
+    <!-- Dialog confirmación APROBAR -->
+    <q-dialog v-model="dialogConfirmAprobar" persistent>
+      <q-card style="min-width: 400px">
+        <q-card-section class="row items-center bg-positive text-white">
+          <q-icon name="check_circle" size="md" class="q-mr-sm" />
+          <div class="text-h6">¿Aprobar esta solicitud?</div>
+        </q-card-section>
+
+        <q-card-section class="q-pa-lg">
+          <div class="q-mb-md">
+            <strong>{{ solicitudConfirm?.empleado?.nombre_completo }}</strong>
+          </div>
+          <div class="text-body2 q-mb-md">
+            <strong>Período:</strong> {{ solicitudConfirm?.fecha_inicio }} - {{ solicitudConfirm?.fecha_fin }}<br>
+            <strong>Días:</strong> {{ solicitudConfirm?.dias_solicitados }}
+          </div>
+          <q-banner class="bg-blue-1 q-pa-sm" rounded>
+            <template v-slot:avatar>
+              <q-icon name="info" color="primary" />
+            </template>
+            <strong>¿Qué sucederá al aprobar?</strong>
+            <ul class="q-ma-none q-pl-md">
+              <li>Los días serán descontados del saldo del empleado</li>
+              <li>El empleado podrá usar sus vacaciones en las fechas indicadas</li>
+              <li>Se registrará en el historial de vacaciones</li>
+            </ul>
+          </q-banner>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat label="Cancelar" color="grey" v-close-popup />
+          <q-btn unelevated label="Sí, Aprobar" color="positive" @click="aprobarConfirmado" :loading="loadingAction" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Dialog confirmación CONFIRMAR DOCUMENTO -->
+    <q-dialog v-model="dialogConfirmDocumento" persistent>
+      <q-card style="min-width: 400px">
+        <q-card-section class="row items-center bg-orange text-white">
+          <q-icon name="description" size="md" class="q-mr-sm" />
+          <div class="text-h6">¿Confirmar documento recibido?</div>
+        </q-card-section>
+
+        <q-card-section class="q-pa-lg">
+          <div class="q-mb-md">
+            <strong>{{ solicitudConfirm?.empleado?.nombre_completo }}</strong>
+          </div>
+          <div class="text-body2 q-mb-md">
+            <strong>Período:</strong> {{ solicitudConfirm?.fecha_inicio }} - {{ solicitudConfirm?.fecha_fin }}<br>
+            <strong>Días:</strong> {{ solicitudConfirm?.dias_solicitados }}
+          </div>
+          <q-banner class="bg-orange-1 q-pa-sm" rounded>
+            <template v-slot:avatar>
+              <q-icon name="warning" color="orange" />
+            </template>
+            <strong>¿Qué sucederá al confirmar?</strong>
+            <ul class="q-ma-none q-pl-md">
+              <li>Se marcará que el documento físico fue recibido</li>
+              <li>La solicitud será <strong>APROBADA automáticamente</strong></li>
+              <li>Los días serán descontados del saldo del empleado</li>
+            </ul>
+          </q-banner>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat label="Cancelar" color="grey" v-close-popup />
+          <q-btn unelevated label="Sí, Confirmar y Aprobar" color="orange" text-color="white"
+            @click="confirmarDocumentoConfirmado" :loading="loadingConfirmar" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <!-- Dialog formulario oficial UNITEPC -->
     <q-dialog v-model="dialogFormulario" maximized>
@@ -245,6 +269,13 @@
         <q-card-section v-if="datosFormulario" class="q-pa-md" id="formulario-print">
           <div class="formulario-oficial"
             style="max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif; font-size: 11px;">
+
+            <!-- AVISO DE IMPRESION -->
+            <div class="no-print"
+              style="background: #fff3cd; border: 1px solid #ffc107; padding: 8px 12px; margin-bottom: 15px; border-radius: 4px; font-size: 11px; color: #856404; text-align: center;">
+              <strong>📋 Recomendación:</strong> Para una impresión perfecta, utilice hoja tamaño
+              <strong>OFICIO</strong>.
+            </div>
 
             <!-- HEADER -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -332,7 +363,8 @@
                     <template v-if="datosFormulario.etapas && datosFormulario.etapas.length > 1">
                       <tr v-for="(etapa, index) in datosFormulario.etapas" :key="index">
                         <td style="padding: 2px; font-weight: bold; color: #1976D2;" v-if="index === 0">Etapa 1:</td>
-                        <td style="padding: 2px; font-weight: bold; color: #43A047;" v-else-if="index === 1">Etapa 2:</td>
+                        <td style="padding: 2px; font-weight: bold; color: #43A047;" v-else-if="index === 1">Etapa 2:
+                        </td>
                         <td style="padding: 2px; font-weight: bold; color: #FB8C00;" v-else>Etapa {{ index + 1 }}:</td>
                         <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
                           getFechaPartes(etapa.fecha_inicio).dia }}</td>
@@ -392,16 +424,13 @@
               </tr>
             </table>
 
-            <!-- CALENDARIO VISUAL (solo si hay múltiples etapas) -->
-            <div v-if="datosFormulario.etapas && datosFormulario.etapas.length > 1" 
-                 style="border: 1px solid #000; padding: 8px; margin-bottom: 10px;">
+            <!-- CALENDARIO VISUAL (siempre se muestra) -->
+            <div v-if="datosFormulario.etapas && datosFormulario.etapas.length > 0"
+              style="border: 1px solid #000; padding: 8px; margin-bottom: 10px;">
               <div style="font-weight: bold; font-size: 10px; text-align: center; margin-bottom: 5px;">
-                CALENDARIO DE VACACIONES POR ETAPAS
+                CALENDARIO DE VACACIONES
               </div>
-              <CalendarioFormulario 
-                :etapas="datosFormulario.etapas"
-                :dias-detalle="datosFormulario.detalles || []"
-              />
+              <CalendarioFormulario :etapas="datosFormulario.etapas" :dias-detalle="datosFormulario.detalles || []" />
             </div>
 
             <!-- ADJUNTOS -->
@@ -564,6 +593,43 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    <!-- Dialog Confirmación Editar Aprobada -->
+    <q-dialog v-model="dialogConfirmEditarAprobada" persistent>
+      <q-card style="min-width: 400px">
+        <q-card-section class="row items-center bg-warning text-white">
+          <q-icon name="warning" size="md" class="q-mr-sm" />
+          <div class="text-h6">Advertencia de Edición</div>
+        </q-card-section>
+
+        <q-card-section class="q-pa-lg">
+          <div class="text-body1 q-mb-md">
+            Esta solicitud ya está <strong>APROBADA</strong> y los días han sido descontados.
+          </div>
+
+          <q-banner class="bg-orange-1 text-orange-10 q-pa-sm rounded-borders">
+            <template v-slot:avatar>
+              <q-icon name="info" color="orange" />
+            </template>
+            <ul>
+              <li>El estado volverá a <strong>Pendiente de Documento</strong>.</li>
+              <li>Se recalculará el saldo de vacaciones.</li>
+              <li>Deberá volver a aprobar la solicitud.</li>
+            </ul>
+          </q-banner>
+
+          <div class="q-mt-md text-weight-bold row items-center">
+            <q-icon name="help" color="primary" size="sm" class="q-mr-xs" />
+            ¿Está seguro de querer editarla?
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-mb-sm q-mr-sm">
+          <q-btn flat label="Cancelar" color="grey" v-close-popup />
+          <q-btn label="Sí, Editar" color="primary" @click="procederEditarAprobada" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </q-page>
 </template>
 
@@ -617,6 +683,11 @@ const motivoRechazo = ref('')
 const motivoCancelar = ref('')
 const datosFormulario = ref(null)
 const loadingCancelar = ref(false)
+
+// Diálogos de confirmación
+const dialogConfirmAprobar = ref(false)
+const dialogConfirmDocumento = ref(false)
+const solicitudConfirm = ref(null)
 
 // Edit state
 const diasEditados = ref([])
@@ -742,10 +813,81 @@ function mostrarRechazo(solicitud) {
   dialogRechazo.value = true
 }
 
+async function rechazarConMotivo(motivo) {
+  loadingAction.value = true
+  try {
+    await adminService.rechazarSolicitud(solicitudRechazo.value.id, motivo)
+    $q.notify({ type: 'positive', message: 'Solicitud rechazada correctamente' })
+    dialogRechazo.value = false
+    cargarSolicitudes()
+  } catch (error) {
+    const message = error.response?.data?.message || 'Error al rechazar la solicitud'
+    $q.notify({ type: 'negative', message })
+  } finally {
+    loadingAction.value = false
+  }
+}
+
 function mostrarCancelar(solicitud) {
   solicitudCancelar.value = solicitud
   motivoCancelar.value = ''
   dialogCancelar.value = true
+}
+
+async function cancelarConMotivo(motivo) {
+  loadingCancelar.value = true
+  try {
+    await adminService.cancelarSolicitud(solicitudCancelar.value.id, motivo)
+    $q.notify({ type: 'positive', message: 'Solicitud cancelada correctamente' })
+    dialogCancelar.value = false
+    cargarSolicitudes()
+  } catch (error) {
+    const message = error.response?.data?.message || 'Error al cancelar la solicitud'
+    $q.notify({ type: 'negative', message })
+  } finally {
+    loadingCancelar.value = false
+  }
+}
+
+// Funciones de confirmación para acciones
+function mostrarConfirmacionAprobar(solicitud) {
+  solicitudConfirm.value = solicitud
+  dialogConfirmAprobar.value = true
+}
+
+function mostrarConfirmacionDocumento(solicitud) {
+  solicitudConfirm.value = solicitud
+  dialogConfirmDocumento.value = true
+}
+
+async function aprobarConfirmado() {
+  loadingAction.value = true
+  try {
+    await adminService.aprobarSolicitud(solicitudConfirm.value.id)
+    $q.notify({ type: 'positive', message: 'Solicitud aprobada correctamente' })
+    dialogConfirmAprobar.value = false
+    cargarSolicitudes()
+  } catch (error) {
+    const message = error.response?.data?.message || 'Error al aprobar la solicitud'
+    $q.notify({ type: 'negative', message })
+  } finally {
+    loadingAction.value = false
+  }
+}
+
+async function confirmarDocumentoConfirmado() {
+  loadingConfirmar.value = solicitudConfirm.value.id
+  try {
+    await adminService.confirmarDocumento(solicitudConfirm.value.id)
+    $q.notify({ type: 'positive', message: 'Documento confirmado y solicitud aprobada' })
+    dialogConfirmDocumento.value = false
+    cargarSolicitudes()
+  } catch (error) {
+    const message = error.response?.data?.message || 'Error al confirmar documento'
+    $q.notify({ type: 'negative', message })
+  } finally {
+    loadingConfirmar.value = null
+  }
 }
 
 async function cancelar() {
@@ -768,7 +910,29 @@ async function cancelar() {
   }
 }
 
+const dialogConfirmEditarAprobada = ref(false)
+const solicitudEditarPendiente = ref(null)
+
 async function mostrarEditar(solicitud) {
+  // Si está aprobada, pedir confirmación antes de editar
+  if (solicitud.estado === 'aprobada') {
+    solicitudEditarPendiente.value = solicitud
+    dialogConfirmEditarAprobada.value = true
+    return
+  }
+
+  abrirDialogoEditar(solicitud)
+}
+
+function procederEditarAprobada() {
+  dialogConfirmEditarAprobada.value = false
+  if (solicitudEditarPendiente.value) {
+    abrirDialogoEditar(solicitudEditarPendiente.value)
+    solicitudEditarPendiente.value = null
+  }
+}
+
+async function abrirDialogoEditar(solicitud) {
   // Cargar datos de la solicitud
   solicitudEditar.value = solicitud
 
@@ -776,13 +940,15 @@ async function mostrarEditar(solicitud) {
   if (solicitud.detalles && solicitud.detalles.length > 0) {
     diasEditados.value = solicitud.detalles.map(d => ({
       fecha: d.fecha.split('T')[0],
-      tipo: d.tipo
+      tipo: d.tipo,
+      etapa: d.etapa || 1
     }))
   } else {
     // Si no hay detalles, crear un día por defecto
     diasEditados.value = [{
       fecha: solicitud.fecha_inicio.split('T')[0],
-      tipo: 'completo'
+      tipo: 'completo',
+      etapa: 1
     }]
   }
 
@@ -922,35 +1088,6 @@ async function descargarWord() {
     $q.notify({ type: 'negative', message: 'Error al generar Word' })
   } finally {
     loadingWord.value = false
-  }
-}
-
-async function rechazarConMotivo(motivo) {
-  loadingAction.value = true
-  try {
-    await adminService.rechazarSolicitud(solicitudRechazo.value.id, motivo)
-    $q.notify({ type: 'positive', message: 'Solicitud rechazada' })
-    dialogRechazo.value = false
-    cargarSolicitudes()
-  } catch (error) {
-    $q.notify({ type: 'negative', message: 'Error al rechazar solicitud' })
-  } finally {
-    loadingAction.value = false
-  }
-}
-
-async function cancelarConMotivo(motivo) {
-  loadingCancelar.value = true
-  try {
-    const res = await adminService.cancelarSolicitud(solicitudCancelar.value.id, motivo)
-    $q.notify({ type: 'positive', message: res.message || 'Solicitud cancelada correctamente' })
-    dialogCancelar.value = false
-    cargarSolicitudes()
-  } catch (error) {
-    const message = error.response?.data?.message || 'Error al cancelar la solicitud'
-    $q.notify({ type: 'negative', message })
-  } finally {
-    loadingCancelar.value = false
   }
 }
 

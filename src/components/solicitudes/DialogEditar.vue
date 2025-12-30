@@ -25,7 +25,8 @@
           Seleccione los días de vacaciones
         </div>
 
-        <CalendarioVacaciones v-model="diasSeleccionados" :empleado="solicitud?.empleado" />
+        <CalendarioVacaciones v-model="diasSeleccionados" :empleado="solicitud?.empleado" :permitir-dias-pasados="true"
+          :solicitud-id-actual="solicitud?.id" :dias-restaurar="diasRestaurar" />
 
         <!-- Reemplazo -->
         <div class="row q-col-gutter-md q-mt-md">
@@ -33,13 +34,7 @@
             <q-toggle v-model="tieneReemplazo" label="Tiene Reemplazo" />
           </div>
           <div class="col-12 col-sm-8">
-            <q-input 
-              v-if="tieneReemplazo" 
-              v-model="nombreReemplazo" 
-              label="Nombre del Reemplazo" 
-              outlined
-              dense 
-            />
+            <q-input v-if="tieneReemplazo" v-model="nombreReemplazo" label="Nombre del Reemplazo" outlined dense />
           </div>
         </div>
 
@@ -62,14 +57,8 @@
 
       <q-card-actions align="right" class="q-pa-md">
         <q-btn flat label="Cancelar" v-close-popup />
-        <q-btn 
-          color="primary" 
-          label="Guardar Cambios" 
-          icon="save" 
-          @click="guardar" 
-          :loading="loading"
-          :disable="diasSeleccionados.length === 0" 
-        />
+        <q-btn color="primary" label="Guardar Cambios" icon="save" @click="guardar" :loading="loading"
+          :disable="diasSeleccionados.length === 0" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -120,6 +109,13 @@ const calcularDias = computed(() => {
   return diasSeleccionados.value.reduce((sum, d) => {
     return sum + (d.tipo === 'completo' ? 1 : 0.5)
   }, 0)
+})
+
+const diasRestaurar = computed(() => {
+  if (props.solicitud?.estado === 'aprobada') {
+    return props.solicitud.dias_solicitados || 0
+  }
+  return 0
 })
 
 function guardar() {

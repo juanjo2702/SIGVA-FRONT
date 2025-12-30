@@ -100,11 +100,19 @@
 
     <!-- Leyenda de colores -->
     <div class="q-mt-sm">
-      <div class="row q-gutter-sm items-center">
+      <div class="row q-gutter-sm items-center flex-wrap">
         <div class="text-caption text-grey-7">Leyenda:</div>
         <div v-for="(etapa, idx) in etapas" :key="idx" class="row items-center">
           <div class="leyenda-color" :style="{ backgroundColor: coloresEtapas[idx] }"></div>
           <span class="text-caption q-ml-xs">E{{ idx + 1 }}</span>
+        </div>
+        <!-- Leyenda solicitudes existentes -->
+        <div v-if="solicitudesExistentes.length > 0" class="row items-center q-ml-md">
+          <q-separator vertical class="q-mx-sm" />
+          <div class="leyenda-color leyenda-pendiente"></div>
+          <span class="text-caption q-ml-xs">Pendiente</span>
+          <div class="leyenda-color leyenda-aprobada q-ml-sm"></div>
+          <span class="text-caption q-ml-xs">Aprobada</span>
         </div>
       </div>
     </div>
@@ -152,15 +160,8 @@
 
         <q-card-section class="q-pt-lg q-pb-md">
           <div class="text-subtitle2 q-mb-sm text-grey-7">Tipo de día:</div>
-          <q-btn-toggle 
-            v-model="tipoSeleccionado" 
-            spread 
-            no-caps 
-            toggle-color="primary" 
-            :options="opcionesTipo"
-            class="q-mb-md tipo-toggle"
-            size="lg"
-          />
+          <q-btn-toggle v-model="tipoSeleccionado" spread no-caps toggle-color="primary" :options="opcionesTipo"
+            class="q-mb-md tipo-toggle" size="lg" />
 
           <q-banner v-if="fechaSeleccionada?.esSabado" class="bg-info text-white q-mt-sm" rounded dense>
             <template v-slot:avatar>
@@ -177,9 +178,11 @@
 
         <q-card-actions class="q-pa-md q-gutter-sm" align="center">
           <q-btn flat label="Cancelar" color="grey-7" @click="cancelarSeleccion" class="q-px-lg" />
-          <q-btn v-if="diaYaSeleccionado" flat label="Quitar" color="negative" icon="delete" @click="quitarDiaActual" class="q-px-md" />
-          <q-btn unelevated label="Confirmar" icon="check" :style="{ backgroundColor: coloresEtapas[etapaActiva], color: 'white' }"
-            @click="confirmarSeleccion" class="q-px-lg" />
+          <q-btn v-if="diaYaSeleccionado" flat label="Quitar" color="negative" icon="delete" @click="quitarDiaActual"
+            class="q-px-md" />
+          <q-btn unelevated label="Confirmar" icon="check"
+            :style="{ backgroundColor: coloresEtapas[etapaActiva], color: 'white' }" @click="confirmarSeleccion"
+            class="q-px-lg" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -192,7 +195,10 @@ import api from '@/services/api'
 
 const props = defineProps({
   empleado: { type: Object, required: true },
-  modelValue: { type: Array, default: () => [] }
+  modelValue: { type: Array, default: () => [] },
+  permitirDiasPasados: { type: Boolean, default: false },
+  solicitudIdActual: { type: [Number, String], default: null },
+  diasRestaurar: { type: Number, default: 0 }
 })
 
 const emit = defineEmits(['update:modelValue', 'change'])
@@ -216,6 +222,7 @@ const fechaSeleccionada = ref(null)
 const tipoSeleccionado = ref('completo')
 const diaYaSeleccionado = ref(false)
 const feriados = ref([])
+const solicitudesExistentes = ref([]) // Días ya ocupados por otras solicitudes
 
 const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
@@ -270,8 +277,17 @@ const semanasDelMes = computed(() => {
     const feriadoInfo = getFeriadoInfo(fechaStr)
     const esFeriado = !!feriadoInfo
 
+    // Verificar si hay solicitud existente para este día
+    const solicitudExistente = getSolicitudExistente(fechaStr)
+    const tieneSolicitudPendiente = solicitudExistente?.estado === 'pendiente' || solicitudExistente?.estado === 'pendiente_documento'
+    const tieneSolicitudAprobada = solicitudExistente?.estado === 'aprobada'
+    const tieneOtraSolicitud = !!solicitudExistente
+
     // Mujer medio tiempo no puede seleccionar sábados, y feriados nunca se pueden seleccionar
-    const deshabilitado = esDomingo || esAnterior || esFeriado || (esMujerMedioTiempo.value && esSabado)
+    // Si permitirDiasPasados es true, se permiten días anteriores (para admin)
+    // Si ya tiene solicitud, deshabilitar
+    const deshabilitado = esDomingo || esFeriado || (esMujerMedioTiempo.value && esSabado) ||
+      (!props.permitirDiasPasados && esAnterior) || tieneOtraSolicitud
 
     semana.push({
       numero: dia,
@@ -281,6 +297,9 @@ const semanasDelMes = computed(() => {
       esAnterior,
       esFeriado,
       feriadoNombre: feriadoInfo?.nombre || null,
+      tieneSolicitudPendiente,
+      tieneSolicitudAprobada,
+      solicitudInfo: solicitudExistente,
       deshabilitado,
       diaSemana: diasSemana[fecha.getDay()]
     })
@@ -315,7 +334,11 @@ const totalDias = computed(() => {
   return todosDias.value.reduce((sum, d) => sum + (d.diasDescontados || 0), 0)
 })
 
-const saldoActual = computed(() => props.empleado?.saldo_vacaciones || 0)
+const saldoActual = computed(() => {
+  const saldo = Number(props.empleado?.saldo_vacaciones) || 0
+  const restaurar = Number(props.diasRestaurar) || 0
+  return Number((saldo + restaurar).toFixed(2))
+})
 const saldoResultante = computed(() => saldoActual.value - totalDias.value)
 
 // Funciones de etapas
@@ -412,6 +435,8 @@ function getDiaClasses(dia) {
   if (dia.esSabado) classes.push('sabado')
   if (dia.esAnterior) classes.push('anterior')
   if (dia.esFeriado) classes.push('feriado')
+  if (dia.tieneSolicitudPendiente) classes.push('solicitud-pendiente')
+  if (dia.tieneSolicitudAprobada) classes.push('solicitud-aprobada')
   if (diaSeleccionado(dia)) {
     classes.push('seleccionado')
   }
@@ -433,6 +458,28 @@ function getDiaStyle(dia) {
 // Helper para obtener info de feriado
 function getFeriadoInfo(fechaStr) {
   return feriados.value.find(f => f.fecha.split('T')[0] === fechaStr)
+}
+
+// Helper para obtener info de solicitud existente
+function getSolicitudExistente(fechaStr) {
+  return solicitudesExistentes.value.find(s =>
+    s.fecha === fechaStr &&
+    (!props.solicitudIdActual || s.solicitud_id !== props.solicitudIdActual)
+  )
+}
+
+// Cargar solicitudes existentes del empleado
+async function cargarSolicitudesExistentes() {
+  if (!props.empleado?.id) return
+  try {
+    const response = await api.get(`/admin/empleados/${props.empleado.id}/dias-ocupados`)
+    if (response.data?.success) {
+      solicitudesExistentes.value = response.data.data || []
+    }
+  } catch (error) {
+    console.error('Error cargando días ocupados:', error)
+    solicitudesExistentes.value = []
+  }
 }
 
 function getTipoLabel(tipo) {
@@ -593,8 +640,14 @@ watch([mesActualDate, () => props.empleado], () => {
   cargarFeriados()
 }, { deep: true })
 
+// Cargar solicitudes existentes cuando cambia el empleado
+watch(() => props.empleado?.id, () => {
+  cargarSolicitudesExistentes()
+}, { immediate: true })
+
 onMounted(() => {
   cargarFeriados()
+  cargarSolicitudesExistentes()
 })
 </script>
 
@@ -724,6 +777,16 @@ onMounted(() => {
   border-radius: 2px;
 }
 
+.leyenda-pendiente {
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+  border: 1px solid #ffa000;
+}
+
+.leyenda-aprobada {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 1px solid #43a047;
+}
+
 .calendario-dia.feriado {
   background: #ffebee;
   color: #c62828;
@@ -732,6 +795,40 @@ onMounted(() => {
 }
 
 .calendario-dia.feriado .dia-numero {
+  font-weight: bold;
+}
+
+/* Días con solicitudes existentes */
+.calendario-dia.solicitud-pendiente {
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+  color: #f57c00;
+  cursor: not-allowed;
+  border: 2px solid #ffa000;
+  position: relative;
+}
+
+.calendario-dia.solicitud-pendiente::after {
+  content: '⏳';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 10px;
+}
+
+.calendario-dia.solicitud-aprobada {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  color: #2e7d32;
+  cursor: not-allowed;
+  border: 2px solid #43a047;
+  position: relative;
+}
+
+.calendario-dia.solicitud-aprobada::after {
+  content: '✓';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 10px;
   font-weight: bold;
 }
 
@@ -745,16 +842,16 @@ onMounted(() => {
     min-height: 50px;
     padding: 3px;
   }
-  
+
   .dia-numero {
     font-size: 13px;
   }
-  
+
   .etapa-preview .q-chip {
     font-size: 11px;
     padding: 2px 6px;
   }
-  
+
   .calendario-header-dia {
     padding: 6px 4px;
     font-size: 12px;
@@ -766,49 +863,49 @@ onMounted(() => {
   .etapas-container {
     padding: 8px;
   }
-  
+
   .etapa-card {
     padding: 10px;
   }
-  
+
   .etapa-header {
     font-size: 13px;
   }
-  
+
   .etapa-preview {
     gap: 2px;
   }
-  
+
   .etapa-preview .q-chip {
     font-size: 10px;
     padding: 1px 4px;
     height: 22px;
   }
-  
+
   .calendario-dia {
     min-height: 45px;
     padding: 2px;
   }
-  
+
   .dia-numero {
     font-size: 12px;
   }
-  
+
   .dia-etapa-badge {
     font-size: 7px;
   }
-  
+
   .calendario-header-dia {
     padding: 5px 2px;
     font-size: 11px;
   }
-  
+
   /* Hacer los botones de navegación más grandes para touch */
   .calendario-vacaciones :deep(.q-btn--round) {
     min-width: 44px;
     min-height: 44px;
   }
-  
+
   /* Mejorar la leyenda en móvil */
   .leyenda-color {
     width: 14px;
@@ -822,46 +919,46 @@ onMounted(() => {
     min-height: 40px;
     padding: 1px;
   }
-  
+
   .dia-numero {
     font-size: 11px;
   }
-  
+
   .dia-etapa-badge {
     font-size: 6px;
     bottom: 1px;
   }
-  
+
   .dia-feriado-icono {
     top: 1px;
     right: 1px;
   }
-  
+
   .dia-feriado-icono :deep(.q-icon) {
     font-size: 10px !important;
   }
-  
+
   .calendario-header-dia {
     font-size: 10px;
     padding: 4px 1px;
   }
-  
+
   /* Etapas más compactas */
   .etapa-card {
     padding: 8px;
   }
-  
+
   .etapa-preview .q-chip {
     font-size: 9px;
     height: 20px;
     padding: 0 3px;
   }
-  
+
   /* Panel de resumen más compacto */
   .calendario-vacaciones :deep(.q-card-section) {
     padding: 8px;
   }
-  
+
   /* Título del mes más pequeño */
   .text-h6 {
     font-size: 1rem !important;
@@ -873,12 +970,12 @@ onMounted(() => {
   .calendario-dia {
     min-height: 48px;
   }
-  
+
   .calendario-dia:active:not(.deshabilitado) {
     background: #bbdefb;
     transform: scale(0.95);
   }
-  
+
   .etapa-card:active {
     transform: scale(0.98);
   }
@@ -890,7 +987,7 @@ onMounted(() => {
     max-height: 150px;
     overflow-y: auto;
   }
-  
+
   .calendario-dia {
     min-height: 38px;
   }

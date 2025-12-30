@@ -1,9 +1,9 @@
 <template>
   <div class="calendario-formulario">
-    <!-- Leyenda -->
+    <!-- Leyenda con símbolos para impresión sin color (solo múltiples etapas) -->
     <div class="leyenda" v-if="etapas.length > 1">
       <span v-for="(etapa, idx) in etapas" :key="idx" class="leyenda-item">
-        <span class="leyenda-color" :style="{ backgroundColor: coloresEtapas[idx] }"></span>
+        <span class="leyenda-simbolo">{{ simbolosEtapas[idx] }}</span>
         Etapa {{ idx + 1 }} ({{ etapa.dias }} días)
       </span>
     </div>
@@ -30,9 +30,12 @@
                 v-for="(dia, dIdx) in semana" 
                 :key="dIdx"
                 :class="getClaseDia(dia, mes)"
-                :style="getEstiloDia(dia, mes)"
               >
-                {{ dia || '' }}
+                <span v-if="getSimboloDia(dia, mes)" class="dia-con-simbolo">
+                  <span class="dia-numero">{{ dia }}</span>
+                  <span class="dia-simbolo">{{ getSimboloDia(dia, mes) }}</span>
+                </span>
+                <span v-else>{{ dia || '' }}</span>
               </td>
             </tr>
           </tbody>
@@ -40,30 +43,9 @@
       </div>
     </div>
 
-    <!-- Resumen de etapas -->
-    <div class="resumen-etapas" v-if="etapas.length > 0">
-      <table class="tabla-etapas">
-        <thead>
-          <tr>
-            <th style="width: 80px;">Etapa</th>
-            <th>Período</th>
-            <th style="width: 60px;">Días</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(etapa, idx) in etapas" :key="idx">
-            <td :style="{ color: coloresEtapas[idx], fontWeight: 'bold' }">
-              Etapa {{ idx + 1 }}
-            </td>
-            <td>{{ etapa.fecha_inicio }} al {{ etapa.fecha_fin }}</td>
-            <td style="text-align: center; font-weight: bold;">{{ etapa.dias }}</td>
-          </tr>
-          <tr v-if="etapas.length > 1" class="fila-total">
-            <td colspan="2" style="text-align: right; font-weight: bold;">TOTAL:</td>
-            <td style="text-align: center; font-weight: bold;">{{ totalDias }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Resumen compacto (siempre muestra el total) -->
+    <div class="resumen-total">
+      <strong>TOTAL: {{ totalDias }} días</strong>
     </div>
   </div>
 </template>
@@ -82,13 +64,8 @@ const props = defineProps({
   }
 })
 
-const coloresEtapas = [
-  '#1976D2', // Azul - Etapa 1
-  '#43A047', // Verde - Etapa 2
-  '#FB8C00', // Naranja - Etapa 3
-  '#8E24AA', // Púrpura - Etapa 4
-  '#E53935'  // Rojo - Etapa 5
-]
+// Símbolos para diferenciar etapas (para impresión sin color) - más visibles
+const simbolosEtapas = ['■', '●', '▲', '◆', '★']
 
 const nombresMeses = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -251,23 +228,19 @@ function getClaseDia(dia, mes) {
   return 'dia-normal'
 }
 
-// Obtener estilo para un día
-function getEstiloDia(dia, mes) {
-  if (!dia) return {}
+// Obtener símbolo para un día de vacación
+function getSimboloDia(dia, mes) {
+  if (!dia) return null
   
   const fechaStr = `${mes.year}-${String(mes.month).padStart(2, '0')}-${String(dia).padStart(2, '0')}`
   const diaInfo = diasVacaciones.value.get(fechaStr)
   
   if (diaInfo) {
     const etapaIdx = diaInfo.etapa || 0
-    return {
-      backgroundColor: coloresEtapas[etapaIdx],
-      color: 'white',
-      fontWeight: 'bold'
-    }
+    return simbolosEtapas[etapaIdx] || '×'
   }
   
-  return {}
+  return null
 }
 </script>
 
@@ -290,10 +263,11 @@ function getEstiloDia(dia, mes) {
   gap: 4px;
 }
 
-.leyenda-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
+.leyenda-simbolo {
+  font-weight: bold;
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
 }
 
 .meses-container {
@@ -301,7 +275,7 @@ function getEstiloDia(dia, mes) {
   gap: 15px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .mes-calendario {
@@ -323,11 +297,12 @@ function getEstiloDia(dia, mes) {
 
 .calendario-tabla th,
 .calendario-tabla td {
-  width: 18px;
-  height: 16px;
+  width: 26px;
+  height: 24px;
   text-align: center;
-  font-size: 8px;
-  padding: 1px;
+  font-size: 9px;
+  padding: 2px;
+  position: relative;
 }
 
 .calendario-tabla th {
@@ -345,36 +320,38 @@ function getEstiloDia(dia, mes) {
 }
 
 .dia-domingo {
-  background-color: #ffebee;
+  background-color: #f5f5f5;
   color: #999;
 }
 
 .dia-vacacion {
-  border-radius: 2px;
+  border: 2px solid #000;
+  font-weight: bold;
+  background-color: #e8e8e8;
 }
 
-.resumen-etapas {
-  margin-top: 10px;
+.dia-con-simbolo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
 }
 
-.tabla-etapas {
-  width: 100%;
-  border-collapse: collapse;
+.dia-numero {
+  font-weight: bold;
   font-size: 9px;
 }
 
-.tabla-etapas th,
-.tabla-etapas td {
-  border: 1px solid #000;
-  padding: 3px 5px;
-}
-
-.tabla-etapas th {
-  background-color: #f0f0f0;
+.dia-simbolo {
+  font-size: 10px;
   font-weight: bold;
+  margin-top: 1px;
 }
 
-.fila-total {
-  background-color: #f5f5f5;
+.resumen-total {
+  text-align: center;
+  margin-top: 5px;
+  font-size: 10px;
 }
 </style>

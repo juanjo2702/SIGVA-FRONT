@@ -204,6 +204,13 @@
           <div class="formulario-oficial"
             style="max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif; font-size: 11px;">
 
+            <!-- AVISO DE IMPRESION -->
+            <div class="no-print"
+              style="background: #fff3cd; border: 1px solid #ffc107; padding: 8px 12px; margin-bottom: 15px; border-radius: 4px; font-size: 11px; color: #856404; text-align: center;">
+              <strong>📋 Recomendación:</strong> Para una impresión perfecta, utilice hoja tamaño
+              <strong>OFICIO</strong>.
+            </div>
+
             <!-- HEADER -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
               <div style="width: 140px;">
@@ -288,7 +295,8 @@
                     <template v-if="datosFormulario.etapas && datosFormulario.etapas.length > 1">
                       <tr v-for="(etapa, index) in datosFormulario.etapas" :key="index">
                         <td style="padding: 2px; font-weight: bold; color: #1976D2;" v-if="index === 0">Etapa 1:</td>
-                        <td style="padding: 2px; font-weight: bold; color: #43A047;" v-else-if="index === 1">Etapa 2:</td>
+                        <td style="padding: 2px; font-weight: bold; color: #43A047;" v-else-if="index === 1">Etapa 2:
+                        </td>
                         <td style="padding: 2px; font-weight: bold; color: #FB8C00;" v-else>Etapa {{ index + 1 }}:</td>
                         <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{
                           getFechaPartes(etapa.fecha_inicio).dia }}</td>
@@ -328,9 +336,9 @@
                 <td style="border: 1px solid #000; padding: 3px; width: 150px;">
                   <div style="display: flex; justify-content: space-around;">
                     <span>Mañana <span style="border: 1px solid #000; padding: 0 5px;">{{ tieneTipoParcial('manana') ?
-                        'X' : '' }}</span></span>
+                      'X' : '' }}</span></span>
                     <span>Tarde <span style="border: 1px solid #000; padding: 0 5px;">{{ tieneTipoParcial('tarde') ? 'X'
-                        : '' }}</span></span>
+                      : '' }}</span></span>
                   </div>
                 </td>
                 <td rowspan="2"
@@ -346,16 +354,13 @@
               </tr>
             </table>
 
-            <!-- CALENDARIO VISUAL (solo si hay múltiples etapas) -->
-            <div v-if="datosFormulario.etapas && datosFormulario.etapas.length > 1" 
-                 style="border: 1px solid #000; padding: 8px; margin-bottom: 10px;">
+            <!-- CALENDARIO VISUAL (siempre se muestra) -->
+            <div v-if="datosFormulario.etapas && datosFormulario.etapas.length > 0"
+              style="border: 1px solid #000; padding: 8px; margin-bottom: 10px;">
               <div style="font-weight: bold; font-size: 10px; text-align: center; margin-bottom: 5px;">
-                CALENDARIO DE VACACIONES POR ETAPAS
+                CALENDARIO DE VACACIONES
               </div>
-              <CalendarioFormulario 
-                :etapas="datosFormulario.etapas"
-                :dias-detalle="datosFormulario.detalles || []"
-              />
+              <CalendarioFormulario :etapas="datosFormulario.etapas" :dias-detalle="datosFormulario.detalles || []" />
             </div>
 
             <!-- ADJUNTOS -->
@@ -380,7 +385,7 @@
                   <span
                     style="margin-left: 10px; border-bottom: 1px dashed #000; display: inline-block; min-width: 300px;">
                     {{ datosFormulario.solicitud?.reemplazo !== 'Sin Reemplazo' ? datosFormulario.solicitud?.reemplazo :
-                    '' }}
+                      '' }}
                   </span>
                 </td>
               </tr>
@@ -485,11 +490,11 @@
                   datosFormulario.empleado?.dias_correspondientes ||
                   getDiasCorrespondientes(datosFormulario.empleado?.anos_servicio) }}</td>
                 <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.saldo?.actual
-                  }}</td>
+                }}</td>
                 <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{
                   datosFormulario.solicitud?.dias_solicitados }}</td>
                 <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datosFormulario.saldo?.despues
-                  }}</td>
+                }}</td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 5px; text-align: center;"></td>
@@ -545,17 +550,18 @@ const saldoClass = computed(() => {
 })
 
 // Separar solicitudes propias de las programadas por RRHH
+// Excluir canceladas de ambas listas
 const vacacionesProgramadas = computed(() => {
   if (!empleado.value?.solicitudes) return []
   return empleado.value.solicitudes.filter(s =>
-    s.lugar_solicitud === 'Programada por Talento Humano'
+    s.lugar_solicitud === 'Programada por Talento Humano' && s.estado !== 'cancelada'
   )
 })
 
 const solicitudesPropias = computed(() => {
   if (!empleado.value?.solicitudes) return []
   return empleado.value.solicitudes.filter(s =>
-    s.lugar_solicitud !== 'Programada por Talento Humano'
+    s.lugar_solicitud !== 'Programada por Talento Humano' && s.estado !== 'cancelada'
   )
 })
 
