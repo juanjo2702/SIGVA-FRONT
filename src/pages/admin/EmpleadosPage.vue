@@ -13,25 +13,10 @@
           </div>
         </div>
         <div class="header-actions">
-          <q-btn 
-            unelevated 
-            color="white" 
-            text-color="primary"
-            icon="upload_file" 
-            label="Importar" 
-            no-caps
-            class="action-btn"
-            @click="dialogImport = true"
-          />
-          <q-btn 
-            unelevated 
-            color="secondary"
-            icon="add" 
-            label="Nuevo Empleado" 
-            no-caps
-            class="action-btn"
-            @click="abrirFormulario()"
-          />
+          <q-btn unelevated color="white" text-color="primary" icon="upload_file" label="Importar" no-caps
+            class="action-btn" @click="dialogImport = true" />
+          <q-btn unelevated color="secondary" icon="add" label="Nuevo Empleado" no-caps class="action-btn"
+            @click="abrirFormulario()" />
         </div>
       </div>
     </div>
@@ -39,15 +24,8 @@
     <!-- Filtros mejorados -->
     <div class="filters-section">
       <div class="filters-grid">
-        <q-input 
-          v-model="filtros.buscar" 
-          label="Buscar (CI, Nombre)" 
-          outlined 
-          dense 
-          clearable
-          class="filter-item search-input"
-          @update:model-value="buscarConDebounce"
-        >
+        <q-input v-model="filtros.buscar" label="Buscar (CI, Nombre)" outlined dense clearable
+          class="filter-item search-input" @update:model-value="buscarConDebounce">
           <template v-slot:prepend>
             <q-icon name="search" color="primary" />
           </template>
@@ -55,30 +33,16 @@
             <q-spinner size="xs" color="primary" />
           </template>
         </q-input>
-        
-        <q-select
-          v-model="filtros.sede_id"
-          :options="sedesOptions"
-          label="Sede"
-          emit-value
-          map-options
-          outlined
-          dense
-          clearable
-          class="filter-item"
-          @update:model-value="cargarEmpleados"
-        >
+
+        <q-select v-model="filtros.sede_id" :options="sedesOptions" label="Sede" emit-value map-options outlined dense
+          clearable class="filter-item" @update:model-value="cargarEmpleados">
           <template v-slot:prepend>
             <q-icon name="location_on" color="primary" />
           </template>
         </q-select>
-        
-        <q-checkbox 
-          v-model="filtros.saldo_negativo" 
-          label="Solo saldo negativo"
-          class="filter-checkbox"
-          @update:model-value="cargarEmpleados" 
-        />
+
+        <q-checkbox v-model="filtros.saldo_negativo" label="Solo saldo negativo" class="filter-checkbox"
+          @update:model-value="cargarEmpleados" />
       </div>
     </div>
 
@@ -495,32 +459,32 @@ onMounted(() => {
   .empleados-page {
     padding: 16px;
   }
-  
+
   .page-header {
     padding: 20px;
   }
-  
+
   .header-content {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .header-title h1 {
     font-size: 1.4rem;
   }
-  
+
   .header-actions {
     width: 100%;
   }
-  
+
   .action-btn {
     flex: 1;
   }
-  
+
   .filters-grid {
     flex-direction: column;
   }
-  
+
   .filter-item,
   .search-input {
     width: 100%;
@@ -532,11 +496,11 @@ onMounted(() => {
   .page-header {
     padding: 16px;
   }
-  
+
   .header-title h1 {
     font-size: 1.2rem;
   }
-  
+
   .title-icon {
     width: 44px;
     height: 44px;
