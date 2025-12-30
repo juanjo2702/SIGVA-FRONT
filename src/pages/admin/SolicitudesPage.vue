@@ -187,7 +187,8 @@
             <strong>{{ solicitudConfirm?.empleado?.nombre_completo }}</strong>
           </div>
           <div class="text-body2 q-mb-md">
-            <strong>Período:</strong> {{ solicitudConfirm?.fecha_inicio }} - {{ solicitudConfirm?.fecha_fin }}<br>
+            <strong>Período:</strong> {{ formatDate(solicitudConfirm?.fecha_inicio) }} - {{
+              formatDate(solicitudConfirm?.fecha_fin) }}<br>
             <strong>Días:</strong> {{ solicitudConfirm?.dias_solicitados }}
           </div>
           <q-banner class="bg-blue-1 q-pa-sm" rounded>
@@ -223,7 +224,8 @@
             <strong>{{ solicitudConfirm?.empleado?.nombre_completo }}</strong>
           </div>
           <div class="text-body2 q-mb-md">
-            <strong>Período:</strong> {{ solicitudConfirm?.fecha_inicio }} - {{ solicitudConfirm?.fecha_fin }}<br>
+            <strong>Período:</strong> {{ formatDate(solicitudConfirm?.fecha_inicio) }} - {{
+              formatDate(solicitudConfirm?.fecha_fin) }}<br>
             <strong>Días:</strong> {{ solicitudConfirm?.dias_solicitados }}
           </div>
           <q-banner class="bg-orange-1 q-pa-sm" rounded>
