@@ -13,15 +13,8 @@
           </div>
         </div>
         <div class="header-actions">
-          <q-btn 
-            unelevated 
-            color="secondary"
-            icon="add" 
-            label="Nuevo Feriado" 
-            no-caps
-            class="action-btn"
-            @click="mostrarCrear"
-          />
+          <q-btn unelevated color="secondary" icon="add" label="Nuevo Feriado" no-caps class="action-btn"
+            @click="mostrarCrear" />
         </div>
       </div>
     </div>
@@ -29,49 +22,22 @@
     <!-- Filtros -->
     <div class="filters-section">
       <div class="filters-grid">
-        <q-select 
-          v-model="filtros.tipo" 
-          :options="tipoOptions" 
-          label="Tipo" 
-          emit-value 
-          map-options 
-          outlined 
-          dense
-          clearable 
-          class="filter-item"
-          @update:model-value="cargarFeriados"
-        >
+        <q-select v-model="filtros.tipo" :options="tipoOptions" label="Tipo" emit-value map-options outlined dense
+          clearable class="filter-item" @update:model-value="cargarFeriados">
           <template v-slot:prepend>
             <q-icon name="category" color="primary" />
           </template>
         </q-select>
-        
-        <q-select 
-          v-model="filtros.sede_id" 
-          :options="sedesOptions" 
-          label="Sede" 
-          emit-value 
-          map-options 
-          outlined
-          dense 
-          clearable 
-          class="filter-item"
-          @update:model-value="cargarFeriados"
-        >
+
+        <q-select v-model="filtros.sede_id" :options="sedesOptions" label="Sede" emit-value map-options outlined dense
+          clearable class="filter-item" @update:model-value="cargarFeriados">
           <template v-slot:prepend>
             <q-icon name="location_on" color="primary" />
           </template>
         </q-select>
-        
-        <q-input 
-          v-model="filtros.ano" 
-          label="Año" 
-          type="number" 
-          outlined 
-          dense
-          class="filter-item filter-year"
-          @update:model-value="buscarConDebounce"
-        >
+
+        <q-input v-model="filtros.ano" label="Año" type="number" outlined dense class="filter-item filter-year"
+          @update:model-value="buscarConDebounce">
           <template v-slot:prepend>
             <q-icon name="calendar_today" color="primary" />
           </template>
@@ -84,9 +50,15 @@
 
     <!-- Tabla -->
     <q-card class="table-card">
-      <q-table :rows="feriados" :columns="columns" row-key="id" :loading="loading" flat :pagination="{ rowsPerPage: 20 }">
+      <q-table :rows="feriados" :columns="columns" row-key="id" :loading="loading" flat
+        :pagination="{ rowsPerPage: 20 }">
         <template v-slot:body-cell-fecha="props">
-          <q-td :props="props">{{ formatDate(props.row.fecha) }}</q-td>
+          <q-td :props="props">
+            {{ formatDate(props.row.fecha) }}
+            <q-icon v-if="props.row.es_recurrente" name="repeat" color="primary" size="xs" class="q-ml-xs">
+              <q-tooltip>Se repite todos los años</q-tooltip>
+            </q-icon>
+          </q-td>
         </template>
 
         <template v-slot:body-cell-tipo="props">
@@ -103,13 +75,15 @@
 
         <template v-slot:body-cell-activo="props">
           <q-td :props="props">
-            <q-icon :name="props.row.activo ? 'check_circle' : 'cancel'" :color="props.row.activo ? 'positive' : 'grey'" />
+            <q-icon :name="props.row.activo ? 'check_circle' : 'cancel'"
+              :color="props.row.activo ? 'positive' : 'grey'" />
           </q-td>
         </template>
 
         <template v-slot:body-cell-acciones="props">
           <q-td :props="props">
-            <q-btn size="sm" round flat color="orange" icon="sync" @click="procesarDevoluciones(props.row)" :loading="loadingProc === props.row.id">
+            <q-btn size="sm" round flat color="orange" icon="sync" @click="procesarDevoluciones(props.row)"
+              :loading="loadingProc === props.row.id">
               <q-tooltip>Procesar Devoluciones</q-tooltip>
             </q-btn>
             <q-btn size="sm" round flat color="primary" icon="edit" @click="mostrarEditar(props.row)">
@@ -133,14 +107,20 @@
         </q-card-section>
 
         <q-card-section class="q-gutter-md">
-          <q-input v-model="form.nombre" label="Nombre del feriado *" outlined dense :rules="[val => !!val || 'El nombre es obligatorio']" />
-          <q-input v-model="form.fecha" label="Fecha *" type="date" outlined dense :rules="[val => !!val || 'La fecha es obligatoria']" />
+          <q-input v-model="form.nombre" label="Nombre del feriado *" outlined dense
+            :rules="[val => !!val || 'El nombre es obligatorio']" />
+          <q-input v-model="form.fecha" label="Fecha *" type="date" outlined dense
+            :rules="[val => !!val || 'La fecha es obligatoria']" />
           <q-select v-model="form.tipo" :options="[
             { value: 'nacional', label: 'Nacional (aplica a todas las sedes)' },
             { value: 'departamental', label: 'Departamental (solo una sede)' }
           ]" label="Tipo *" emit-value map-options outlined dense />
-          <q-select v-if="form.tipo === 'departamental'" v-model="form.sede_id" :options="sedesOptions" label="Sede *" emit-value map-options outlined dense />
-          <q-toggle v-model="form.activo" label="Activo" />
+          <q-select v-if="form.tipo === 'departamental'" v-model="form.sede_id" :options="sedesOptions" label="Sede *"
+            emit-value map-options outlined dense />
+          <div class="row q-gutter-md">
+            <q-toggle v-model="form.es_recurrente" label="Se repite todos los años" />
+            <q-toggle v-model="form.activo" label="Activo" />
+          </div>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -172,7 +152,7 @@ const editando = ref(false)
 const feriadoActual = ref(null)
 
 const filtros = ref({ tipo: null, sede_id: null, ano: new Date().getFullYear() })
-const form = ref({ nombre: '', fecha: '', tipo: 'nacional', sede_id: null, activo: true })
+const form = ref({ nombre: '', fecha: '', tipo: 'nacional', sede_id: null, activo: true, es_recurrente: false })
 
 const tipoOptions = [
   { value: 'nacional', label: 'Nacionales' },
@@ -200,7 +180,7 @@ function formatDate(dateStr) {
 }
 
 function resetForm() {
-  form.value = { nombre: '', fecha: '', tipo: 'nacional', sede_id: null, activo: true }
+  form.value = { nombre: '', fecha: '', tipo: 'nacional', sede_id: null, activo: true, es_recurrente: false }
   feriadoActual.value = null
   editando.value = false
 }
@@ -215,7 +195,8 @@ function mostrarEditar(feriado) {
     fecha: feriado.fecha?.split('T')[0] || feriado.fecha,
     tipo: feriado.tipo,
     sede_id: feriado.sede_id,
-    activo: feriado.activo
+    activo: feriado.activo,
+    es_recurrente: feriado.es_recurrente
   }
   dialogForm.value = true
 }
@@ -378,8 +359,14 @@ onMounted(() => { cargarSedes(); cargarFeriados() })
   margin: 4px 0 0;
 }
 
-.header-actions { display: flex; gap: 12px; }
-.action-btn { font-weight: 500; }
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  font-weight: 500;
+}
 
 .filters-section {
   background: white;
@@ -396,25 +383,70 @@ onMounted(() => { cargarSedes(); cargarFeriados() })
   flex-wrap: wrap;
 }
 
-.filter-item { min-width: 180px; flex: 1; max-width: 220px; }
-.filter-year { max-width: 140px; }
+.filter-item {
+  min-width: 180px;
+  flex: 1;
+  max-width: 220px;
+}
 
-.table-card { border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
+.filter-year {
+  max-width: 140px;
+}
+
+.table-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
 
 @media (max-width: 768px) {
-  .feriados-page { padding: 16px; }
-  .page-header { padding: 20px; }
-  .header-content { flex-direction: column; align-items: flex-start; }
-  .header-title h1 { font-size: 1.4rem; }
-  .header-actions { width: 100%; }
-  .action-btn { flex: 1; }
-  .filters-grid { flex-direction: column; }
-  .filter-item, .filter-year { width: 100%; max-width: 100%; }
+  .feriados-page {
+    padding: 16px;
+  }
+
+  .page-header {
+    padding: 20px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-title h1 {
+    font-size: 1.4rem;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .action-btn {
+    flex: 1;
+  }
+
+  .filters-grid {
+    flex-direction: column;
+  }
+
+  .filter-item,
+  .filter-year {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 576px) {
-  .page-header { padding: 16px; }
-  .header-title h1 { font-size: 1.2rem; }
-  .title-icon { width: 44px; height: 44px; }
+  .page-header {
+    padding: 16px;
+  }
+
+  .header-title h1 {
+    font-size: 1.2rem;
+  }
+
+  .title-icon {
+    width: 44px;
+    height: 44px;
+  }
 }
 </style>

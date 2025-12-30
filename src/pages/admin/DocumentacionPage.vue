@@ -1,814 +1,344 @@
 <template>
-  <q-page class="q-pa-lg">
-    <div class="page-header q-mb-lg">
-      <h1 class="text-h4 text-weight-bold q-mb-sm">📚 Documentación del Sistema</h1>
-      <p class="text-subtitle1 text-grey-7">Registro de cambios, nuevas funcionalidades y mejoras implementadas</p>
+  <q-page class="documentacion-page">
+    <!-- Header moderno -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="title-icon">
+            <q-icon name="menu_book" size="32px" />
+          </div>
+          <div>
+            <h1>Documentación del Sistema</h1>
+            <p class="subtitle">Guía de novedades y funcionalidades - Versión 2.5 (Enero 2026)</p>
+          </div>
+        </div>
+        <div class="header-version">
+          <q-chip color="white" text-color="primary" icon="verified">
+            Actualizado
+          </q-chip>
+        </div>
+      </div>
     </div>
 
-    <!-- Versión Actual -->
-    <q-card class="version-card q-mb-lg" flat bordered>
-      <q-card-section class="bg-primary text-white">
-        <div class="row items-center">
-          <div class="col">
-            <div class="text-h5 text-weight-bold">SIGVA v2.0</div>
-            <div class="text-caption">Sistema Integral de Gestión de Vacaciones</div>
-          </div>
-          <div class="col-auto">
-            <q-chip color="white" text-color="primary" icon="update">
-              Diciembre 2025
-            </q-chip>
-          </div>
-        </div>
-      </q-card-section>
-    </q-card>
+    <div class="row q-col-gutter-lg">
+      <!-- Columna Izquierda: Funcionalidades Principales -->
+      <div class="col-12 col-md-8">
 
-    <!-- Últimas Actualizaciones -->
-    <q-card class="changelog-card q-mb-lg" flat bordered>
-      <q-card-section>
-        <div class="text-h6 q-mb-md">
-          <q-icon name="new_releases" color="orange" class="q-mr-sm" />
-          Últimas Actualizaciones - Diciembre 2025
-        </div>
-
-        <!-- Edición de Solicitudes Aprobadas -->
-        <q-expansion-item icon="edit_note" label="Edición de Solicitudes Aprobadas" caption="Nueva funcionalidad"
-          header-class="text-primary">
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
-
-              <p class="text-body1">
-                Ahora es posible <strong>editar solicitudes de vacaciones ya aprobadas</strong>.
-                El sistema recalcula automáticamente el saldo del empleado.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="check_circle" color="positive" size="sm" />
-                  <span>Solicitudes pendientes: se pueden modificar libremente</span>
+        <!-- 1. Gestión de Vacaciones (CORE) -->
+        <q-card class="doc-card q-mb-lg">
+          <q-expansion-item icon="beach_access" label="Gestión de Vacaciones"
+            caption="Flujos de solicitud, edición y aprobación" default-opened
+            header-class="text-primary text-weight-bold bg-blue-1" expand-icon-class="text-primary">
+            <q-card-section>
+              <!-- Flujo de Edición -->
+              <div class="feature-block q-mb-lg">
+                <div class="text-subtitle1 text-weight-bold text-primary q-mb-sm">
+                  <q-icon name="edit_note" /> Nuevo Flujo de Edición (Seguro)
                 </div>
-                <div class="feature-item">
-                  <q-icon name="check_circle" color="positive" size="sm" />
-                  <span>Solicitudes aprobadas: se ajusta el saldo automáticamente</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="check_circle" color="positive" size="sm" />
-                  <span>Los cambios quedan registrados en el historial del empleado</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="cancel" color="negative" size="sm" />
-                  <span>Solicitudes rechazadas: no se pueden editar</span>
-                </div>
+                <p class="text-body2 text-grey-8">
+                  Hemos mejorado la seguridad al editar solicitudes ya aprobadas para garantizar que el respaldo
+                  documental siempre coincida con el sistema.
+                </p>
+                <q-list bordered separator class="rounded-borders bg-grey-1">
+                  <q-item>
+                    <q-item-section avatar><q-icon name="looks_one" color="primary" /></q-item-section>
+                    <q-item-section>
+                      <q-item-label>Edición de Aprobada</q-item-label>
+                      <q-item-label caption>Al editar una solicitud aprobada, el sistema revierte temporalmente el saldo
+                        al empleado.</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item>
+                    <q-item-section avatar><q-icon name="looks_two" color="orange" /></q-item-section>
+                    <q-item-section>
+                      <q-item-label>Estado Pendiente de Documento</q-item-label>
+                      <q-item-label caption>La solicitud pasa a estado amarillo. Se genera un nuevo Formulario PDF con
+                        los cambios.</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item>
+                    <q-item-section avatar><q-icon name="looks_3" color="green" /></q-item-section>
+                    <q-item-section>
+                      <q-item-label>Re-Confirmación</q-item-label>
+                      <q-item-label caption>Es obligatorio dar clic en "Confirmar Documento" con el nuevo papel impreso
+                        para volver a aprobarla.</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
               </div>
 
-              <q-separator class="q-my-md" />
+              <q-separator spaced />
 
-              <div class="text-subtitle2 text-weight-bold q-mb-sm">¿Cómo funciona el recálculo?</div>
-              <q-banner class="bg-blue-1 q-pa-md" rounded>
-                <template v-slot:avatar>
-                  <q-icon name="info" color="primary" />
-                </template>
-                <div class="text-body2">
-                  <strong>Ejemplo:</strong> Si una solicitud aprobada tenía 5 días y la modificas a 3 días:
-                  <ul class="q-mt-sm q-mb-none">
-                    <li>Se devuelven 5 días al saldo del empleado</li>
-                    <li>Se descuentan los 3 nuevos días</li>
-                    <li>Resultado: el empleado recupera 2 días de saldo</li>
-                  </ul>
+              <!-- Vacaciones Discontinuas -->
+              <div class="feature-block q-mb-lg">
+                <div class="text-subtitle1 text-weight-bold text-teal q-mb-sm">
+                  <q-icon name="layers" /> Vacaciones por Etapas
                 </div>
-              </q-banner>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Cancelación de Solicitudes -->
-        <q-expansion-item icon="cancel" label="Cancelación de Solicitudes" caption="Nueva funcionalidad - Diciembre 2025"
-          header-class="text-primary" default-opened>
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
-
-              <p class="text-body1">
-                Ahora es posible <strong>cancelar solicitudes de vacaciones</strong> desde el panel de administración.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="cancel" color="negative" size="sm" />
-                  <span><strong>Estado Cancelada:</strong> Nuevo estado para solicitudes canceladas</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="edit_note" color="primary" size="sm" />
-                  <span>Requiere especificar motivo de cancelación</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="undo" color="orange" size="sm" />
-                  <span>Devolución automática de días si la solicitud estaba aprobada</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="history" color="blue" size="sm" />
-                  <span>Se registra quién canceló y cuándo</span>
-                </div>
-              </div>
-
-              <q-separator class="q-my-md" />
-
-              <div class="text-subtitle2 text-weight-bold q-mb-sm">Estados que se pueden cancelar:</div>
-              <div class="row q-gutter-xs">
-                <q-chip size="sm" color="warning" text-color="white">Pendiente</q-chip>
-                <q-chip size="sm" color="cyan" text-color="white">Pend. Documento</q-chip>
-                <q-chip size="sm" color="positive" text-color="white">Aprobada</q-chip>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Branding UNITEPC -->
-        <q-expansion-item icon="palette" label="Branding UNITEPC" caption="Mejora visual - Diciembre 2025"
-          header-class="text-primary">
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="purple" class="q-mb-md">NUEVO DISEÑO</q-badge>
-
-              <p class="text-body1">
-                El sistema ahora cuenta con la <strong>identidad visual de UNITEPC</strong>.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="color_lens" color="purple" size="sm" />
-                  <span><strong>Paleta de colores:</strong> Purple #663399, Teal #009999</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="image" color="green" size="sm" />
-                  <span>Logo UNITEPC en login, sidebar y headers</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="tab" color="blue" size="sm" />
-                  <span>Favicon UNITEPC en la pestaña del navegador</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="login" color="orange" size="sm" />
-                  <span>Login completamente rediseñado con gradiente</span>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Diseño UI Estandarizado -->
-        <q-expansion-item icon="design_services" label="Diseño UI Estandarizado" caption="Mejora visual - Diciembre 2025"
-          header-class="text-primary" default-opened>
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="blue" class="q-mb-md">MEJORADO</q-badge>
-
-              <p class="text-body1">
-                Todas las páginas de administración ahora tienen un <strong>diseño consistente y responsive</strong>.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="gradient" color="purple" size="sm" />
-                  <span><strong>Headers con gradiente:</strong> Cada módulo tiene su color distintivo</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="filter_list" color="blue" size="sm" />
-                  <span>Filtros en sección separada con iconos</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="smartphone" color="green" size="sm" />
-                  <span>100% responsive en móviles y tablets</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="touch_app" color="orange" size="sm" />
-                  <span>Touch-friendly: botones y áreas de click optimizadas</span>
-                </div>
-              </div>
-
-              <q-separator class="q-my-md" />
-
-              <div class="text-subtitle2 text-weight-bold q-mb-sm">Paleta de Colores por Módulo:</div>
-              <div class="row q-gutter-sm">
-                <q-chip size="sm" style="background: linear-gradient(135deg, #1e88e5, #1565c0); color: white;">Empleados</q-chip>
-                <q-chip size="sm" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white;">Sedes</q-chip>
-                <q-chip size="sm" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white;">Roles</q-chip>
-                <q-chip size="sm" style="background: linear-gradient(135deg, #ea580c, #c2410c); color: white;">Feriados</q-chip>
-                <q-chip size="sm" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">Usuarios</q-chip>
-                <q-chip size="sm" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">Reportes</q-chip>
-                <q-chip size="sm" style="background: linear-gradient(135deg, #db2777, #be185d); color: white;">Calendario</q-chip>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Filtros de Búsqueda -->
-        <q-expansion-item icon="search" label="Filtros de Búsqueda Mejorados"
-          caption="Mejora funcional - Diciembre 2025" header-class="text-primary" default-opened>
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="blue" class="q-mb-md">MEJORADO</q-badge>
-
-              <p class="text-body1">
-                Los filtros de búsqueda ahora son <strong>funcionales en todas las páginas</strong>.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="person_search" color="primary" size="sm" />
-                  <span><strong>Solicitudes:</strong> Búsqueda por nombre, apellido o CI</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="business" color="teal" size="sm" />
-                  <span><strong>Filtro por Sede:</strong> Nuevo dropdown para filtrar por sede</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="date_range" color="orange" size="sm" />
-                  <span>Filtros por rango de fechas</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="filter_list" color="green" size="sm" />
-                  <span>Filtros por estado de solicitud</span>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Campo Reemplazo Manual -->
-        <q-expansion-item icon="person" label="Campo Reemplazo Simplificado" caption="Mejora funcional - Diciembre 2025"
-          header-class="text-primary">
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="blue" class="q-mb-md">MEJORADO</q-badge>
-
-              <p class="text-body1">
-                El campo "Persona que Reemplaza" ahora es un <strong>campo de texto libre</strong>.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="edit" color="primary" size="sm" />
-                  <span>Se puede escribir cualquier nombre</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="check" color="green" size="sm" />
-                  <span>Ya no requiere buscar en una lista</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="speed" color="orange" size="sm" />
-                  <span>Carga de página más rápida</span>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Calendario Compartido -->
-        <q-expansion-item icon="calendar_month" label="Calendario Compartido"
-          caption="Nueva funcionalidad - Diciembre 2025" header-class="text-primary" default-opened>
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
-
-              <p class="text-body1">
-                Vista de <strong>calendario mensual</strong> que muestra todas las vacaciones del equipo.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="visibility" color="primary" size="sm" />
-                  <span>Vista general de vacaciones de todos los empleados</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="palette" color="purple" size="sm" />
-                  <span>Colores diferenciados por sede</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="filter_alt" color="blue" size="sm" />
-                  <span>Filtro por sede para ver solo un equipo</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="touch_app" color="orange" size="sm" />
-                  <span>Click en un día para ver detalle de empleados</span>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Devolución por Feriados -->
-        <q-expansion-item icon="sync" label="Devolución Automática por Feriados"
-          caption="Nueva funcionalidad - Diciembre 2025" header-class="text-primary" default-opened>
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
-
-              <p class="text-body1">
-                Devolución automática de días de vacaciones cuando se crea un feriado que afecta fechas ya programadas.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="auto_fix_high" color="primary" size="sm" />
-                  <span>Procesamiento automático al crear feriado</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="sync" color="orange" size="sm" />
-                  <span>Botón para procesar feriados existentes</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="history" color="blue" size="sm" />
-                  <span>Registro en historial del empleado</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="account_balance" color="green" size="sm" />
-                  <span>Devolución de días al saldo del empleado</span>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Módulo de Sedes -->
-        <q-expansion-item icon="business" label="Módulo de Sedes" caption="Nueva funcionalidad"
-          header-class="text-primary">
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
-
-              <p class="text-body1">
-                Gestión centralizada de las <strong>sedes</strong> de la organización.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="add_circle" color="positive" size="sm" />
-                  <span>Crear, editar y eliminar sedes</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="location_city" color="primary" size="sm" />
-                  <span>Cada sede tiene nombre, abreviación y departamento</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="people" color="info" size="sm" />
-                  <span>Los empleados se asignan a una sede específica</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="celebration" color="orange" size="sm" />
-                  <span>Los feriados departamentales se vinculan a sedes</span>
-                </div>
-              </div>
-
-              <q-separator class="q-my-md" />
-
-              <div class="text-subtitle2 text-weight-bold q-mb-sm">Sedes Registradas:</div>
-              <div class="row q-gutter-sm">
-                <q-chip v-for="sede in sedesEjemplo" :key="sede" outline color="primary">
-                  {{ sede }}
-                </q-chip>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Módulo de Feriados -->
-        <q-expansion-item icon="celebration" label="Módulo de Feriados" caption="Nueva funcionalidad"
-          header-class="text-primary">
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
-
-              <p class="text-body1">
-                Administración completa de <strong>feriados nacionales y departamentales</strong>.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="flag" color="red" size="sm" />
-                  <span><strong>Feriados Nacionales:</strong> Aplican a todas las sedes</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="location_on" color="blue" size="sm" />
-                  <span><strong>Feriados Departamentales:</strong> Solo aplican a sedes del departamento</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="event_busy" color="warning" size="sm" />
-                  <span>Los feriados se muestran en el calendario de vacaciones</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="block" color="negative" size="sm" />
-                  <span>No se pueden solicitar vacaciones en días feriados</span>
-                </div>
-              </div>
-
-              <q-separator class="q-my-md" />
-
-              <div class="text-subtitle2 text-weight-bold q-mb-sm">Feriados Nacionales de Bolivia:</div>
-              <div class="row q-gutter-xs">
-                <q-chip size="sm" color="red-1" text-color="red-9">1 Ene - Año Nuevo</q-chip>
-                <q-chip size="sm" color="red-1" text-color="red-9">22 Ene - Estado Plurinacional</q-chip>
-                <q-chip size="sm" color="red-1" text-color="red-9">1 May - Día del Trabajo</q-chip>
-                <q-chip size="sm" color="red-1" text-color="red-9">21 Jun - Año Nuevo Aymara</q-chip>
-                <q-chip size="sm" color="red-1" text-color="red-9">6 Ago - Independencia</q-chip>
-                <q-chip size="sm" color="red-1" text-color="red-9">2 Nov - Todos Santos</q-chip>
-                <q-chip size="sm" color="red-1" text-color="red-9">25 Dic - Navidad</q-chip>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-
-        <q-separator />
-
-        <!-- Calendario Mejorado -->
-        <q-expansion-item icon="calendar_month" label="Calendario de Vacaciones Mejorado"
-          caption="Mejora de funcionalidad" header-class="text-primary">
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="blue" class="q-mb-md">MEJORADO</q-badge>
-
-              <p class="text-body1">
-                El calendario de selección de vacaciones ahora incluye <strong>visualización de feriados</strong>.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="palette" color="red" size="sm" />
-                  <span>Los días feriados se muestran en <strong style="color: #c62828">rojo</strong></span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="celebration" color="orange" size="sm" />
-                  <span>Icono de celebración en días feriados</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="info" color="info" size="sm" />
-                  <span>Tooltip muestra el nombre del feriado al pasar el cursor</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="block" color="grey" size="sm" />
-                  <span>No se pueden seleccionar días feriados</span>
-                </div>
-              </div>
-
-              <div class="calendar-preview q-mt-md q-pa-md bg-grey-2 rounded-borders">
-                <div class="text-center text-caption text-grey-7 q-mb-sm">Vista previa del calendario</div>
-                <div class="row justify-center q-gutter-xs">
-                  <div class="calendar-day">1</div>
-                  <div class="calendar-day calendar-feriado">
-                    <q-icon name="celebration" size="12px" color="white" />
-                    2
-                    <q-tooltip>Día del Trabajo</q-tooltip>
+                <p class="text-body2 text-grey-8">
+                  Ahora el sistema soporta vacaciones discontinuas en una misma solicitud.
+                </p>
+                <div class="row q-gutter-md">
+                  <div class="col-12 col-sm-6">
+                    <q-banner class="bg-teal-1 rounded-borders">
+                      <div class="text-weight-bold text-teal-9">Visualización Inteligente</div>
+                      <div class="text-caption">El formulario PDF agrupa automáticamente los días consecutivos en
+                        "Etapas" (Ej: Etapa 1: Lun-Mie, Etapa 2: Vie-Vie).</div>
+                    </q-banner>
                   </div>
-                  <div class="calendar-day">3</div>
-                  <div class="calendar-day calendar-selected">4</div>
-                  <div class="calendar-day calendar-selected">5</div>
-                  <div class="calendar-day calendar-weekend">6</div>
-                  <div class="calendar-day calendar-weekend">7</div>
-                </div>
-                <div class="row justify-center q-gutter-sm q-mt-sm">
-                  <div class="legend-item">
-                    <div class="legend-box bg-primary"></div>
-                    <span class="text-caption">Seleccionado</span>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-box bg-red-8"></div>
-                    <span class="text-caption">Feriado</span>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-box bg-grey-4"></div>
-                    <span class="text-caption">Fin de semana</span>
+                  <div class="col-12 col-sm-6">
+                    <q-banner class="bg-teal-1 rounded-borders">
+                      <div class="text-weight-bold text-teal-9">Formulario Oficial</div>
+                      <div class="text-caption">El PDF generado cumple con el formato oficial de UNITEPC, incluyendo
+                        logos, firmas y desglose de días.</div>
+                    </q-banner>
                   </div>
                 </div>
               </div>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
 
-        <q-separator />
+              <q-separator spaced />
 
-        <!-- Módulo de Roles -->
-        <q-expansion-item icon="admin_panel_settings" label="Gestión de Roles" caption="Nueva funcionalidad"
-          header-class="text-primary">
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
-
-              <p class="text-body1">
-                Sistema de <strong>roles y permisos</strong> para controlar el acceso al sistema.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="person" color="blue" size="sm" />
-                  <span><strong>Empleado:</strong> Acceso al portal de empleados</span>
+              <!-- Cancelación -->
+              <div class="feature-block">
+                <div class="text-subtitle1 text-weight-bold text-negative q-mb-sm">
+                  <q-icon name="cancel" /> Cancelación y Devolución
                 </div>
-                <div class="feature-item">
-                  <q-icon name="badge" color="purple" size="sm" />
-                  <span><strong>Talento Humano:</strong> Gestión de vacaciones y empleados</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="security" color="red" size="sm" />
-                  <span><strong>Admin:</strong> Acceso completo al sistema</span>
-                </div>
+                <p class="text-body2 text-grey-8">
+                  Permite cancelar solicitudes en cualquier estado, especificando un motivo. Si estaba aprobada,
+                  devuelve los días al saldo automáticamente.
+                </p>
               </div>
             </q-card-section>
-          </q-card>
-        </q-expansion-item>
+          </q-expansion-item>
+        </q-card>
 
-        <q-separator />
-
-        <!-- Importación de Empleados Mejorada -->
-        <q-expansion-item icon="upload_file" label="Importación de Empleados Mejorada" caption="Mejora de funcionalidad"
-          header-class="text-primary" default-opened>
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="blue" class="q-mb-md">MEJORADO</q-badge>
-
-              <p class="text-body1">
-                El proceso de <strong>importación masiva de empleados</strong> desde Excel ha sido rediseñado
-                completamente.
-              </p>
-
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="business" color="primary" size="sm" />
-                  <span><strong>Selector de Sede:</strong> Ahora se selecciona la sede al importar</span>
+        <!-- 2. Gestión Administrativa -->
+        <q-card class="doc-card q-mb-lg">
+          <q-expansion-item icon="settings_suggest" label="Administración Inteligente"
+            caption="Feriados, Sedes y Usuarios" header-class="text-secondary text-weight-bold bg-orange-1"
+            expand-icon-class="text-secondary">
+            <q-card-section>
+              <!-- Feriados Recurrentes -->
+              <div class="feature-block q-mb-lg">
+                <div class="text-subtitle1 text-weight-bold text-orange-9 q-mb-sm">
+                  <q-icon name="repeat" /> Feriados Recurrentes <q-badge color="green" label="NUEVO" align="middle" />
                 </div>
-                <div class="feature-item">
-                  <q-icon name="people" color="green" size="sm" />
-                  <span>Todos los empleados importados se asignan a la sede seleccionada</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="remove_circle" color="orange" size="sm" />
-                  <span>Ya no es necesaria la columna "Sede" en el Excel</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="design_services" color="purple" size="sm" />
-                  <span>Diseño del modal mejorado con pasos claros</span>
-                </div>
+                <p class="text-body2 text-grey-8">
+                  Olvídate de crear los mismos feriados cada año.
+                </p>
+                <ul class="doc-list">
+                  <li>Ahora puedes marcar un feriado como <strong>"Se repite todos los años"</strong>.</li>
+                  <li>El sistema lo proyectará automáticamente en el calendario de futuros años (2026, 2027...).</li>
+                  <li>Visualización inmediata en calendarios y validaciones.</li>
+                </ul>
               </div>
 
-              <q-separator class="q-my-md" />
+              <q-separator spaced />
 
-              <div class="text-subtitle2 text-weight-bold q-mb-sm">Columnas del Excel:</div>
-              <div class="row q-gutter-xs">
-                <q-chip size="sm" color="green-1" text-color="green-9">1° Apellido *</q-chip>
-                <q-chip size="sm" color="grey-3" text-color="grey-8">2° Apellido</q-chip>
-                <q-chip size="sm" color="green-1" text-color="green-9">Nombres *</q-chip>
-                <q-chip size="sm" color="green-1" text-color="green-9">CI *</q-chip>
-                <q-chip size="sm" color="grey-3" text-color="grey-8">Género</q-chip>
-                <q-chip size="sm" color="grey-3" text-color="grey-8">Tipo Contrato</q-chip>
-                <q-chip size="sm" color="grey-3" text-color="grey-8">Cargo</q-chip>
-                <q-chip size="sm" color="green-1" text-color="green-9">Fecha Ingreso *</q-chip>
-                <q-chip size="sm" color="grey-3" text-color="grey-8">Saldo Días</q-chip>
+              <!-- Calendario Compartido -->
+              <div class="feature-block q-mb-lg">
+                <div class="text-subtitle1 text-weight-bold text-purple q-mb-sm">
+                  <q-icon name="calendar_month" /> Calendario de Equipo
+                </div>
+                <p class="text-body2 text-grey-8">
+                  Nueva vista mensual para ver quién está de vacaciones.
+                </p>
+                <ul class="doc-list">
+                  <li>Filtros por <strong>Sede</strong> para ver solo tu equipo local.</li>
+                  <li>Visualización de feriados nacionales y departamentales.</li>
+                  <li>Diferenciación de colores por estado.</li>
+                </ul>
               </div>
-              <div class="text-caption text-grey-7 q-mt-sm">* Campos obligatorios. Verde = requerido, Gris = opcional
+
+              <q-separator spaced />
+
+              <!-- Importación y Sedes -->
+              <div class="feature-block">
+                <div class="text-subtitle1 text-weight-bold text-indigo q-mb-sm">
+                  <q-icon name="domain" /> Sedes y Empleados
+                </div>
+                <p class="text-body2 text-grey-8">
+                  Gestión centralizada de múltiples sedes (Cochabamba, La Paz, etc.).
+                  Importación masiva de empleados desde Excel mejorada, permitiendo asignar sede en bloque y detectar
+                  duplicados.
+                </p>
               </div>
             </q-card-section>
-          </q-card>
-        </q-expansion-item>
+          </q-expansion-item>
+        </q-card>
 
-        <q-separator />
+      </div>
 
-        <!-- Vacaciones por Etapas -->
-        <q-expansion-item icon="layers" label="Vacaciones por Etapas" caption="Nueva funcionalidad"
-          header-class="text-primary" default-opened>
-          <q-card>
-            <q-card-section class="q-pt-none">
-              <q-badge color="green" class="q-mb-md">NUEVO</q-badge>
+      <!-- Columna Derecha: UI y Técnico -->
+      <div class="col-12 col-md-4">
 
-              <p class="text-body1">
-                Ahora las vacaciones discontinuas pueden mostrarse como <strong>etapas separadas</strong> en el
-                formulario.
-              </p>
+        <!-- Mejoras UI -->
+        <q-card class="doc-card q-mb-lg">
+          <q-card-section class="bg-grey-1">
+            <div class="text-subtitle1 text-weight-bold">🎨 Experiencia de Usuario</div>
+          </q-card-section>
+          <q-card-section>
+            <q-list dense>
+              <q-item>
+                <q-item-section avatar><q-icon name="palette" color="purple" /></q-item-section>
+                <q-item-section>
+                  <q-item-label>Diseño UNITEPC</q-item-label>
+                  <q-item-label caption>Interfaz estandarizada, moderna y responsive con colores
+                    institucionales.</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section avatar><q-icon name="search" color="blue" /></q-item-section>
+                <q-item-section>
+                  <q-item-label>Filtros Avanzados</q-item-label>
+                  <q-item-label caption>Búsquedas rápidas por CI, Nombre, Sede y Fecha en todas las
+                    tablas.</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section avatar><q-icon name="smartphone" color="green" /></q-item-section>
+                <q-item-section>
+                  <q-item-label>Modo Móvil</q-item-label>
+                  <q-item-label caption>Tablas y menús adaptados para smartphones y tablets.</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
 
-              <div class="feature-list q-mt-md">
-                <div class="feature-item">
-                  <q-icon name="check_box" color="primary" size="sm" />
-                  <span><strong>Opción manual:</strong> Checkbox "Mostrar por etapas en formulario"</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="calendar_month" color="green" size="sm" />
-                  <span>Los días consecutivos se agrupan automáticamente</span>
-                </div>
-                <div class="feature-item">
-                  <q-icon name="picture_as_pdf" color="red" size="sm" />
-                  <span>El PDF muestra cada etapa en una fila separada</span>
-                </div>
-              </div>
+        <!-- Mejoras Técnicas -->
+        <q-card class="doc-card">
+          <q-card-section class="bg-grey-9 text-white">
+            <div class="text-subtitle1 text-weight-bold">🛠️ Ingeniería</div>
+          </q-card-section>
+          <q-card-section>
+            <div class="text-caption text-grey-8 q-mb-md">Cambios bajo el capó para mayor estabilidad.</div>
 
-              <q-separator class="q-my-md" />
+            <q-chip size="sm" color="blue-grey" text-color="white" icon="storage">BD Optimizada</q-chip>
+            <q-chip size="sm" color="blue-grey" text-color="white" icon="security">Roles & Permisos</q-chip>
+            <q-chip size="sm" color="blue-grey" text-color="white" icon="warning">Manejo de Errores</q-chip>
+            <q-chip size="sm" color="blue-grey" text-color="white" icon="history">Auditoría</q-chip>
+            <q-chip size="sm" color="blue-grey" text-color="white" icon="restore_from_trash">Soft Deletes</q-chip>
+          </q-card-section>
+        </q-card>
 
-              <div class="text-subtitle2 text-weight-bold q-mb-sm">Ejemplo de visualización:</div>
-              <q-banner class="bg-grey-2 q-pa-md" rounded>
-                <div class="text-body2">
-                  <div><strong>Sin etapas:</strong> del 20/12/2024 al 31/12/2024</div>
-                  <div class="q-mt-sm"><strong>Con etapas:</strong></div>
-                  <div class="q-ml-md">• Etapa 1: del 20/12/2024 al 25/12/2024</div>
-                  <div class="q-ml-md">• Etapa 2: del 29/12/2024 al 31/12/2024</div>
-                </div>
-              </q-banner>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-      </q-card-section>
-    </q-card>
-
-    <!-- Mejoras Técnicas -->
-    <q-card class="tech-card q-mb-lg" flat bordered>
-      <q-card-section>
-        <div class="text-h6 q-mb-md">
-          <q-icon name="settings" color="grey-7" class="q-mr-sm" />
-          Mejoras Técnicas
-        </div>
-
-        <div class="row q-col-gutter-md">
-          <div class="col-12 col-md-6">
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="speed" color="green" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>Índices de Base de Datos</q-item-label>
-                <q-item-label caption>Consultas más rápidas en empleados y solicitudes</q-item-label>
-              </q-item-section>
-            </q-item>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="delete_sweep" color="orange" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>Soft Deletes</q-item-label>
-                <q-item-label caption>Los empleados eliminados se pueden recuperar</q-item-label>
-              </q-item-section>
-            </q-item>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="security" color="red" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>Rate Limiting</q-item-label>
-                <q-item-label caption>Protección contra ataques de fuerza bruta</q-item-label>
-              </q-item-section>
-            </q-item>
-          </div>
-
-          <div class="col-12 col-md-6">
-            <q-item>
-              <q-item-section avatar>
-                <q-icon name="architecture" color="purple" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>Refactorización de Servicios</q-item-label>
-                <q-item-label caption>Código más limpio y mantenible</q-item-label>
-              </q-item-section>
-            </q-item>
-          </div>
-        </div>
-      </q-card-section>
-    </q-card>
-
-    <!-- Próximas Funcionalidades -->
-    <q-card class="roadmap-card" flat bordered>
-      <q-card-section>
-        <div class="text-h6 q-mb-md">
-          <q-icon name="rocket_launch" color="blue" class="q-mr-sm" />
-          Próximas Funcionalidades
-        </div>
-
-        <q-timeline color="primary">
-          <q-timeline-entry title="Notificaciones por Email" subtitle="Próximamente" icon="email">
-            <div>
-              Notificaciones automáticas cuando se aprueben o rechacen solicitudes de vacaciones.
-            </div>
-          </q-timeline-entry>
-
-          <q-timeline-entry title="Reportes Avanzados" subtitle="En planificación" icon="assessment">
-            <div>
-              Exportación de reportes en Excel con filtros avanzados y gráficos estadísticos.
-            </div>
-          </q-timeline-entry>
-        </q-timeline>
-      </q-card-section>
-    </q-card>
+      </div>
+    </div>
 
     <!-- Footer -->
-    <div class="text-center q-mt-xl text-grey-6">
-      <q-icon name="code" class="q-mr-xs" />
-      Desarrollado para UNITEPC - {{ new Date().getFullYear() }}
+    <div class="footer-doc q-mt-xl">
+      <q-separator class="q-mb-md" />
+      <div class="row items-center justify-between text-grey-6">
+        <div>
+          <q-icon name="code" /> Sistema SIGVA
+        </div>
+        <div>
+          UNITEPC © {{ new Date().getFullYear() }}
+        </div>
+      </div>
     </div>
+
   </q-page>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-const sedesEjemplo = ref([
-  'Cochabamba',
-  'La Paz',
-  'Santa Cruz',
-  'Oruro',
-  'Potosí',
-  'Sucre',
-  'Tarija',
-  'Trinidad'
-])
+// Lógica simple, todo es estático e informativo
 </script>
 
 <style scoped>
-.page-header h1 {
-  color: #1976d2;
+.documentacion-page {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
 }
 
-.version-card {
+.page-header {
+  background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(25, 118, 210, 0.2);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.title-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.header-title h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 5px 0 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.doc-card {
   border-radius: 12px;
   overflow: hidden;
-}
-
-.changelog-card,
-.tech-card,
-.roadmap-card {
-  border-radius: 12px;
-}
-
-.feature-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.calendar-preview {
-  border-radius: 8px;
-}
-
-.calendar-day {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  font-size: 12px;
-  background: white;
   border: 1px solid #e0e0e0;
-  position: relative;
+  transition: all 0.3s ease;
 }
 
-.calendar-day.calendar-feriado {
-  background: #c62828;
-  color: white;
-  border-color: #b71c1c;
+.doc-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
-.calendar-day.calendar-selected {
-  background: #1976d2;
-  color: white;
+.feature-block {
+  padding: 8px 0;
 }
 
-.calendar-day.calendar-weekend {
-  background: #f5f5f5;
-  color: #9e9e9e;
+.doc-list {
+  padding-left: 20px;
+  margin: 10px 0;
+  color: #424242;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.doc-list li {
+  margin-bottom: 6px;
 }
 
-.legend-box {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
+@media (max-width: 768px) {
+  .documentacion-page {
+    padding: 16px;
+  }
+
+  .page-header {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .header-title h1 {
+    font-size: 1.5rem;
+  }
+
+  .col-md-8,
+  .col-md-4 {
+    width: 100%;
+  }
 }
 </style>
