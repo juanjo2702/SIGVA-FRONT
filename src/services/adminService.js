@@ -144,14 +144,56 @@ export const adminService = {
     return response.data
   },
 
-  getExportarEmpleadosUrl(params = {}) {
-    const query = new URLSearchParams(params).toString()
-    return `/api/admin/reportes/exportar/empleados${query ? '?' + query : ''}`
+  async descargarEmpleados(params = {}) {
+    const response = await api.get('/admin/reportes/exportar/empleados', {
+      params,
+      responseType: 'blob'
+    })
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `empleados_sigva_${new Date().toISOString().split('T')[0]}.xlsx`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
   },
 
-  getExportarSolicitudesUrl(params = {}) {
+  async descargarSolicitudes(params = {}) {
+    const response = await api.get('/admin/reportes/exportar/solicitudes', {
+      params,
+      responseType: 'blob'
+    })
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `solicitudes_sigva_${new Date().toISOString().split('T')[0]}.xlsx`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  },
+
+  getExportarReporteGeneralUrl(params = {}) {
     const query = new URLSearchParams(params).toString()
-    return `/api/admin/reportes/exportar/solicitudes${query ? '?' + query : ''}`
+    return `/api/admin/reportes/exportar/general${query ? '?' + query : ''}`
+  },
+
+  async descargarReporteGeneral(params = {}) {
+    const response = await api.get('/admin/reportes/exportar/general', {
+      params,
+      responseType: 'blob'
+    })
+    
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+    link.setAttribute('download', `plan_vacaciones_${timestamp}.xlsx`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
   },
 
   // =============================================

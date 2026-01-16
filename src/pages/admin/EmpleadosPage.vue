@@ -98,7 +98,7 @@
       :loading-template="loadingPlantilla" @import="importarExcel" @download-template="descargarPlantilla" />
 
     <DialogHistorial v-model="dialogHistorial" :empleado="empleadoHistorial" :historial="historial"
-      :loading="loadingHistorial" />
+      :solicitudes="solicitudesEmpleado" :loading="loadingHistorial" />
 
     <DialogProgramarVacaciones v-model="dialogProgramar" :empleado="empleadoProgramar" :loading="loadingProgramar"
       @save="guardarProgramacion" />
@@ -158,6 +158,7 @@ const empleadoAjuste = ref(null)
 const empleadoHistorial = ref(null)
 const empleadoProgramar = ref(null)
 const historial = ref([])
+const solicitudesEmpleado = ref([])
 
 // Table columns
 const columns = [
@@ -205,6 +206,7 @@ async function verHistorial(emp) {
   try {
     const res = await adminService.getHistorialEmpleado(emp.id)
     historial.value = Array.isArray(res.data?.historial) ? res.data.historial : []
+    solicitudesEmpleado.value = Array.isArray(res.data?.solicitudes) ? res.data.solicitudes : []
   } catch {
     historial.value = []
     notify.error('Error al cargar historial')
