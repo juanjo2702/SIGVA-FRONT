@@ -232,6 +232,8 @@ export const adminService = {
     return response.data
   },
 
+
+
   async getFeriado(id) {
     const response = await api.get(`/admin/feriados/${id}`)
     return response.data

@@ -18,6 +18,15 @@
           <strong>Estado actual:</strong> {{ traducirEstado(solicitud?.estado) }}
         </div>
 
+        <!-- Observación de la solicitud -->
+        <q-banner v-if="solicitud?.observacion" class="bg-blue-1 q-mb-md text-body2" rounded>
+          <template v-slot:avatar>
+            <q-icon name="assignment" color="primary" />
+          </template>
+          <strong>Observaciones:</strong><br>
+          <div style="white-space: pre-wrap;">{{ solicitud.observacion }}</div>
+        </q-banner>
+
         <!-- Banner diferente según si está aprobada o pendiente -->
         <q-banner v-if="solicitud?.estado === 'aprobada'" class="bg-amber-1 q-pa-sm q-mb-md" rounded>
           <template v-slot:avatar>

@@ -93,7 +93,12 @@
               E{{ getDiaEtapa(dia) + 1 }}
             </q-badge>
           </div>
-          <q-tooltip v-if="dia.esFeriado">{{ dia.feriadoNombre }}</q-tooltip>
+          <q-tooltip v-if="dia.esFeriado">
+            {{ dia.feriadoNombre }}
+            <div v-if="dia.tieneSolicitudPendiente || dia.tieneSolicitudAprobada" class="text-caption text-weight-light">
+              (Solicitud pendiente erronea - Click para quitar)
+            </div>
+          </q-tooltip>
         </div>
       </div>
     </div>
@@ -192,6 +197,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import api from '@/services/api'
+import adminService from '@/services/adminService'
 
 const props = defineProps({
   empleado: { type: Object, required: true },
@@ -201,7 +207,7 @@ const props = defineProps({
   diasRestaurar: { type: Number, default: 0 }
 })
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(['update:modelValue', 'change', 'solicitar-cancelacion'])
 
 // Colores distintivos para las etapas
 const coloresEtapas = [
@@ -286,8 +292,10 @@ const semanasDelMes = computed(() => {
     // Mujer medio tiempo no puede seleccionar sábados, y feriados nunca se pueden seleccionar
     // Si permitirDiasPasados es true, se permiten días anteriores (para admin)
     // Si ya tiene solicitud, deshabilitar
+    // Modificación: Permitir click en días con solicitud para poder cancelarlos
+    // tieneOtraSolicitud ya no deshabilita el día, se manejará en el click
     const deshabilitado = esDomingo || esFeriado || (esMujerMedioTiempo.value && esSabado) ||
-      (!props.permitirDiasPasados && esAnterior) || tieneOtraSolicitud
+      (!props.permitirDiasPasados && esAnterior)
 
     semana.push({
       numero: dia,
@@ -490,6 +498,12 @@ function getTipoLabel(tipo) {
 function toggleDia(dia) {
   if (dia.deshabilitado || !dia.fecha) return
 
+  // Si tiene una solicitud existente, emitir evento para cancelarla
+  if (dia.solicitudInfo) {
+    emit('solicitar-cancelacion', dia.solicitudInfo.solicitud_id)
+    return
+  }
+
   fechaSeleccionada.value = dia
   const etapaDelDia = getDiaEtapa(dia)
   diaYaSeleccionado.value = etapaDelDia !== null
@@ -623,22 +637,31 @@ function calcularDiasDescontados(fechaStr, tipo) {
 async function cargarFeriados() {
   try {
     const sedeId = props.empleado?.sede_id || props.empleado?.sede?.id
-    const params = { ano: mesActualDate.value.getFullYear() }
+    const params = { 
+      ano: mesActualDate.value.getFullYear(),
+      all: true,
+      incluir_nacionales: true 
+    }
     if (sedeId) params.sede_id = sedeId
 
-    const response = await api.get('/feriados', { params })
-    if (response.data?.success) {
-      feriados.value = response.data.data || []
+    console.log('🔍 Cargando feriados con params:', params)
+    const response = await adminService.getFeriados(params)
+    console.log('📅 Respuesta de feriados:', response)
+    if (response.success) {
+      feriados.value = response.data || []
+      console.log('✅ Feriados cargados:', feriados.value.length, feriados.value)
+    } else {
+      console.warn('⚠️ La respuesta no fue exitosa:', response)
     }
   } catch (error) {
-    console.error('Error cargando feriados:', error)
+    console.error('❌ Error cargando feriados:', error)
   }
 }
 
 // Recargar feriados cuando cambia el mes o el empleado
 watch([mesActualDate, () => props.empleado], () => {
   cargarFeriados()
-}, { deep: true })
+}, { deep: true, immediate: true })
 
 // Cargar solicitudes existentes cuando cambia el empleado
 watch(() => props.empleado?.id, () => {
@@ -646,8 +669,11 @@ watch(() => props.empleado?.id, () => {
 }, { immediate: true })
 
 onMounted(() => {
-  cargarFeriados()
   cargarSolicitudesExistentes()
+})
+
+defineExpose({
+  cargarSolicitudesExistentes
 })
 </script>
 
@@ -802,7 +828,7 @@ onMounted(() => {
 .calendario-dia.solicitud-pendiente {
   background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
   color: #f57c00;
-  cursor: not-allowed;
+  cursor: pointer;
   border: 2px solid #ffa000;
   position: relative;
 }
@@ -818,7 +844,7 @@ onMounted(() => {
 .calendario-dia.solicitud-aprobada {
   background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
   color: #2e7d32;
-  cursor: not-allowed;
+  cursor: pointer;
   border: 2px solid #43a047;
   position: relative;
 }
@@ -830,6 +856,20 @@ onMounted(() => {
   right: 2px;
   font-size: 10px;
   font-weight: bold;
+}
+
+/* Feriados que además tienen solicitud: priorizar borde rojo y fondo de feriado */
+.calendario-dia.feriado.solicitud-pendiente,
+.calendario-dia.feriado.solicitud-aprobada {
+  border: 2px dashed #d32f2f !important;
+  background: #ffebee !important; /* Forzar fondo rojo claro de feriado */
+  color: #c62828 !important;
+  box-shadow: none !important;
+}
+
+.calendario-dia.feriado.solicitud-pendiente::after,
+.calendario-dia.feriado.solicitud-aprobada::after {
+  content: none !important;
 }
 
 /* ================================
