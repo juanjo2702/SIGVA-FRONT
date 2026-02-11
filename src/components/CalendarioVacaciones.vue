@@ -203,6 +203,7 @@ const props = defineProps({
   empleado: { type: Object, required: true },
   modelValue: { type: Array, default: () => [] },
   permitirDiasPasados: { type: Boolean, default: false },
+  fechaMinima: { type: String, default: null }, // Nueva prop para limitar selección
   solicitudIdActual: { type: [Number, String], default: null },
   diasRestaurar: { type: Number, default: 0 }
 })
@@ -279,7 +280,15 @@ const semanasDelMes = computed(() => {
     const fechaStr = formatFechaISO(fecha)
     const esDomingo = fecha.getDay() === 0
     const esSabado = fecha.getDay() === 6
-    const esAnterior = fecha < new Date(new Date().setHours(0, 0, 0, 0))
+    
+    // Si hay fechaMinima, los días anteriores a ella se consideran "anteriores" (deshabilitados)
+    let esAnterior = false
+    if (props.fechaMinima) {
+      esAnterior = fechaStr < props.fechaMinima
+    } else {
+      esAnterior = fecha < new Date(new Date().setHours(0, 0, 0, 0))
+    }
+    
     const feriadoInfo = getFeriadoInfo(fechaStr)
     const esFeriado = !!feriadoInfo
 

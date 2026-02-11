@@ -84,13 +84,13 @@
                 especial.
               </q-banner>
 
-              <!-- Aviso 5 días anticipación -->
+              <!-- Aviso anticipación -->
               <q-banner class="bg-blue-1 rounded-borders">
                 <template v-slot:avatar>
                   <q-icon name="schedule" color="primary" />
                 </template>
                 <span class="text-primary">
-                  <strong>Importante:</strong> Las vacaciones deben solicitarse con al menos 5 días de anticipación.
+                  <strong>Importante:</strong> Las vacaciones deben solicitarse con al menos 1 día de anticipación (desde mañana).
                 </span>
               </q-banner>
 
@@ -124,10 +124,10 @@ const loading = ref(true)
 const submitting = ref(false)
 const diasSeleccionados = ref([])
 
-// Fecha mínima: 5 días desde hoy
+// Fecha mínima: 1 día desde hoy (desde mañana)
 const fechaMinima = computed(() => {
   const fecha = new Date()
-  fecha.setDate(fecha.getDate() + 5)
+  fecha.setDate(fecha.getDate() + 1)
   return fecha.toISOString().split('T')[0]
 })
 
