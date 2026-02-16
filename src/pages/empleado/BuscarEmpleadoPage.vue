@@ -1,66 +1,93 @@
 <template>
-  <q-page class="flex flex-center bg-gradient">
-    <div class="search-container">
-      <!-- Logo y título centrados -->
-      <div class="header-section">
-        <div class="logo-wrapper">
-          <img src="/logo-unitepc.png" alt="UNITEPC" class="logo-img" />
-        </div>
-        <h1 class="app-title">SIGVA</h1>
-        <p class="app-subtitle">Sistema de Gestión de Vacaciones</p>
+  <q-page class="flex flex-center bg-gradient overflow-hidden">
+    <!-- Top Bar: Logo e Inicio de Sesión -->
+    <div class="absolute-top full-width q-pa-lg flex justify-between items-center z-top">
+      <div class="logo-top shadow-10">
+        <img src="/logo-unitepc.png" alt="UNITEPC" />
+      </div>
+      <q-btn 
+        outline 
+        rounded 
+        color="white" 
+        label="Iniciar Sesión" 
+        no-caps 
+        class="login-btn-top"
+        @click="goToLogin"
+      />
+    </div>
+
+    <!-- Fondo Decorativo -->
+    <div class="decor-grid"></div>
+    <div class="decor-lines">
+      <svg class="full-width full-height" width="100%" height="100%" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M0 40L40 0H20L0 20M40 40V20L20 40" stroke="white" stroke-width="1" fill="none" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+      </svg>
+    </div>
+
+    <div class="search-container animate-fade">
+      <!-- Hero Section Style - Más compacto -->
+      <div class="hero-section q-mb-lg">
+        <h1 class="hero-title">
+          Gestiona tus <br/>
+          <span class="text-gradient">Vacaciones</span>
+        </h1>
+        
+        <p class="hero-subtitle">
+          Consulta tu saldo y realiza tus solicitudes de forma rápida.
+        </p>
       </div>
 
-      <!-- Card de búsqueda -->
-      <q-card class="full-width shadow-8" style="border-radius: 16px;">
-        <q-card-section class="q-pa-lg">
-          <div class="text-h6 text-center q-mb-md">
-            <q-icon name="person_search" color="primary" class="q-mr-sm" />
-            Consultar Información
-          </div>
-          
-          <p class="text-grey-7 text-center q-mb-lg">
-            Ingrese su Cédula de Identidad y Fecha de Ingreso para consultar su saldo de vacaciones y realizar solicitudes.
-          </p>
+      <!-- Card de búsqueda Estilizada -->
+      <q-card class="search-card shadow-24">
+        <q-card-section class="q-pa-xl">
+          <q-form @submit="buscarEmpleado" class="q-gutter-y-md">
+            <div class="input-group">
+              <label class="input-label">Número de Documento</label>
+              <q-input
+                v-model="ci"
+                outlined
+                rounded
+                dense
+                placeholder="Ingresa tu CI"
+                :error="!!errorCi"
+                :error-message="errorCi"
+                :loading="loading"
+                bg-color="white"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="badge" color="primary" />
+                </template>
+              </q-input>
+            </div>
 
-          <q-form @submit="buscarEmpleado" class="q-gutter-md">
-            <q-input
-              v-model="ci"
-              label="Cédula de Identidad (CI)"
-              outlined
-              :error="!!errorCi"
-              :error-message="errorCi"
-              :loading="loading"
-              hide-bottom-space
-              class="q-mb-md"
-            >
-              <template v-slot:prepend>
-                <q-icon name="badge" />
-              </template>
-            </q-input>
-
-            <q-input
-              v-model="fechaIngreso"
-              label="Fecha de Ingreso"
-              outlined
-              type="date"
-              :error="!!errorFecha"
-              :error-message="errorFecha"
-              :loading="loading"
-              hide-bottom-space
-              class="q-mb-md"
-            >
-              <template v-slot:prepend>
-                <q-icon name="event" />
-              </template>
-            </q-input>
+            <div class="input-group">
+              <label class="input-label">Fecha de Ingreso</label>
+              <q-input
+                v-model="fechaIngreso"
+                outlined
+                rounded
+                dense
+                type="date"
+                :error="!!errorFecha"
+                :error-message="errorFecha"
+                :loading="loading"
+                bg-color="white"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="event" color="primary" />
+                </template>
+              </q-input>
+            </div>
 
             <q-btn
               type="submit"
-              label="Consultar"
-              icon="search"
-              color="primary"
-              size="lg"
-              class="full-width"
+              label="CONSULTAR INFORMACIÓN"
+              class="full-width q-py-md btn-consultar q-mt-md"
               :loading="loading"
               unelevated
               no-caps
@@ -69,19 +96,11 @@
         </q-card-section>
       </q-card>
 
-      <!-- Nota informativa -->
-      <q-card flat class="bg-white-alpha text-white" style="border-radius: 12px;">
-        <q-card-section class="q-pa-md">
-          <div class="row items-center q-gutter-sm">
-            <q-icon name="info" size="24px" />
-            <div class="col">
-              <span class="text-body2">
-                Si no recuerda su fecha de ingreso o sus datos están incorrectos, comuníquese con Talento Humano.
-              </span>
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
+      <!-- Badge informativo moderno -->
+      <div class="portal-info-badge q-mt-xl animate-fade">
+        <q-icon name="info" size="xs" class="q-mr-sm" />
+        <span>Si no recuerda su fecha de ingreso o sus datos están incorrectos, por favor contacta a <strong>Talento Humano</strong>.</span>
+      </div>
     </div>
   </q-page>
 </template>
@@ -100,6 +119,10 @@ const fechaIngreso = ref('')
 const loading = ref(false)
 const errorCi = ref('')
 const errorFecha = ref('')
+
+const goToLogin = () => {
+    window.location.href = 'http://localhost:9000/#/login'
+}
 
 async function buscarEmpleado() {
   // Limpiar errores
@@ -161,86 +184,141 @@ async function buscarEmpleado() {
 
 <style scoped>
 .bg-gradient {
-  background: linear-gradient(135deg, #1976d2 0%, #0d47a1 50%, #002984 100%);
+  background: linear-gradient(135deg, #663399 0%, #4a2475 50%, #009999 100%);
   min-height: 100vh;
-  padding: 24px 16px;
+  position: relative;
+}
+
+.decor-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+}
+
+.decor-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.08;
+  pointer-events: none;
 }
 
 .search-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  max-width: 450px;
   width: 100%;
-}
-
-/* Header Section - Centrado */
-.header-section {
+  max-width: 800px;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
 }
 
-.logo-wrapper {
-  width: 120px;
+/* Top Bar Items */
+.logo-top {
   background: white;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-  margin-bottom: 20px;
+  padding: 8px 20px;
+  border-radius: 12px;
 }
 
-.logo-img {
-  width: 100%;
-  height: auto;
+.logo-top img {
+  height: 35px;
   display: block;
 }
 
-.app-title {
+/* Hero Section Typography */
+.hero-section {
+  text-align: center;
+  max-width: 650px;
+}
+
+.hero-title {
   color: white;
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
   margin: 0;
-  letter-spacing: 2px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  letter-spacing: -2px;
 }
 
-.app-subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  margin: 8px 0 0;
-  font-weight: 400;
+.hero-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.1rem;
+  margin-top: 15px;
+  line-height: 1.4;
 }
 
-.bg-white-alpha {
-  background: rgba(255, 255, 255, 0.15);
+.text-gradient {
+  background: linear-gradient(to right, #00f2fe 0%, #4facfe 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Form Styles */
+.search-card {
+  width: 100%;
+  max-width: 440px;
+  border-radius: 24px;
+  background: white;
+}
+
+.input-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #663399;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  margin-left: 12px;
+}
+
+.btn-consultar {
+  background: linear-gradient(135deg, #663399 0%, #552288 100%);
+  color: white;
+  font-weight: 900;
+  letter-spacing: 1px;
+  border-radius: 12px;
+}
+
+.portal-info-badge {
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  padding: 12px 24px;
+  border-radius: 50px;
+  color: white;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  max-width: 90%;
+  text-align: center;
+}
+
+/* Animations */
+.animate-fade {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Responsive */
-@media (max-width: 480px) {
-  .bg-gradient {
-    padding: 16px 12px;
-  }
-
-  .search-container {
-    gap: 20px;
-  }
-
-  .logo-wrapper {
-    width: 100px;
-    padding: 12px;
-  }
-
-  .app-title {
-    font-size: 2rem;
-  }
-
-  .app-subtitle {
-    font-size: 0.9rem;
-  }
+@media (max-width: 600px) {
+  .hero-title { font-size: 2.2rem; }
+  .hero-subtitle { font-size: 0.95rem; }
+  .search-card { border-radius: 20px; }
+  .logo-top img { height: 28px; }
+  .portal-info-badge { font-size: 0.8rem; padding: 10px 18px; }
 }
 </style>

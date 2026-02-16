@@ -85,19 +85,33 @@
         <div v-for="dia in semana" :key="dia.fecha" class="col calendario-dia" :class="getDiaClasses(dia)"
           :style="getDiaStyle(dia)" @click="toggleDia(dia)">
           <div class="dia-numero">{{ dia.numero }}</div>
+          
+          <!-- Indicador de tipo para solicitudes existentes -->
+          <div v-if="dia.solicitudInfo && dia.solicitudInfo.tipo !== 'completo'" class="dia-tipo-badge-solicitud">
+            <q-badge :color="dia.solicitudInfo.tipo === 'parcial_manana' ? 'amber-7' : 'blue-grey-7'" size="xs">
+              {{ dia.solicitudInfo.tipo === 'parcial_manana' ? 'AM' : 'PM' }}
+            </q-badge>
+          </div>
+
           <div v-if="dia.esFeriado" class="dia-feriado-icono">
             <q-icon name="celebration" size="12px" color="red" />
           </div>
           <div v-else-if="getDiaEtapa(dia) !== null" class="dia-etapa-badge">
             <q-badge :style="{ backgroundColor: coloresEtapas[getDiaEtapa(dia)] }" size="xs">
-              E{{ getDiaEtapa(dia) + 1 }}
+              {{ getTipoLabel(getDiaInfo(dia.fecha)?.tipo) }} E{{ getDiaEtapa(dia) + 1 }}
             </q-badge>
           </div>
+          
           <q-tooltip v-if="dia.esFeriado">
             {{ dia.feriadoNombre }}
             <div v-if="dia.tieneSolicitudPendiente || dia.tieneSolicitudAprobada" class="text-caption text-weight-light">
               (Solicitud pendiente erronea - Click para quitar)
             </div>
+          </q-tooltip>
+          <q-tooltip v-else-if="dia.solicitudInfo">
+            <div class="text-weight-bold">{{ dia.tieneSolicitudAprobada ? 'Aprobada' : 'Pendiente' }}</div>
+            <div>Tipo: {{ getTipoLabel(dia.solicitudInfo.tipo) }}</div>
+            <div class="text-caption">Click para ver detalles / cancelar</div>
           </q-tooltip>
         </div>
       </div>
@@ -112,12 +126,24 @@
           <span class="text-caption q-ml-xs">E{{ idx + 1 }}</span>
         </div>
         <!-- Leyenda solicitudes existentes -->
-        <div v-if="solicitudesExistentes.length > 0" class="row items-center q-ml-md">
+        <div v-if="solicitudesExistentes.length > 0" class="row items-center q-ml-md q-gutter-x-sm">
           <q-separator vertical class="q-mx-sm" />
-          <div class="leyenda-color leyenda-pendiente"></div>
-          <span class="text-caption q-ml-xs">Pendiente</span>
-          <div class="leyenda-color leyenda-aprobada q-ml-sm"></div>
-          <span class="text-caption q-ml-xs">Aprobada</span>
+          <div class="row items-center">
+            <div class="leyenda-color leyenda-pendiente"></div>
+            <span class="text-caption q-ml-xs">Pendiente</span>
+          </div>
+          <div class="row items-center">
+            <div class="leyenda-color leyenda-aprobada"></div>
+            <span class="text-caption q-ml-xs">Aprobada</span>
+          </div>
+          <div class="row items-center q-ml-sm">
+            <q-badge color="amber-7" size="8px" class="q-mr-xs">AM</q-badge>
+            <span class="text-caption">Mañana</span>
+          </div>
+          <div class="row items-center">
+            <q-badge color="blue-grey-7" size="8px" class="q-mr-xs">PM</q-badge>
+            <span class="text-caption">Tarde</span>
+          </div>
         </div>
       </div>
     </div>
@@ -439,6 +465,11 @@ function getDiaEtapa(dia) {
     }
   }
   return null
+}
+
+function getDiaInfo(fecha) {
+  if (!fecha) return null
+  return todosDias.value.find(d => d.fecha === fecha)
 }
 
 function diaSeleccionado(dia) {
@@ -798,6 +829,14 @@ defineExpose({
   position: absolute;
   bottom: 2px;
   font-size: 8px;
+  z-index: 2;
+}
+
+.dia-tipo-badge-solicitud {
+  position: absolute;
+  top: 18px;
+  font-size: 7px;
+  z-index: 2;
 }
 
 .dia-feriado-icono {

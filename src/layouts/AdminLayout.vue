@@ -1,73 +1,158 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <!-- Sidebar -->
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered class="bg-grey-1">
-      <q-list>
-        <!-- Logo -->
-        <q-item class="q-py-lg">
-          <q-item-section avatar>
-            <q-avatar size="48px">
-              <img src="/logo-unitepc.png" alt="UNITEPC" style="object-fit: contain;" />
-            </q-avatar>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-h6 text-weight-bold text-primary">SIGVA</q-item-label>
-            <q-item-label caption>Portal Talento Humano</q-item-label>
-          </q-item-section>
-        </q-item>
+  <q-layout view="lHh LpR lFf">
+    <!-- HEADER -->
+    <q-header class="bg-gradient-to-r from-primary to-secondary text-white" height-hint="60">
+      <q-toolbar class="h-16 px-6">
+        <q-btn
+          flat
+          dense
+          round
+          icon="menu"
+          aria-label="Menu"
+          @click="toggleLeftDrawer"
+          class="mr-4"
+        />
 
-        <q-separator />
-
-        <!-- Navigation -->
-        <q-item v-for="item in menuItems" :key="item.to" :to="item.to" clickable v-ripple
-          active-class="bg-primary text-white">
-          <q-item-section avatar>
-            <q-icon :name="item.icon" />
-          </q-item-section>
-          <q-item-section>{{ item.label }}</q-item-section>
-        </q-item>
-
-        <q-separator class="q-my-md" />
-
-        <!-- User info and logout -->
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar color="secondary" text-color="white">
-              <q-icon name="person" />
-            </q-avatar>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>{{ authStore.userName }}</q-item-label>
-            <q-item-label caption>Administrador</q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <q-item clickable v-ripple @click="handleLogout" class="text-negative">
-          <q-item-section avatar>
-            <q-icon name="logout" />
-          </q-item-section>
-          <q-item-section>Cerrar Sesión</q-item-section>
-        </q-item>
-      </q-list>
-    </q-drawer>
-
-    <!-- Header -->
-    <q-header class="bg-white text-grey-8" bordered>
-      <q-toolbar>
-        <q-btn flat dense round icon="menu" @click="leftDrawerOpen = !leftDrawerOpen" />
-        <q-toolbar-title class="text-weight-medium">
-          {{ pageTitle }}
+        <q-toolbar-title
+          class="flex items-center gap-4 cursor-pointer"
+          @click="$router.push('/admin/dashboard')"
+        >
+          <div class="flex flex-col leading-tight ml-2">
+            <span class="font-bold text-lg tracking-wide uppercase">Vacaciones</span>
+            <span class="text-[10px] opacity-90 font-light tracking-widest"
+              >Universidad Técnica Privada Cosmos</span
+            >
+          </div>
         </q-toolbar-title>
-        <q-space />
-        <q-btn flat round icon="notifications" class="q-mr-sm">
-          <q-badge color="negative" floating v-if="pendingCount > 0">
-            {{ pendingCount }}
-          </q-badge>
-        </q-btn>
+
+        <div class="flex items-center gap-4">
+          <div class="hidden sm:flex flex-col items-end mr-2">
+            <span class="text-sm font-bold">{{ today }}</span>
+            <span class="text-xs opacity-80">Cochabamba, Bolivia</span>
+          </div>
+
+          <!-- Public Portal Button in Header -->
+          <q-btn
+            flat
+            round
+            dense
+            icon="public"
+            @click="$router.push('/')"
+            class="bg-white/10 hover:bg-white/20 transition-all"
+          >
+            <q-tooltip class="bg-black/80 text-white">Ver Portal Empleado</q-tooltip>
+          </q-btn>
+        </div>
       </q-toolbar>
     </q-header>
 
-    <!-- Main content -->
+    <!-- SIDEBAR (Drawer) -->
+    <q-drawer
+      v-model="leftDrawerOpen"
+      show-if-above
+      :width="260"
+      bordered
+      class="bg-white"
+    >
+      <div class="column no-wrap h-full" style="height: 100vh;">
+        <!-- Brand Area - CLEAN STYLE -->
+        <div class="p-6 flex flex-col gap-1">
+          <div class="flex items-center gap-2 font-bold text-xl tracking-tight">
+             <img src="@/assets/logo_unitepc.png" class="h-10" alt="UNITEPC" />
+          </div>
+          <div class="text-sm text-gray-400">Sistema de Gestión de Vacaciones</div>
+        </div>
+
+        <!-- Menu items -->
+        <div class="col px-4 space-y-2 overflow-y-auto mt-2">
+          <!-- Back to Public Button -->
+          <div
+            @click="$router.push('/')"
+            class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all cursor-pointer mb-6 bg-gray-50 hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white border border-gray-100 group"
+          >
+            <q-icon name="public" size="22px" class="text-gray-600 group-hover:text-white group-hover:scale-110 transition-all" />
+            <span class="font-bold text-gray-700 group-hover:text-white">Ver Portal Empleado</span>
+          </div>
+
+          <!-- System Selector -->
+          <div v-if="authStore.user?.systems?.length > 1" class="px-4 mb-4">
+            <q-select
+              filled
+              dense
+              options-dense
+              v-model="systemModel"
+              :options="systemOptions"
+              option-label="label"
+              option-value="value"
+              label="Cambiar Sistema"
+              class="bg-gray-50 rounded-lg"
+              @update:model-value="onSystemChange"
+            >
+              <template v-slot:prepend>
+                <q-icon name="apps" color="primary" />
+              </template>
+            </q-select>
+          </div>
+
+          <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-4 mb-2">Menú Principal (SIGVA)</div>
+
+          <!-- Admin Routes -->
+          <div
+            v-for="item in menuItems"
+            :key="item.to"
+            @click="setAdminSection(item.to)"
+            :class="[
+              'flex items-center gap-4 px-4 py-3 rounded-lg transition-all cursor-pointer mb-1 group',
+              route.path === item.to
+                ? 'bg-gradient-to-r from-primary to-secondary text-white font-bold shadow-md scale-[1.02]'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-primary font-medium hover:translate-x-1',
+            ]"
+          >
+            <q-icon :name="item.icon" size="22px" :class="route.path === item.to ? 'text-white' : 'text-gray-400 group-hover:text-primary'" />
+            <span>{{ item.label }}</span>
+          </div>
+        </div>
+
+    <!-- Footer - SIMPLE STYLE -->
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+          <div class="row items-center no-wrap gap-3 mb-4">
+            <div
+              class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shadow-sm border border-primary/20 shrink-0"
+            >
+              {{ userName?.[0] || 'A' }}
+            </div>
+            <div class="column leading-tight overflow-hidden">
+              <div class="font-bold text-gray-900 text-[11px] uppercase truncate">
+                {{ userName }}
+              </div>
+              <div class="text-[10px] text-gray-500 truncate">
+                {{ userRole }}
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <button
+              @click="$router.push('/admin/cambiar-password')"
+              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 hover:text-primary hover:border-primary/30 hover:shadow-sm transition-all group"
+            >
+              <q-icon name="lock" size="18px" class="text-gray-400 group-hover:text-primary group-hover:rotate-12 transition-all" />
+              <span class="font-bold text-sm">Cambiar Contraseña</span>
+            </button>
+
+            <button
+              @click="handleLogout"
+              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-red-50 border border-red-100 text-red-600 hover:bg-red-600 hover:text-white transition-all group"
+            >
+              <q-icon name="logout" size="18px" class="rotate-180 group-hover:-translate-x-1 transition-all" />
+              <span class="font-bold text-sm">Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </q-drawer>
+
+    <!-- MAIN CONTENT -->
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -81,44 +166,72 @@ import { useAuthStore } from '@/stores/auth'
 import adminService from '@/services/adminService'
 
 const authStore = useAuthStore()
+const leftDrawerOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-const leftDrawerOpen = ref(false)
-const pendingCount = ref(0)
+const toggleLeftDrawer = () => {
+  leftDrawerOpen.value = !leftDrawerOpen.value
+}
 
+const today = new Date().toLocaleDateString('es-ES', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+})
+
+const userName = computed(() => {
+  const user = authStore.user
+  if (user?.nombres) return `${user.nombres} ${user.apellidos || ''}`
+  return user?.name || 'Usuario'
+})
+
+const userRole = computed(() => {
+  const user = authStore.user
+  return user?.rol?.name || user?.rol?.nombre || 'Administrador'
+})
+
+// ====== System Switcher ======
+const systemOptions = [
+  { label: 'Sistema de Postulaciones', value: 'SISPO' },
+  { label: 'Sistema de Gestión de Vacaciones', value: 'SIGVA' },
+]
+
+const systemModel = ref(systemOptions[1]) // Default: SIGVA (we are in SIGVA)
+
+const onSystemChange = (val) => {
+  if (val && val.value === 'SISPO') {
+    const token = localStorage.getItem('token')
+    // Redirigir a SISPO pasando el token en la URL para SSO
+    window.location.href = `http://localhost:9000/#/admin?token=${token}`
+  }
+  // Si selecciona SIGVA, ya estamos aquí, resetear al valor actual
+  systemModel.value = systemOptions[1]
+}
+
+// ====== Menu Items ======
 const menuItems = [
   { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
   { to: '/admin/solicitudes', icon: 'event_note', label: 'Solicitudes' },
   { to: '/admin/calendario', icon: 'calendar_month', label: 'Calendario' },
   { to: '/admin/empleados', icon: 'people', label: 'Empleados' },
-  { to: '/admin/sedes', icon: 'business', label: 'Sedes' },
   { to: '/admin/feriados', icon: 'event', label: 'Feriados' },
-  { to: '/admin/usuarios', icon: 'manage_accounts', label: 'Usuarios' },
-  { to: '/admin/roles', icon: 'badge', label: 'Roles' },
   { to: '/admin/reportes', icon: 'assessment', label: 'Reportes' },
-  { to: '/admin/documentacion', icon: 'menu_book', label: 'Documentación' }
+  { to: '/admin/documentacion', icon: 'menu_book', label: 'Documentación' },
 ]
 
-const pageTitle = computed(() => {
-  const titles = {
-    dashboard: 'Dashboard',
-    solicitudes: 'Gestión de Solicitudes',
-    empleados: 'Gestión de Empleados',
-    sedes: 'Gestión de Sedes',
-    feriados: 'Gestión de Feriados',
-    usuarios: 'Gestión de Usuarios',
-    roles: 'Gestión de Roles',
-    reportes: 'Reportes',
-    documentacion: 'Documentación del Sistema'
-  }
-  return titles[route.name] || 'SIGVA'
-})
+const setAdminSection = (path) => {
+  router.push(path)
+  leftDrawerOpen.value = false
+}
 
 async function handleLogout() {
   await authStore.logout()
-  router.push('/admin/login')
+  // SSO: Redirigir al login centralizado de SISPO pidiendo limpiar sesión global
+  window.location.href = 'http://localhost:9000/#/login?logout=true'
 }
+
+const pendingCount = ref(0)
 
 async function loadPendingCount() {
   try {

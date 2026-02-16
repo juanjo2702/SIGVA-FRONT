@@ -41,6 +41,20 @@ const userService = {
    */
   resetPassword(id) {
     return api.post(`/admin/usuarios/${id}/reset-password`)
+  },
+
+  /**
+   * Obtener permisos de un usuario
+   */
+  getPermissions(id) {
+    return api.get(`/admin/usuarios/${id}/permissions`)
+  },
+
+  /**
+   * Sincronizar permisos individuales
+   */
+  sincronizarPermisos(id, permissions) {
+    return api.post(`/admin/usuarios/${id}/permissions`, { permissions })
   }
 }
 

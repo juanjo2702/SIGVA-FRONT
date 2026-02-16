@@ -21,9 +21,8 @@ api.interceptors.response.use(
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       
-      if (window.location.pathname.startsWith('/admin')) {
-        window.location.href = '/admin/login'
-      }
+      // SSO: Redirigir al login centralizado de SISPO pidiendo limpiar sesión
+      window.location.href = 'http://localhost:9000/#/login?logout=true'
     }
     return Promise.reject(error)
   }

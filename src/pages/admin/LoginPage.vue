@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useQuasar } from 'quasar'
@@ -56,6 +56,12 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const $q = useQuasar()
+
+onMounted(() => {
+    // Si llegamos a esta página, es porque no hay sesión o se intentó entrar manualmente.
+    // Redirigimos al portal central de SISPO para mantener la centralización.
+    window.location.href = 'http://localhost:9000/#/login'
+})
 
 const form = ref({
   ci: '',

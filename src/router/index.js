@@ -85,24 +85,6 @@ const routes = [
         meta: { title: 'SIGVA - Reportes' }
       },
       {
-        path: 'usuarios',
-        name: 'usuarios',
-        component: () => import('@/pages/admin/UsuariosPage.vue'),
-        meta: { title: 'SIGVA - Usuarios' }
-      },
-      {
-        path: 'roles',
-        name: 'roles',
-        component: () => import('@/pages/admin/RolesPage.vue'),
-        meta: { title: 'SIGVA - Roles' }
-      },
-      {
-        path: 'sedes',
-        name: 'sedes',
-        component: () => import('@/pages/admin/SedesPage.vue'),
-        meta: { title: 'SIGVA - Sedes' }
-      },
-      {
         path: 'feriados',
         name: 'feriados',
         component: () => import('@/pages/admin/FeriadosPage.vue'),
@@ -131,21 +113,55 @@ const routes = [
   }
 ]
 
+import api from '@/services/api'
+
 const router = createRouter({
   history: createWebHistory(),
   routes
 })
 
 // Navigation guard para rutas protegidas
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
+  
   // Actualizar título de la página
   document.title = to.meta.title || 'SIGVA'
 
+  // --- SSO: Leer token de la URL (viene de SISPO) ---
+  const urlToken = to.query.token
+  if (urlToken) {
+    console.log('SSO: Token detected in URL. Authenticating...')
+    
+    // Guardar token en el store y localStorage
+    authStore.token = urlToken
+    localStorage.setItem('token', urlToken)
+    api.defaults.headers.common['Authorization'] = `Bearer ${urlToken}`
+
+    // Obtener datos del usuario con el token
+    try {
+      const response = await api.get('/me')
+      if (response.data?.data) {
+        authStore.user = response.data.data
+        localStorage.setItem('user', JSON.stringify(response.data.data))
+      }
+      
+      // Limpiar URL y continuar
+      const cleanQuery = { ...to.query }
+      delete cleanQuery.token
+      return next({ path: to.path, query: cleanQuery, replace: true })
+    } catch (e) {
+      console.error('SSO: Token verification failed', e)
+      authStore.logout()
+      return next({ name: 'login' })
+    }
+  }
+
   // Verificar autenticación
   if (to.meta.requiresAuth) {
-    const authStore = useAuthStore()
     if (!authStore.isAuthenticated) {
-      next({ name: 'login', query: { redirect: to.fullPath } })
+      console.log('Not authenticated, redirecting to SISPO Login')
+      const sispoLoginUrl = 'http://localhost:9000/#/login'
+      window.location.href = sispoLoginUrl
       return
     }
   }

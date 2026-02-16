@@ -1,24 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* SIGVA - Sistema de Gestión de Vacaciones UNITEPC */
 
 :root {
   /* Paleta UNITEPC */
   --unitepc-purple: #663399;
   --unitepc-teal: #009999;
-  --unitepc-light-teal: #00AAAA;
-  --unitepc-white: #FFFFFF;
-  
+  --unitepc-light-teal: #00aaaa;
+  --unitepc-white: #ffffff;
+
   /* Colores del sistema basados en UNITEPC */
   --primary: #663399;
   --secondary: #009999;
-  --accent: #00AAAA;
+  --accent: #00aaaa;
   --positive: #21ba45;
   --negative: #c10015;
   --warning: #f2c037;
   --info: #009999;
-  
+
   /* Gradientes */
   --gradient-primary: linear-gradient(135deg, #663399 0%, #4a2475 100%);
-  --gradient-teal: linear-gradient(135deg, #009999 0%, #00AAAA 100%);
+  --gradient-teal: linear-gradient(135deg, #009999 0%, #00aaaa 100%);
 }
 
 * {
@@ -28,7 +32,12 @@
 }
 
 body {
-  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    "Roboto",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

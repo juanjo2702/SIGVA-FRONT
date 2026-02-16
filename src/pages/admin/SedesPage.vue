@@ -5,11 +5,11 @@
       <div class="header-content">
         <div class="header-title">
           <div class="title-icon">
-            <q-icon name="business" size="28px" />
+            <q-icon name="apartment" size="28px" />
           </div>
           <div>
             <h1>Gestión de Sedes</h1>
-            <p class="subtitle">Administra las sedes de la organización</p>
+            <p class="subtitle">Administra las ubicaciones y campus universitarios</p>
           </div>
         </div>
         <div class="header-actions">
@@ -37,64 +37,92 @@
         :pagination="{ rowsPerPage: 15 }"
       >
         <template v-slot:body-cell-activo="props">
-          <q-td :props="props">
-            <q-badge :color="props.row.activo ? 'positive' : 'grey'">
+          <q-td :props="props" align="center">
+            <q-badge :color="props.row.activo ? 'positive' : 'grey'" class="q-px-md q-py-xs rounded-full">
               {{ props.row.activo ? 'Activa' : 'Inactiva' }}
             </q-badge>
           </q-td>
         </template>
 
         <template v-slot:body-cell-acciones="props">
-          <q-td :props="props">
-            <q-btn size="sm" round flat color="primary" icon="edit" @click="mostrarEditar(props.row)">
-              <q-tooltip>Editar</q-tooltip>
-            </q-btn>
-            <q-btn size="sm" round flat color="negative" icon="delete" @click="confirmarEliminar(props.row)">
-              <q-tooltip>Eliminar</q-tooltip>
-            </q-btn>
+          <q-td :props="props" align="center">
+            <div class="flex gap-2 justify-center">
+              <q-btn flat round color="primary" icon="edit" size="sm" @click="mostrarEditar(props.row)">
+                <q-tooltip>Editar Sede</q-tooltip>
+              </q-btn>
+              <q-btn flat round color="negative" icon="delete" size="sm" @click="confirmarEliminar(props.row)">
+                <q-tooltip>Eliminar Sede</q-tooltip>
+              </q-btn>
+            </div>
           </q-td>
         </template>
       </q-table>
     </q-card>
 
-    <!-- Dialog crear/editar -->
-    <q-dialog v-model="dialogForm" persistent>
-      <q-card style="min-width: 400px">
-        <q-card-section class="row items-center bg-primary text-white">
-          <div class="text-h6">{{ editando ? 'Editar Sede' : 'Nueva Sede' }}</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
+    <!-- Modal Form -->
+    <q-dialog v-model="dialogForm" persistent transition-show="scale" transition-hide="scale">
+      <q-card style="min-width: 450px; border-radius: 16px;">
+        <q-card-section class="bg-primary text-white q-pa-lg">
+          <div class="text-h6 text-weight-bold flex items-center gap-2">
+            <q-icon :name="editando ? 'edit' : 'add_business'" />
+            {{ editando ? 'Editar Sede' : 'Nueva Sede' }}
+          </div>
         </q-card-section>
 
-        <q-card-section class="q-gutter-md">
-          <q-input
-            v-model="form.nombre"
-            label="Nombre *"
-            outlined
-            dense
-            :rules="[val => !!val || 'El nombre es obligatorio']"
-          />
-          <q-input
-            v-model="form.abreviacion"
-            label="Abreviación *"
-            outlined
-            dense
-            maxlength="10"
-            :rules="[val => !!val || 'La abreviación es obligatoria']"
-          />
-          <q-input
-            v-model="form.departamento"
-            label="Departamento *"
-            outlined
-            dense
-            :rules="[val => !!val || 'El departamento es obligatorio']"
-          />
-          <q-toggle v-model="form.activo" label="Activa" />
+        <q-card-section class="q-pt-lg q-px-lg">
+          <q-form @submit="guardar" class="q-gutter-y-md">
+            <div class="input-group">
+              <label class="text-caption text-weight-bold text-grey-7 uppercase">Nombre de la Sede</label>
+              <q-input
+                v-model="form.nombre"
+                outlined
+                dense
+                placeholder="Ej: Cochabamba - Central"
+                :rules="[val => !!val || 'El nombre es obligatorio']"
+              />
+            </div>
+
+            <div class="input-group">
+              <label class="text-caption text-weight-bold text-grey-7 uppercase">Departamento / Ubicación</label>
+              <q-input
+                v-model="form.departamento"
+                outlined
+                dense
+                placeholder="Ej: Cochabamba"
+                :rules="[val => !!val || 'El departamento es obligatorio']"
+              />
+            </div>
+
+            <div class="input-group">
+              <label class="text-caption text-weight-bold text-grey-7 uppercase">Sigla (Identificador)</label>
+              <q-input
+                v-model="form.abreviacion"
+                outlined
+                dense
+                maxlength="10"
+                placeholder="Ej: CBBA"
+                :rules="[val => !!val || 'La sigla es obligatoria']"
+              />
+            </div>
+
+            <div class="flex items-center q-mt-md">
+              <q-toggle v-model="form.activo" label="Sede Activa" color="positive" />
+            </div>
+          </q-form>
         </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" v-close-popup />
-          <q-btn color="primary" label="Guardar" @click="guardar" :loading="loadingGuardar" />
+        <q-card-actions align="right" class="q-pa-lg">
+          <q-btn flat label="Cancelar" color="grey-7" v-close-popup rounded no-caps />
+          <q-btn 
+            label="Guardar Sede" 
+            color="primary" 
+            @click="guardar" 
+            :loading="loadingGuardar" 
+            rounded 
+            unelevated 
+            no-caps
+            class="q-px-xl text-weight-bold" 
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -124,7 +152,7 @@ const form = ref({
 
 const columns = [
   { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left', sortable: true },
-  { name: 'abreviacion', label: 'Abreviación', field: 'abreviacion', align: 'left' },
+  { name: 'abreviacion', label: 'Sigla', field: 'abreviacion', align: 'left' },
   { name: 'departamento', label: 'Departamento', field: 'departamento', align: 'left', sortable: true },
   { name: 'activo', label: 'Estado', align: 'center' },
   { name: 'acciones', label: 'Acciones', align: 'center' }
@@ -153,7 +181,7 @@ function mostrarEditar(sede) {
     nombre: sede.nombre,
     abreviacion: sede.abreviacion,
     departamento: sede.departamento,
-    activo: sede.activo
+    activo: !!sede.activo
   }
   dialogForm.value = true
 }
@@ -187,7 +215,8 @@ function confirmarEliminar(sede) {
   $q.dialog({
     title: 'Confirmar eliminación',
     message: `¿Está seguro de eliminar la sede "${sede.nombre}"?`,
-    cancel: true,
+    cancel: { label: 'Cancelar', flat: true },
+    ok: { label: 'Eliminar', color: 'negative', unelevated: true },
     persistent: true
   }).onOk(async () => {
     try {
@@ -205,7 +234,8 @@ async function cargarSedes() {
   loading.value = true
   try {
     const response = await adminService.getSedes({ all: true })
-    sedes.value = response.data || []
+    // Adaptar si viene envuelto en objeto data
+    sedes.value = response.data || response || []
   } catch (error) {
     $q.notify({ type: 'negative', message: 'Error al cargar sedes' })
   } finally {
@@ -225,11 +255,11 @@ onMounted(cargarSedes)
 
 /* Page Header */
 .page-header {
-  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  background: linear-gradient(135deg, #663399 0%, #441177 100%);
   border-radius: 16px;
   padding: 24px 28px;
   margin-bottom: 24px;
-  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 4px 20px rgba(102, 51, 153, 0.3);
 }
 
 .header-content {
@@ -275,56 +305,34 @@ onMounted(cargarSedes)
   gap: 12px;
 }
 
-.action-btn {
-  font-weight: 500;
-}
-
 /* Table Card */
 .table-card {
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+:deep(.q-table__card) {
+  box-shadow: none;
+}
+
+:deep(.q-table thead tr) {
+  background: #f1f5f9;
+}
+
+:deep(.q-table th) {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #475569;
+  letter-spacing: 0.5px;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .sedes-page {
-    padding: 16px;
-  }
-  
-  .page-header {
-    padding: 20px;
-  }
-  
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .header-title h1 {
-    font-size: 1.4rem;
-  }
-  
-  .header-actions {
-    width: 100%;
-  }
-  
-  .action-btn {
-    flex: 1;
-  }
-}
-
-@media (max-width: 576px) {
-  .page-header {
-    padding: 16px;
-  }
-  
-  .header-title h1 {
-    font-size: 1.2rem;
-  }
-  
-  .title-icon {
-    width: 44px;
-    height: 44px;
-  }
+  .sedes-page { padding: 16px; }
+  .page-header { padding: 20px; }
+  .header-content { flex-direction: column; align-items: flex-start; }
+  .header-title h1 { font-size: 1.4rem; }
+  .header-actions { width: 100%; }
 }
 </style>

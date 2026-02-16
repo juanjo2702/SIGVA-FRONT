@@ -244,15 +244,15 @@
           <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ new Date().getFullYear() }}</td>
           <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datos.empleado.anos_servicio }}</td>
           <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datos.empleado.dias_correspondientes || getDiasCorrespondientes(datos.empleado.anos_servicio) }}</td>
-          <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datos.saldo.actual }}</td>
+          <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datos.saldo?.actual || '0' }}</td>
           <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datos.solicitud.dias_solicitados }}</td>
-          <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datos.saldo.despues }}</td>
+          <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datos.saldo?.despues || '0' }}</td>
         </tr>
       </table>
 
       <div style="text-align: right; margin-bottom: 15px;">
         <strong>SALDO TOTAL PENDIENTE</strong>
-        <span style="border: 1px solid #000; padding: 3px 15px; margin-left: 10px;">{{ datos.saldo.despues }}</span>
+        <span style="border: 1px solid #000; padding: 3px 15px; margin-left: 10px;">{{ datos.saldo?.despues || '0' }}</span>
       </div>
 
       <div style="font-weight: bold;">JEFE DE R.S.C Y GESTION DE TALENTO<br>HUMANO</div>

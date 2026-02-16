@@ -9,7 +9,7 @@
           </div>
           <div>
             <h1>Gestión de Roles</h1>
-            <p class="subtitle">Administra los roles del sistema</p>
+            <p class="subtitle">Administra los roles y privilegios del sistema SIGVA</p>
           </div>
         </div>
         <div class="header-actions">
@@ -37,59 +37,88 @@
         @request="onRequest"
         flat
       >
-        <template v-slot:body-cell-activo="props">
-          <q-td :props="props">
-            <q-badge
-              :color="props.row.activo ? 'positive' : 'negative'"
-              :label="props.row.activo ? 'Activo' : 'Inactivo'"
-            />
-          </q-td>
-        </template>
-
         <template v-slot:body-cell-usuarios_count="props">
-          <q-td :props="props">
+          <q-td :props="props" align="center">
             <q-badge color="info" :label="props.row.usuarios_count || 0" />
           </q-td>
         </template>
 
-        <template v-slot:body-cell-acciones="props">
-          <q-td :props="props" class="q-gutter-xs">
-            <q-btn flat round dense icon="edit" color="primary" @click="abrirDialogoEditar(props.row)">
-              <q-tooltip>Editar</q-tooltip>
-            </q-btn>
-            <q-btn v-if="!props.row.usuarios_count" flat round dense icon="delete" color="negative" @click="confirmarEliminar(props.row)">
-              <q-tooltip>Eliminar</q-tooltip>
-            </q-btn>
+        <template v-slot:body-cell-activo="props">
+          <q-td :props="props" align="center">
+            <q-badge :color="props.row.activo ? 'positive' : 'grey'" class="q-px-md q-py-xs rounded-full">
+              {{ props.row.activo ? 'Activo' : 'Inactivo' }}
+            </q-badge>
           </q-td>
         </template>
 
-        <template v-slot:no-data>
-          <div class="full-width text-center q-pa-lg text-grey-6">
-            <q-icon name="badge" size="48px" />
-            <div class="q-mt-sm">No se encontraron roles</div>
-          </div>
+        <template v-slot:body-cell-acciones="props">
+          <q-td :props="props" align="center">
+            <div class="flex gap-2 justify-center">
+              <q-btn flat round color="primary" icon="edit" size="sm" @click="abrirDialogoEditar(props.row)">
+                <q-tooltip>Editar Rol</q-tooltip>
+              </q-btn>
+              <q-btn v-if="!props.row.usuarios_count" flat round color="negative" icon="delete" size="sm" @click="confirmarEliminar(props.row)">
+                <q-tooltip>Eliminar Rol</q-tooltip>
+              </q-btn>
+            </div>
+          </q-td>
         </template>
       </q-table>
     </q-card>
 
     <!-- Diálogo Crear/Editar -->
-    <q-dialog v-model="dialogoRol" persistent>
-      <q-card style="min-width: 400px">
-        <q-card-section class="bg-primary text-white">
-          <div class="text-h6">{{ modoEdicion ? 'Editar Rol' : 'Nuevo Rol' }}</div>
+    <q-dialog v-model="dialogoRol" persistent transition-show="scale" transition-hide="scale">
+      <q-card style="min-width: 450px; border-radius: 16px;">
+        <q-card-section class="bg-primary text-white q-pa-lg">
+          <div class="text-h6 text-weight-bold flex items-center gap-2">
+            <q-icon :name="modoEdicion ? 'edit' : 'add_moderator'" />
+            {{ modoEdicion ? 'Editar Rol' : 'Nuevo Rol' }}
+          </div>
         </q-card-section>
 
-        <q-card-section class="q-pt-lg">
-          <q-form @submit="guardarRol" class="q-gutter-md">
-            <q-input v-model="formRol.nombre" label="Nombre del Rol *" outlined dense :rules="[val => !!val || 'El nombre es obligatorio']" />
-            <q-input v-model="formRol.descripcion" label="Descripción" outlined dense type="textarea" rows="2" />
-            <q-toggle v-if="modoEdicion" v-model="formRol.activo" label="Rol activo" />
+        <q-card-section class="q-pt-lg q-px-lg">
+          <q-form @submit="guardarRol" class="q-gutter-y-md">
+            <div class="input-group">
+              <label class="text-caption text-weight-bold text-grey-7 uppercase tracking-wider">Nombre del Rol</label>
+              <q-input
+                v-model="formRol.nombre"
+                outlined
+                dense
+                placeholder="Ej: Administrador, Supervisor..."
+                :rules="[val => !!val || 'El nombre es obligatorio']"
+              />
+            </div>
+
+            <div class="input-group">
+              <label class="text-caption text-weight-bold text-grey-7 uppercase tracking-wider">Descripción</label>
+              <q-input
+                v-model="formRol.descripcion"
+                outlined
+                dense
+                type="textarea"
+                rows="2"
+                placeholder="Breve descripción de las funciones"
+              />
+            </div>
+
+            <div class="flex items-center q-mt-md">
+              <q-toggle v-model="formRol.activo" label="Rol Activo" color="positive" />
+            </div>
           </q-form>
         </q-card-section>
 
-        <q-card-actions align="right" class="q-pa-md">
-          <q-btn flat label="Cancelar" color="grey" v-close-popup />
-          <q-btn unelevated :label="modoEdicion ? 'Guardar' : 'Crear'" color="primary" :loading="guardando" @click="guardarRol" />
+        <q-card-actions align="right" class="q-pa-lg">
+          <q-btn flat label="Cancelar" color="grey-7" v-close-popup rounded no-caps />
+          <q-btn 
+            label="Guardar Rol" 
+            color="primary" 
+            @click="guardarRol" 
+            :loading="guardando" 
+            rounded 
+            unelevated 
+            no-caps
+            class="q-px-xl text-weight-bold" 
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -119,8 +148,8 @@ const columnas = [
   { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left', sortable: true },
   { name: 'descripcion', label: 'Descripción', field: 'descripcion', align: 'left' },
   { name: 'usuarios_count', label: 'Usuarios', field: 'usuarios_count', align: 'center' },
-  { name: 'activo', label: 'Estado', field: 'activo', align: 'center' },
-  { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' }
+  { name: 'activo', label: 'Estado', align: 'center' },
+  { name: 'acciones', label: 'Acciones', align: 'center' }
 ]
 
 const formRol = ref({ nombre: '', descripcion: '', activo: true })
@@ -130,8 +159,10 @@ async function cargarRoles() {
   try {
     const params = { page: paginacion.value.page, por_pagina: paginacion.value.rowsPerPage }
     const response = await rolService.getRoles(params)
-    roles.value = response.data.data
-    paginacion.value.rowsNumber = response.data.total
+    // Adaptar si viene envuelto o directo (Paginator Laravel)
+    const data = response.data || response
+    roles.value = data.data || data || []
+    paginacion.value.rowsNumber = data.total || roles.value.length
   } catch (error) {
     $q.notify({ type: 'negative', message: 'Error al cargar roles' })
   } finally {
@@ -153,11 +184,13 @@ function abrirDialogoCrear() {
 
 function abrirDialogoEditar(rol) {
   modoEdicion.value = true
-  formRol.value = { ...rol }
+  formRol.value = { ...rol, activo: !!rol.activo }
   dialogoRol.value = true
 }
 
 async function guardarRol() {
+  if (!formRol.value.nombre) return
+  
   guardando.value = true
   try {
     if (modoEdicion.value) {
@@ -178,10 +211,10 @@ async function guardarRol() {
 
 function confirmarEliminar(rol) {
   $q.dialog({
-    title: 'Eliminar Rol',
-    message: `¿Deseas eliminar el rol "${rol.nombre}"?`,
+    title: 'Confirmar eliminación',
+    message: `¿Está seguro de eliminar el rol "${rol.nombre}"?`,
     cancel: { label: 'Cancelar', flat: true },
-    ok: { label: 'Eliminar', color: 'negative' },
+    ok: { label: 'Eliminar', color: 'negative', unelevated: true },
     persistent: true
   }).onOk(async () => {
     try {
@@ -204,12 +237,13 @@ onMounted(() => { cargarRoles() })
   min-height: 100vh;
 }
 
+/* Page Header */
 .page-header {
-  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  background: linear-gradient(135deg, #663399 0%, #441177 100%);
   border-radius: 16px;
   padding: 24px 28px;
   margin-bottom: 24px;
-  box-shadow: 0 4px 20px rgba(13, 148, 136, 0.3);
+  box-shadow: 0 4px 20px rgba(102, 51, 153, 0.3);
 }
 
 .header-content {
@@ -250,22 +284,39 @@ onMounted(() => { cargarRoles() })
   margin: 4px 0 0;
 }
 
-.header-actions { display: flex; gap: 12px; }
-.action-btn { font-weight: 500; }
-.table-card { border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
 
+/* Table Card */
+.table-card {
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+:deep(.q-table__card) {
+  box-shadow: none;
+}
+
+:deep(.q-table thead tr) {
+  background: #f1f5f9;
+}
+
+:deep(.q-table th) {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #475569;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .roles-page { padding: 16px; }
   .page-header { padding: 20px; }
   .header-content { flex-direction: column; align-items: flex-start; }
   .header-title h1 { font-size: 1.4rem; }
   .header-actions { width: 100%; }
-  .action-btn { flex: 1; }
-}
-
-@media (max-width: 576px) {
-  .page-header { padding: 16px; }
-  .header-title h1 { font-size: 1.2rem; }
-  .title-icon { width: 44px; height: 44px; }
 }
 </style>
