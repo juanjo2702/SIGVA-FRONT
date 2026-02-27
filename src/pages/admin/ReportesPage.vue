@@ -128,20 +128,25 @@
         </q-card>
       </div>
 
-      <!-- Reporte Plan de Vacaciones (Image format) -->
-      <div class="col-12 col-md-12">
-        <q-card class="report-card">
+      <!-- Reporte Plan de Vacaciones Pro -->
+      <div class="col-12">
+        <q-card class="report-card featured">
           <q-card-section class="report-header general">
-            <q-icon name="description" size="32px" />
-            <div>
-              <div class="report-title">Plan Anual de Vacaciones (Excel)</div>
-              <div class="report-subtitle">Reporte detallado con saldos, fechas y reemplazos</div>
+            <div class="row items-center full-width no-wrap">
+              <q-icon name="auto_graph" size="32px" class="q-mr-md" />
+              <div>
+                <div class="report-title">Consolidado General de Vacaciones</div>
+                <div class="report-subtitle">Reporte detallado: Antigüedad, Saldos y Cronograma de Reemplazos</div>
+              </div>
+              <q-space />
+              <q-badge color="white" text-color="primary" label="XLSX" class="q-pa-xs px-sm" />
             </div>
           </q-card-section>
 
-            <div class="row q-col-gutter-md items-end">
-              <div class="col-12 col-sm-3">
-                <div class="text-caption text-grey-7 q-mb-xs">Establecimiento / Sede</div>
+          <q-card-section class="q-pa-lg">
+            <div class="row q-col-gutter-lg items-end">
+              <div class="col-12 col-md-4">
+                <div class="filter-label">Establecimiento / Sede</div>
                 <q-select 
                   v-model="filtrosGeneral.sede_id" 
                   :options="sedesOptions" 
@@ -149,75 +154,88 @@
                   dense 
                   emit-value 
                   map-options
-                  bg-color="white"
+                  class="custom-select"
                 >
                   <template v-slot:prepend>
-                    <q-icon name="apartment" color="primary" />
+                    <q-icon name="business" color="primary" />
                   </template>
                 </q-select>
               </div>
 
-              <!-- Selector de modo -->
-              <div class="col-12 col-sm-6">
-                <div class="row q-col-gutter-sm">
+              <div class="col-12 col-md-5">
+                <div class="row q-col-gutter-md">
                   <div class="col-12 col-sm-4">
-                    <div class="text-caption text-grey-7 q-mb-xs">Filtrar por Fechas</div>
-                    <q-toggle
+                    <div class="filter-label">Modo Reporte</div>
+                    <q-btn-toggle
                       v-model="filtrosGeneral.modo"
-                      true-value="rango"
-                      false-value="gestion"
-                      color="primary"
-                      icon="calendar_month"
-                      class="q-mt-xs"
+                      spread
+                      no-caps
+                      unelevated
+                      toggle-color="primary"
+                      color="grey-2"
+                      text-color="grey-7"
+                      :options="[
+                        {label: 'Anual', value: 'gestion'},
+                        {label: 'Rango', value: 'rango'}
+                      ]"
                     />
                   </div>
 
                   <div class="col-12 col-sm-8">
                     <div v-if="filtrosGeneral.modo === 'gestion'">
-                      <div class="text-caption text-grey-7 q-mb-xs">Seleccionar Gestión</div>
-                      <q-select v-model="filtrosGeneral.ano" :options="anosOptions" outlined dense bg-color="white">
+                      <div class="filter-label">Gestión Académica/Administrativa</div>
+                      <q-select v-model="filtrosGeneral.ano" :options="anosOptions" outlined dense class="custom-select">
                         <template v-slot:prepend>
-                          <q-icon name="event" color="primary" />
+                          <q-icon name="history_edu" color="primary" />
                         </template>
                       </q-select>
                     </div>
-                    <div v-else class="row q-col-gutter-xs">
+                    <div v-else class="row q-col-gutter-sm">
                       <div class="col-6">
-                        <div class="text-caption text-grey-7 q-mb-xs">Desde</div>
-                        <q-input v-model="filtrosGeneral.fecha_desde" type="date" outlined dense bg-color="white" />
+                        <div class="filter-label">Fecha Desde</div>
+                        <q-input v-model="filtrosGeneral.fecha_desde" type="date" outlined dense class="custom-select" />
                       </div>
                       <div class="col-6">
-                        <div class="text-caption text-grey-7 q-mb-xs">Hasta</div>
-                        <q-input v-model="filtrosGeneral.fecha_hasta" type="date" outlined dense bg-color="white" />
+                        <div class="filter-label">Fecha Hasta</div>
+                        <q-input v-model="filtrosGeneral.fecha_hasta" type="date" outlined dense class="custom-select" />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div class="col-12 col-sm-3">
+              <div class="col-12 col-md-3">
                 <q-btn 
-                  color="primary" 
-                  icon="download" 
-                  label="Generar Reporte" 
+                  color="positive"
+                  icon="file_download" 
+                  label="Generar Reporte Excel" 
                   @click="exportarGeneral" 
                   :loading="loadingGeneral"
                   unelevated
                   no-caps
-                  class="full-width"
-                  style="height: 40px"
+                  class="full-width btn-premium"
                 />
               </div>
             </div>
 
-          <q-card-section class="bg-grey-1 q-ma-md rounded-borders">
-            <div class="text-caption text-grey-8">
-              <q-icon name="info" size="16px" class="q-mr-xs" />
-              Este reporte genera un documento Excel compatible con el formato institucional, incluyendo la antigüedad del empleado, saldo acumulado y cronograma de vacaciones programadas.
+            <div class="info-banner q-mt-lg">
+              <q-icon name="verified_user" color="positive" size="20px" />
+              <div class="info-content">
+                <div class="text-bold">¿Qué incluye este reporte?</div>
+                <div class="text-caption">
+                  Este documento genera el consolidado oficial con: 
+                  <strong>Antigüedad calculada</strong>, 
+                  <strong>Días correspondientes por ley</strong>, 
+                  <strong>Historial de vacaciones tomadas/programadas</strong>, 
+                  <strong>Saldos actualizados</strong> y 
+                  <strong>Personal de reemplazo</strong> con sus respectivos cargos.
+                </div>
+              </div>
             </div>
           </q-card-section>
         </q-card>
       </div>
+
     </div>
   </q-page>
 </template>
@@ -445,6 +463,57 @@ onMounted(() => {
 .dias-label { font-size: 0.85rem; color: #0369a1; }
 
 .report-list { max-height: 300px; overflow-y: auto; }
+
+.report-card.featured {
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: white;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.custom-select :deep(.q-field__control),
+.custom-select :deep(.q-field__marginal) {
+  height: 44px;
+}
+
+.btn-premium {
+  height: 44px;
+  font-weight: 700;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+}
+
+.info-banner {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 1px dashed #bbf7d0;
+}
+
+.info-content .text-bold {
+  color: #166534;
+  margin-bottom: 4px;
+}
+
+.info-content .text-caption {
+  color: #15803d;
+  line-height: 1.5;
+}
 
 @media (max-width: 768px) {
   .reportes-page { padding: 16px; }
