@@ -203,7 +203,7 @@ const onSystemChange = (val) => {
   if (val && val.value === 'SISPO') {
     const token = localStorage.getItem('token')
     // Redirigir a SISPO pasando el token en la URL para SSO
-    window.location.href = `http://localhost:9000/#/admin?token=${token}`
+    window.location.href = `https://postulacionesunitepc.xpertiaplus.com/#/admin?token=${token}`
   }
   // Si selecciona SIGVA, ya estamos aquí, resetear al valor actual
   systemModel.value = systemOptions[1]
@@ -228,7 +228,7 @@ const setAdminSection = (path) => {
 async function handleLogout() {
   await authStore.logout()
   // SSO: Redirigir al login centralizado de SISPO pidiendo limpiar sesión global
-  window.location.href = 'http://localhost:9000/#/login?logout=true'
+  window.location.href = 'https://postulacionesunitepc.xpertiaplus.com/#/login?logout=true'
 }
 
 const pendingCount = ref(0)

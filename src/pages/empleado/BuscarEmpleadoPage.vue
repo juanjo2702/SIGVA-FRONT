@@ -121,7 +121,7 @@ const errorCi = ref('')
 const errorFecha = ref('')
 
 const goToLogin = () => {
-    window.location.href = 'http://localhost:9000/#/login'
+    window.location.href = 'https://postulacionesunitepc.xpertiaplus.com/#/login'
 }
 
 async function buscarEmpleado() {

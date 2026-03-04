@@ -13,6 +13,6 @@ import { computed } from 'vue'
 const currentYear = computed(() => new Date().getFullYear())
 
 const goToLogin = () => {
-    window.location.href = 'http://localhost:9000/#/login'
+    window.location.href = 'https://postulacionesunitepc.xpertiaplus.com/#/login'
 }
 </script>

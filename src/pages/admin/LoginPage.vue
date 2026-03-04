@@ -60,7 +60,7 @@ const $q = useQuasar()
 onMounted(() => {
     // Si llegamos a esta página, es porque no hay sesión o se intentó entrar manualmente.
     // Redirigimos al portal central de SISPO para mantener la centralización.
-    window.location.href = 'http://localhost:9000/#/login'
+    window.location.href = 'https://postulacionesunitepc.xpertiaplus.com/#/login'
 })
 
 const form = ref({

@@ -160,7 +160,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
       console.log('Not authenticated, redirecting to SISPO Login')
-      const sispoLoginUrl = 'http://localhost:9000/#/login'
+      const sispoLoginUrl = 'https://postulacionesunitepc.xpertiaplus.com/#/login'
       window.location.href = sispoLoginUrl
       return
     }

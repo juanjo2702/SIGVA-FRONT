@@ -22,7 +22,7 @@ api.interceptors.response.use(
       localStorage.removeItem('user')
       
       // SSO: Redirigir al login centralizado de SISPO pidiendo limpiar sesión
-      window.location.href = 'http://localhost:9000/#/login?logout=true'
+      window.location.href = 'https://postulacionesunitepc.xpertiaplus.com/#/login?logout=true'
     }
     return Promise.reject(error)
   }
