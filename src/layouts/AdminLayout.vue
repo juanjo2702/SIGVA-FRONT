@@ -141,11 +141,11 @@
             </button>
 
             <button
-              @click="handleLogout"
-              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-red-50 border border-red-100 text-red-600 hover:bg-red-600 hover:text-white transition-all group"
+              @click="volverAlPortal"
+              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white hover:border-transparent transition-all group"
             >
-              <q-icon name="logout" size="18px" class="rotate-180 group-hover:-translate-x-1 transition-all" />
-              <span class="font-bold text-sm">Cerrar Sesión</span>
+              <q-icon name="home" size="18px" class="group-hover:scale-110 transition-all" />
+              <span class="font-bold text-sm">Volver al Portal</span>
             </button>
           </div>
         </div>
@@ -202,33 +202,40 @@ const systemModel = ref(systemOptions[1]) // Default: SIGVA (we are in SIGVA)
 const onSystemChange = (val) => {
   if (val && val.value === 'SISPO') {
     const token = localStorage.getItem('token')
-    // Redirigir a SISPO pasando el token en la URL para SSO
-    window.location.href = `http://localhost:9000/#/admin?token=${token}`
+    // Redirigir a SISPO 
+    const isDev = import.meta.env ? import.meta.env.DEV : process.env.DEV
+    const sispoUrl = isDev ? 'http://localhost:9001/#/admin' : 'https://sigeth.xpertiaplus.com/sispo/#/admin'
+    window.location.href = `${sispoUrl}?token=${token}`
   }
   // Si selecciona SIGVA, ya estamos aquí, resetear al valor actual
   systemModel.value = systemOptions[1]
 }
 
-// ====== Menu Items ======
-const menuItems = [
-  { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
-  { to: '/admin/solicitudes', icon: 'event_note', label: 'Solicitudes' },
-  { to: '/admin/calendario', icon: 'calendar_month', label: 'Calendario' },
-  { to: '/admin/empleados', icon: 'people', label: 'Empleados' },
-  { to: '/admin/feriados', icon: 'event', label: 'Feriados' },
-  { to: '/admin/reportes', icon: 'assessment', label: 'Reportes' },
-  { to: '/admin/documentacion', icon: 'menu_book', label: 'Documentación' },
+// ====== Menu Items (filtered by permissions) ======
+const allMenuItems = [
+  { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard', permission: 'vacaciones_dashboard' },
+  { to: '/admin/solicitudes', icon: 'event_note', label: 'Solicitudes', permission: 'solicitudes' },
+  { to: '/admin/calendario', icon: 'calendar_month', label: 'Calendario', permission: 'calendario' },
+  { to: '/admin/empleados', icon: 'people', label: 'Empleados', permission: 'empleados' },
+  { to: '/admin/feriados', icon: 'event', label: 'Feriados', permission: 'feriados' },
+  { to: '/admin/reportes', icon: 'assessment', label: 'Reportes', permission: 'reportes' },
+  { to: '/admin/documentacion', icon: 'menu_book', label: 'Documentación', permission: 'documentacion' },
 ]
+
+const menuItems = computed(() => {
+  const userPermisos = authStore.user?.permisos || []
+  return allMenuItems.filter(item => userPermisos.includes(item.permission))
+})
 
 const setAdminSection = (path) => {
   router.push(path)
   leftDrawerOpen.value = false
 }
 
-async function handleLogout() {
-  await authStore.logout()
-  // SSO: Redirigir al login centralizado de SISPO pidiendo limpiar sesión global
-  window.location.href = 'http://localhost:9000/#/login?logout=true'
+const volverAlPortal = () => {
+  const isDev = import.meta.env ? import.meta.env.DEV : process.env.DEV
+  const ssoUrl = isDev ? 'http://localhost:9000' : 'https://sigeth.xpertiaplus.com'
+  window.location.href = ssoUrl
 }
 
 const pendingCount = ref(0)

@@ -13,6 +13,7 @@ import { computed } from 'vue'
 const currentYear = computed(() => new Date().getFullYear())
 
 const goToLogin = () => {
-    window.location.href = 'http://localhost:9000/#/login'
+    const ssoUrl = process.env.DEV ? 'http://localhost:9000/#/login' : 'https://sigeth.xpertiaplus.com/#/login'
+    window.location.href = ssoUrl
 }
 </script>

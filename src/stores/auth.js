@@ -11,7 +11,11 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isAuthenticated: (state) => !!state.token,
-    userName: (state) => state.user?.name || 'Usuario',
+    userName: (state) => {
+      const user = state.user
+      if (!user) return 'Usuario'
+      return user.nombre_completo || user.name || `${user.nombres || ''} ${user.apellido_paterno || user.apellidos || ''}`.trim() || 'Usuario'
+    },
     mustChangePassword: (state) => state.user?.must_change_password || false
   },
 
@@ -65,6 +69,17 @@ export const useAuthStore = defineStore('auth', {
       if (this.token) {
         api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
       }
+    },
+
+    setToken(token) {
+      this.token = token
+      localStorage.setItem('token', token)
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    },
+
+    setUser(user) {
+      this.user = user
+      localStorage.setItem('user', JSON.stringify(user))
     }
   }
 })
