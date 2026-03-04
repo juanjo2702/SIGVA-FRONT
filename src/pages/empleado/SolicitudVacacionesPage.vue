@@ -49,7 +49,7 @@
                 Seleccione los días de vacaciones
               </div>
 
-              <CalendarioVacaciones v-model="diasSeleccionados" :empleado="empleado" :fecha-minima="fechaMinima" />
+              <CalendarioVacaciones v-model="diasSeleccionados" :empleado="empleado" :fecha-minima="fechaMinima" :es-publico="true" />
 
               <!-- Resumen -->
               <q-card flat bordered :class="saldoResultanteClass">

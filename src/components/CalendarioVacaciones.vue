@@ -231,7 +231,8 @@ const props = defineProps({
   permitirDiasPasados: { type: Boolean, default: false },
   fechaMinima: { type: String, default: null }, // Nueva prop para limitar selección
   solicitudIdActual: { type: [Number, String], default: null },
-  diasRestaurar: { type: Number, default: 0 }
+  diasRestaurar: { type: Number, default: 0 },
+  esPublico: { type: Boolean, default: false } // true = portal empleado (sin auth)
 })
 
 const emit = defineEmits(['update:modelValue', 'change', 'solicitar-cancelacion'])
@@ -518,6 +519,11 @@ function getSolicitudExistente(fechaStr) {
 
 // Cargar solicitudes existentes del empleado
 async function cargarSolicitudesExistentes() {
+  // En portal público no se consultan días ocupados (requiere auth)
+  if (props.esPublico) {
+    solicitudesExistentes.value = []
+    return
+  }
   if (!props.empleado?.id) return
   try {
     const response = await api.get(`/admin/empleados/${props.empleado.id}/dias-ocupados`)
@@ -677,21 +683,23 @@ function calcularDiasDescontados(fechaStr, tipo) {
 async function cargarFeriados() {
   try {
     const sedeId = props.empleado?.sede_id || props.empleado?.sede?.id
-    const params = { 
-      ano: mesActualDate.value.getFullYear(),
-      all: true,
-      incluir_nacionales: true 
-    }
-    if (sedeId) params.sede_id = sedeId
+    const ano = mesActualDate.value.getFullYear()
 
-    console.log('🔍 Cargando feriados con params:', params)
-    const response = await adminService.getFeriados(params)
-    console.log('📅 Respuesta de feriados:', response)
+    let response
+    if (props.esPublico) {
+      // Portal empleado: usar ruta pública /feriados (sin autenticación)
+      const params = { ano, sede_id: sedeId || undefined }
+      const res = await api.get('/feriados', { params })
+      response = res.data
+    } else {
+      // Admin: usar adminService con ruta protegida
+      const params = { ano, all: true, incluir_nacionales: true }
+      if (sedeId) params.sede_id = sedeId
+      response = await adminService.getFeriados(params)
+    }
+
     if (response.success) {
       feriados.value = response.data || []
-      console.log('✅ Feriados cargados:', feriados.value.length, feriados.value)
-    } else {
-      console.warn('⚠️ La respuesta no fue exitosa:', response)
     }
   } catch (error) {
     console.error('❌ Error cargando feriados:', error)
