@@ -11,18 +11,12 @@
 import { onMounted } from 'vue'
 
 onMounted(() => {
-<<<<<<< HEAD
-    // Si llegamos a esta página, es porque no hay sesión o se intentó entrar manualmente.
-    // Redirigimos al portal central de SISPO para mantener la centralización.
-    window.location.href = 'https://postulacionesunitepc.xpertiaplus.com/#/login'
-=======
   const currentUrl = window.location.origin
   const ssoUrl = import.meta.env.DEV ? 'http://localhost:9000/#/login' : 'https://sigeth.xpertiaplus.com/#/login'
-  
+
   // En SIGVA usamos history mode por lo que el admin dashboard es /admin/dashboard
   const returnToUrl = encodeURIComponent(`${currentUrl}/admin/dashboard`)
-  
+
   window.location.href = `${ssoUrl}?returnTo=${returnToUrl}`
->>>>>>> feature/sso-backup
 })
 </script>

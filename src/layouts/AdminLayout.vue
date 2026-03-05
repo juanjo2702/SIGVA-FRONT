@@ -202,15 +202,10 @@ const systemModel = ref(systemOptions[1]) // Default: SIGVA (we are in SIGVA)
 const onSystemChange = (val) => {
   if (val && val.value === 'SISPO') {
     const token = localStorage.getItem('token')
-<<<<<<< HEAD
-    // Redirigir a SISPO pasando el token en la URL para SSO
-    window.location.href = `https://postulacionesunitepc.xpertiaplus.com/#/admin?token=${token}`
-=======
     // Redirigir a SISPO 
     const isDev = import.meta.env ? import.meta.env.DEV : process.env.DEV
     const sispoUrl = isDev ? 'http://localhost:9001/#/admin' : 'https://sigeth.xpertiaplus.com/sispo/#/admin'
     window.location.href = `${sispoUrl}?token=${token}`
->>>>>>> feature/sso-backup
   }
   // Si selecciona SIGVA, ya estamos aquí, resetear al valor actual
   systemModel.value = systemOptions[1]
@@ -237,17 +232,10 @@ const setAdminSection = (path) => {
   leftDrawerOpen.value = false
 }
 
-<<<<<<< HEAD
-async function handleLogout() {
-  await authStore.logout()
-  // SSO: Redirigir al login centralizado de SISPO pidiendo limpiar sesión global
-  window.location.href = 'https://postulacionesunitepc.xpertiaplus.com/#/login?logout=true'
-=======
 const volverAlPortal = () => {
   const isDev = import.meta.env ? import.meta.env.DEV : process.env.DEV
   const ssoUrl = isDev ? 'http://localhost:9000' : 'https://sigeth.xpertiaplus.com'
   window.location.href = ssoUrl
->>>>>>> feature/sso-backup
 }
 
 const pendingCount = ref(0)
