@@ -13,6 +13,11 @@ import { computed } from 'vue'
 const currentYear = computed(() => new Date().getFullYear())
 
 const goToLogin = () => {
+<<<<<<< HEAD
     window.location.href = 'https://postulacionesunitepc.xpertiaplus.com/#/login'
+=======
+    const ssoUrl = process.env.DEV ? 'http://localhost:9000/#/login' : 'https://sigeth.xpertiaplus.com/#/login'
+    window.location.href = ssoUrl
+>>>>>>> feature/sso-backup
 }
 </script>

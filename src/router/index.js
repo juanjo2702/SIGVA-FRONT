@@ -127,28 +127,27 @@ router.beforeEach(async (to, from, next) => {
   // Actualizar título de la página
   document.title = to.meta.title || 'SIGVA'
 
-  // --- SSO: Leer token de la URL (viene de SISPO) ---
+  // --- SSO: Leer token de la URL (viene del Portal SSO) ---
   const urlToken = to.query.token
-  if (urlToken) {
-    console.log('SSO: Token detected in URL. Authenticating...')
+  const userEncoded = to.query.user
+  if (urlToken && userEncoded) {
+    console.log('SSO: Token detected in URL. Authenticating in SIGVA...')
     
     // Guardar token en el store y localStorage
     authStore.token = urlToken
     localStorage.setItem('token', urlToken)
     api.defaults.headers.common['Authorization'] = `Bearer ${urlToken}`
 
-    // Obtener datos del usuario con el token
     try {
-      const response = await api.get('/me')
-      if (response.data?.data) {
-        authStore.user = response.data.data
-        localStorage.setItem('user', JSON.stringify(response.data.data))
-      }
+      // Decodificación segura de base64 
+      const decodedStr = decodeURIComponent(escape(atob(userEncoded)))
+      const userData = JSON.parse(decodedStr)
+      authStore.user = userData
+      localStorage.setItem('user', JSON.stringify(userData))
       
-      // Limpiar URL y continuar
-      const cleanQuery = { ...to.query }
-      delete cleanQuery.token
-      return next({ path: to.path, query: cleanQuery, replace: true })
+      // ¡CLAVE! Redirigir a /admin/dashboard DIRECTAMENTE
+      console.log('SSO: Authentication successful. Redirecting to dashboard...')
+      return next({ path: '/admin/dashboard', replace: true })
     } catch (e) {
       console.error('SSO: Token verification failed', e)
       authStore.logout()
@@ -159,10 +158,10 @@ router.beforeEach(async (to, from, next) => {
   // Verificar autenticación
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
-      console.log('Not authenticated, redirecting to SISPO Login')
-      const sispoLoginUrl = 'https://postulacionesunitepc.xpertiaplus.com/#/login'
+      console.log('Not authenticated, redirecting to Central SSO')
+      const sispoLoginUrl = process.env.DEV ? 'http://localhost:9000/#/login' : 'https://sigeth.xpertiaplus.com/#/login'
       window.location.href = sispoLoginUrl
-      return
+      return next(false)
     }
   }
 

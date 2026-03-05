@@ -121,7 +121,8 @@ const errorCi = ref('')
 const errorFecha = ref('')
 
 const goToLogin = () => {
-    window.location.href = 'https://postulacionesunitepc.xpertiaplus.com/#/login'
+    const ssoUrl = process.env.DEV ? 'http://localhost:9000/#/login' : 'https://sigeth.xpertiaplus.com/#/login'
+    window.location.href = ssoUrl
 }
 
 async function buscarEmpleado() {
