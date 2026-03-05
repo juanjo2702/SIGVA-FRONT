@@ -4,7 +4,7 @@ import axios from 'axios'
 const isProduction = import.meta.env.PROD
 
 const api = axios.create({
-  baseURL: isProduction ? 'https://api.sigva.xpertiaplus.com/api' : '/api',
+  baseURL: import.meta.env.PROD ? `${import.meta.env.VITE_SIGVA_BACK_URL}/api` : '/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

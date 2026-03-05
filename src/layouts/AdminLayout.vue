@@ -133,14 +133,6 @@
 
           <div class="flex flex-col gap-2">
             <button
-              @click="$router.push('/admin/cambiar-password')"
-              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 hover:text-primary hover:border-primary/30 hover:shadow-sm transition-all group"
-            >
-              <q-icon name="lock" size="18px" class="text-gray-400 group-hover:text-primary group-hover:rotate-12 transition-all" />
-              <span class="font-bold text-sm">Cambiar Contraseña</span>
-            </button>
-
-            <button
               @click="volverAlPortal"
               class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white hover:border-transparent transition-all group"
             >
@@ -204,7 +196,7 @@ const onSystemChange = (val) => {
     const token = localStorage.getItem('token')
     // Redirigir a SISPO 
     const isDev = import.meta.env ? import.meta.env.DEV : process.env.DEV
-    const sispoUrl = isDev ? 'http://localhost:9001/#/admin' : 'https://sigeth.xpertiaplus.com/sispo/#/admin'
+    const sispoUrl = `${import.meta.env.VITE_SISPO_FRONT_URL}/#/admin`
     window.location.href = `${sispoUrl}?token=${token}`
   }
   // Si selecciona SIGVA, ya estamos aquí, resetear al valor actual
@@ -234,7 +226,7 @@ const setAdminSection = (path) => {
 
 const volverAlPortal = () => {
   const isDev = import.meta.env ? import.meta.env.DEV : process.env.DEV
-  const ssoUrl = isDev ? 'http://localhost:9000' : 'https://sigeth.xpertiaplus.com'
+  const ssoUrl = import.meta.env.VITE_SSO_FRONT_URL
   window.location.href = ssoUrl
 }
 

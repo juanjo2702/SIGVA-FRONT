@@ -12,7 +12,7 @@ import { onMounted } from 'vue'
 
 onMounted(() => {
   const currentUrl = window.location.origin
-  const ssoUrl = import.meta.env.DEV ? 'http://localhost:9000/#/login' : 'https://sigeth.xpertiaplus.com/#/login'
+  const ssoUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login`
 
   // En SIGVA usamos history mode por lo que el admin dashboard es /admin/dashboard
   const returnToUrl = encodeURIComponent(`${currentUrl}/admin/dashboard`)

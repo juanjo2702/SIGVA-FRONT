@@ -159,8 +159,8 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
       console.log('Not authenticated, redirecting to Central SSO')
-      const sispoLoginUrl = process.env.DEV ? 'http://localhost:9000/#/login' : 'https://sigeth.xpertiaplus.com/#/login'
-      window.location.href = sispoLoginUrl
+      const ssoLoginUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login`
+      window.location.href = ssoLoginUrl
       return next(false)
     }
   }

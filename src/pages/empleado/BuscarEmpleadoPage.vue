@@ -121,7 +121,7 @@ const errorCi = ref('')
 const errorFecha = ref('')
 
 const goToLogin = () => {
-    const ssoUrl = process.env.DEV ? 'http://localhost:9000/#/login' : 'https://sigeth.xpertiaplus.com/#/login'
+    const ssoUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login`
     window.location.href = ssoUrl
 }
 
