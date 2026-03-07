@@ -74,25 +74,7 @@
             <span class="font-bold text-gray-700 group-hover:text-white">Ver Portal Empleado</span>
           </div>
 
-          <!-- System Selector -->
-          <div v-if="authStore.user?.systems?.length > 1" class="px-4 mb-4">
-            <q-select
-              filled
-              dense
-              options-dense
-              v-model="systemModel"
-              :options="systemOptions"
-              option-label="label"
-              option-value="value"
-              label="Cambiar Sistema"
-              class="bg-gray-50 rounded-lg"
-              @update:model-value="onSystemChange"
-            >
-              <template v-slot:prepend>
-                <q-icon name="apps" color="primary" />
-              </template>
-            </q-select>
-          </div>
+
 
           <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-4 mb-2">Menú Principal (SIGVA)</div>
 
@@ -183,25 +165,7 @@ const userRole = computed(() => {
   return user?.rol?.name || user?.rol?.nombre || 'Administrador'
 })
 
-// ====== System Switcher ======
-const systemOptions = [
-  { label: 'Sistema de Postulaciones', value: 'SISPO' },
-  { label: 'Sistema de Gestión de Vacaciones', value: 'SIGVA' },
-]
 
-const systemModel = ref(systemOptions[1]) // Default: SIGVA (we are in SIGVA)
-
-const onSystemChange = (val) => {
-  if (val && val.value === 'SISPO') {
-    const token = localStorage.getItem('token')
-    // Redirigir a SISPO 
-    const isDev = import.meta.env ? import.meta.env.DEV : process.env.DEV
-    const sispoUrl = `${import.meta.env.VITE_SISPO_FRONT_URL}/#/admin`
-    window.location.href = `${sispoUrl}?token=${token}`
-  }
-  // Si selecciona SIGVA, ya estamos aquí, resetear al valor actual
-  systemModel.value = systemOptions[1]
-}
 
 // ====== Menu Items (filtered by permissions) ======
 const allMenuItems = [
