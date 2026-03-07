@@ -160,7 +160,8 @@ router.beforeEach(async (to, from, next) => {
     if (!authStore.isAuthenticated) {
       console.log('Not authenticated, redirecting to Central SSO')
       const ssoLoginUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login`
-      window.location.href = ssoLoginUrl
+      const returnToUrl = encodeURIComponent(`${window.location.origin}/admin/dashboard`)
+      window.location.href = `${ssoLoginUrl}?returnTo=${returnToUrl}`
       return next(false)
     }
   }
