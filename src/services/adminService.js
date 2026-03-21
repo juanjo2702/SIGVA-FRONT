@@ -126,6 +126,20 @@ export const adminService = {
     return response.data
   },
 
+  async subirRespaldo(id, file) {
+    const formData = new FormData()
+    formData.append('archivo', file)
+    const response = await api.post(`/admin/solicitudes/${id}/archivo-respaldo`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    return response.data
+  },
+
+  async eliminarRespaldo(id) {
+    const response = await api.delete(`/admin/solicitudes/${id}/archivo-respaldo`)
+    return response.data
+  },
+
   // =============================================
   // Reportes
   // =============================================
@@ -150,9 +164,18 @@ export const adminService = {
       responseType: 'blob'
     })
     const url = window.URL.createObjectURL(new Blob([response.data]))
+    
+    let filename = `REPORTE_VACACIONES_SALDOS.xlsx`
+    const disposition = response.headers['content-disposition']
+    if (disposition && disposition.indexOf('filename=') !== -1) {
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+      const matches = filenameRegex.exec(disposition)
+      if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '')
+    }
+
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', `empleados_sigva_${new Date().toISOString().split('T')[0]}.xlsx`)
+    link.setAttribute('download', filename)
     document.body.appendChild(link)
     link.click()
     link.remove()
@@ -165,9 +188,18 @@ export const adminService = {
       responseType: 'blob'
     })
     const url = window.URL.createObjectURL(new Blob([response.data]))
+
+    let filename = `REPORTE_VACACIONES_SOLICITUDES.xlsx`
+    const disposition = response.headers['content-disposition']
+    if (disposition && disposition.indexOf('filename=') !== -1) {
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+      const matches = filenameRegex.exec(disposition)
+      if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '')
+    }
+
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', `solicitudes_sigva_${new Date().toISOString().split('T')[0]}.xlsx`)
+    link.setAttribute('download', filename)
     document.body.appendChild(link)
     link.click()
     link.remove()
@@ -186,10 +218,19 @@ export const adminService = {
     })
     
     const url = window.URL.createObjectURL(new Blob([response.data]))
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+    let filename = `PLAN_NACIONAL_VACACIONES.xlsx`
+    
+    const disposition = response.headers['content-disposition']
+    if (disposition && disposition.indexOf('filename=') !== -1) {
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+      const matches = filenameRegex.exec(disposition)
+      if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '')
+    }
+
     const link = document.createElement('a')
     link.href = url
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-    link.setAttribute('download', `plan_vacaciones_${timestamp}.xlsx`)
+    link.setAttribute('download', filename)
     document.body.appendChild(link)
     link.click()
     link.remove()

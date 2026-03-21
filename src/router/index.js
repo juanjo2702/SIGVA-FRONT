@@ -145,13 +145,15 @@ router.beforeEach(async (to, from, next) => {
       authStore.user = userData
       localStorage.setItem('user', JSON.stringify(userData))
       
-      // ¡CLAVE! Redirigir a /admin/dashboard DIRECTAMENTE
+      // Limpiar la URL y redirigir al dashboard REAL
       console.log('SSO: Authentication successful. Redirecting to dashboard...')
       return next({ path: '/admin/dashboard', replace: true })
     } catch (e) {
       console.error('SSO: Token verification failed', e)
       authStore.logout()
-      return next({ name: 'login' })
+      
+      // En vez de redirigir por nombre, usamos la ruta absoluta para evitar concatenaciones
+      return next({ path: '/admin/login', query: {}, replace: true })
     }
   }
 

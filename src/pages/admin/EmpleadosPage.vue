@@ -43,16 +43,22 @@
 
         <q-checkbox v-model="filtros.saldo_negativo" label="Solo saldo negativo" class="filter-checkbox"
           @update:model-value="cargarEmpleados" />
+          
+        <q-checkbox v-model="filtros.mostrar_inactivos" label="Mostrar dados de baja" class="filter-checkbox"
+          @update:model-value="cargarEmpleados" />
       </div>
     </div>
 
-    <!-- Tabla -->
     <q-card class="shadow-2">
       <q-table :rows="empleados" :columns="columns" row-key="id" :loading="loading" v-model:pagination="pagination"
-        @request="onRequest" :rows-per-page-options="[10, 15, 25, 50, 100]" flat>
+        @request="onRequest" :rows-per-page-options="[10, 15, 25, 50, 100]" flat
+        :row-class="row => row.activo ? '' : 'bg-red-1'">
         <template v-slot:body-cell-nombre="props">
           <q-td :props="props">
-            <div class="text-weight-medium">{{ props.row.nombre_completo }}</div>
+            <div class="row align-center q-gutter-x-sm">
+                <div class="text-weight-medium">{{ props.row.nombre_completo }}</div>
+                <q-badge v-if="!props.row.activo" color="negative" outline label="De Baja" />
+            </div>
             <div class="text-caption text-grey">{{ props.row.cargo }}</div>
           </q-td>
         </template>
@@ -124,7 +130,7 @@ const notify = useNotify()
 // State
 const loading = ref(false)
 const empleados = ref([])
-const filtros = ref({ buscar: '', saldo_negativo: false, sede_id: null })
+const filtros = ref({ buscar: '', saldo_negativo: false, sede_id: null, mostrar_inactivos: true })
 const sedes = ref([])
 
 // Computed
@@ -333,7 +339,8 @@ async function cargarEmpleados() {
       per_page: pagination.value.rowsPerPage,
       buscar: filtros.value.buscar || undefined,
       saldo_negativo: filtros.value.saldo_negativo || undefined,
-      sede_id: filtros.value.sede_id || undefined
+      sede_id: filtros.value.sede_id || undefined,
+      activo: filtros.value.mostrar_inactivos ? undefined : true
     })
     empleados.value = Array.isArray(res.data?.data) ? res.data.data : []
     pagination.value.rowsNumber = res.data?.total || 0

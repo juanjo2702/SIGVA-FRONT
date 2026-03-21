@@ -115,6 +115,32 @@
           </q-td>
         </template>
 
+        <template v-slot:body-cell-respaldo="props">
+          <q-td :props="props">
+            <div class="row items-center justify-center q-gutter-xs">
+              <!-- Botón ver si existe -->
+              <q-btn v-if="props.row.archivo_respaldo_path" size="sm" round flat color="secondary" icon="visibility"
+                @click="verRespaldo(props.row)">
+                <q-tooltip>Ver Respaldo Digital</q-tooltip>
+              </q-btn>
+              
+              <!-- Botón subir -->
+              <q-btn size="sm" round flat :color="props.row.archivo_respaldo_path ? 'grey-7' : 'primary'" 
+                :icon="props.row.archivo_respaldo_path ? 'cloud_done' : 'cloud_upload'" 
+                @click="seleccionarArchivo(props.row)"
+                :loading="loadingFile === props.row.id">
+                <q-tooltip>{{ props.row.archivo_respaldo_path ? 'Actualizar Respaldo' : 'Subir Respaldo' }}</q-tooltip>
+              </q-btn>
+
+              <!-- Botón borrar si existe -->
+              <q-btn v-if="props.row.archivo_respaldo_path" size="sm" round flat color="negative" icon="delete"
+                @click="confirmarBorrarRespaldo(props.row)">
+                <q-tooltip>Eliminar Respaldo</q-tooltip>
+              </q-btn>
+            </div>
+          </q-td>
+        </template>
+
         <template v-slot:body-cell-acciones="props">
           <q-td :props="props">
             <div class="row q-gutter-xs no-wrap">
@@ -310,6 +336,9 @@
       </q-card>
     </q-dialog>
 
+    <!-- Upload invisible -->
+    <input type="file" ref="fileInput" style="display: none" accept=".pdf,image/*" @change="handleFileUpload" />
+
   </q-page>
 </template>
 
@@ -337,7 +366,67 @@ const buscarConDebounce = useDebounceFn(() => {
 const loading = ref(false)
 const loadingAction = ref(false)
 const loadingConfirmar = ref(null)
+const loadingFile = ref(null)
+const fileInput = ref(null)
+const solicitudParaSubir = ref(null)
 const solicitudes = ref([])
+
+function seleccionarArchivo(solicitud) {
+  solicitudParaSubir.value = solicitud
+  fileInput.value.click()
+}
+
+async function handleFileUpload(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  loadingFile.value = solicitudParaSubir.value.id
+  try {
+    await adminService.subirRespaldo(solicitudParaSubir.value.id, file)
+    $q.notify({ type: 'positive', message: 'Respaldo subido correctamente' })
+    await cargarSolicitudes()
+  } catch (error) {
+    const message = error.response?.data?.message || 'Error al subir el archivo'
+    $q.notify({ type: 'negative', message })
+  } finally {
+    loadingFile.value = null
+    event.target.value = '' // Limpiar input
+  }
+}
+
+function verRespaldo(solicitud) {
+  if (!solicitud.archivo_respaldo_path) return
+  const baseUrl = import.meta.env.PROD 
+    ? import.meta.env.VITE_SIGVA_BACK_URL 
+    : 'http://localhost:8001' // URL base del backend en desarrollo
+  const url = `${baseUrl}/storage/${solicitud.archivo_respaldo_path}`
+  window.open(url, '_blank')
+}
+
+function confirmarBorrarRespaldo(solicitud) {
+  $q.dialog({
+    title: 'Confirmar eliminación',
+    message: '¿Estás seguro de que quieres eliminar el archivo de respaldo físico?',
+    cancel: true,
+    persistent: true,
+    ok: { color: 'negative', label: 'Eliminar' }
+  }).onOk(() => {
+    borrarRespaldoDirecto(solicitud)
+  })
+}
+
+async function borrarRespaldoDirecto(solicitud) {
+  loadingFile.value = solicitud.id
+  try {
+    await adminService.eliminarRespaldo(solicitud.id)
+    $q.notify({ type: 'positive', message: 'Respaldo eliminado' })
+    await cargarSolicitudes()
+  } catch (error) {
+    $q.notify({ type: 'negative', message: 'Error al eliminar respaldo' })
+  } finally {
+    loadingFile.value = null
+  }
+}
 
 const filtros = ref({
   estado: 'todos',
@@ -407,6 +496,7 @@ const columns = [
   { name: 'tipo', label: 'Tipo', align: 'left' },
   { name: 'reemplazo', label: 'Reemplazo', align: 'left' },
   { name: 'estado', label: 'Estado', align: 'center' },
+  { name: 'respaldo', label: 'Respaldo', align: 'center' },
   { name: 'acciones', label: 'Acciones', align: 'center' }
 ]
 
@@ -680,7 +770,7 @@ async function descargarPDF() {
       filename: `Formulario_Vacaciones_${datosFormulario.value?.solicitud?.id || 'solicitud'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: { unit: 'mm', format: 'legal', orientation: 'portrait' }
     }
     await html2pdf().set(opt).from(element).save()
     $q.notify({ type: 'positive', message: 'PDF descargado correctamente' })

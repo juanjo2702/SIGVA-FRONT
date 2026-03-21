@@ -3,12 +3,7 @@
     <div class="formulario-oficial"
       style="max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif; font-size: 11px; background: white; color: black; padding: 20px;">
 
-      <!-- AVISO DE IMPRESION -->
-      <div class="no-print"
-        style="background: #fff3cd; border: 1px solid #ffc107; padding: 8px 12px; margin-bottom: 15px; border-radius: 4px; font-size: 11px; color: #856404; text-align: center;">
-        <strong>📋 Recomendación:</strong> Para una impresión perfecta, utilice hoja tamaño
-        <strong>OFICIO</strong>.
-      </div>
+
 
       <!-- HEADER -->
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">

@@ -204,12 +204,7 @@
           <div class="formulario-oficial"
             style="max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif; font-size: 11px;">
 
-            <!-- AVISO DE IMPRESION -->
-            <div class="no-print"
-              style="background: #fff3cd; border: 1px solid #ffc107; padding: 8px 12px; margin-bottom: 15px; border-radius: 4px; font-size: 11px; color: #856404; text-align: center;">
-              <strong>📋 Recomendación:</strong> Para una impresión perfecta, utilice hoja tamaño
-              <strong>OFICIO</strong>.
-            </div>
+
 
             <!-- HEADER -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -696,7 +691,7 @@ async function descargarPDF() {
       filename: `Formulario_Vacaciones_${datosFormulario.value?.solicitud?.id || 'solicitud'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: { unit: 'mm', format: 'legal', orientation: 'portrait' }
     }
     await html2pdf().set(opt).from(element).save()
     $q.notify({ type: 'positive', message: 'PDF descargado correctamente' })
@@ -752,7 +747,7 @@ onMounted(cargarEmpleado)
 @media print {
   @page {
     margin: 10mm;
-    size: A4;
+    size: legal;
   }
 
   /* Ocultar header y footer del navegador (URL, fecha, título) */

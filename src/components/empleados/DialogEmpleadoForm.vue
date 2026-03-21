@@ -51,6 +51,9 @@
                             <q-input v-model.number="form.saldo_vacaciones" label="Saldo Inicial" type="number"
                                 step="0.5" outlined dense />
                         </div>
+                        <div class="col-6 flex items-center">
+                            <q-toggle v-model="form.activo" color="primary" label="Empleado Activo" />
+                        </div>
                     </div>
                 </q-form>
             </q-card-section>
@@ -95,7 +98,8 @@ const form = ref({
     sede_id: null,
     cargo: '',
     fecha_ingreso: '',
-    saldo_vacaciones: 0
+    saldo_vacaciones: 0,
+    activo: true
 })
 
 const isEditing = computed(() => !!props.empleado)
@@ -122,7 +126,8 @@ watch(() => props.modelValue, (open) => {
                 sede_id: props.empleado.sede_id || null,
                 cargo: props.empleado.cargo || '',
                 fecha_ingreso: fechaFormateada,
-                saldo_vacaciones: props.empleado.saldo_vacaciones || 0
+                saldo_vacaciones: props.empleado.saldo_vacaciones || 0,
+                activo: props.empleado.activo !== undefined ? props.empleado.activo : true
             }
         } else {
             form.value = {
@@ -135,7 +140,8 @@ watch(() => props.modelValue, (open) => {
                 sede_id: null,
                 cargo: '',
                 fecha_ingreso: '',
-                saldo_vacaciones: 0
+                saldo_vacaciones: 0,
+                activo: true
             }
         }
     }

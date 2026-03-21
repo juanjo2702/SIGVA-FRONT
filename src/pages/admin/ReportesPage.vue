@@ -28,6 +28,7 @@
           </q-card-section>
 
           <q-card-section>
+            <q-select v-model="filtrosSaldos.sede_id" :options="sedesOptions" label="Sede" outlined dense emit-value map-options class="q-mb-md" />
             <q-checkbox v-model="filtrosSaldos.solo_negativos" label="Solo saldo negativo" class="q-mb-md" />
             <div class="row q-gutter-sm">
               <q-btn color="primary" label="Generar" @click="cargarSaldos" :loading="loadingSaldos" unelevated no-caps />
@@ -79,6 +80,9 @@
 
           <q-card-section>
             <div class="row q-col-gutter-sm q-mb-md">
+              <div class="col-12">
+                <q-select v-model="filtrosSolicitudes.sede_id" :options="sedesOptions" label="Sede" outlined dense emit-value map-options />
+              </div>
               <div class="col-6">
                 <q-select v-model="filtrosSolicitudes.ano" :options="anosOptions" label="Año" outlined dense />
               </div>
@@ -254,8 +258,8 @@ const reporteSaldos = ref(null)
 const reporteSolicitudes = ref(null)
 
 const sedesOptions = ref([{ value: 'todos', label: 'Todas las Sedes' }])
-const filtrosSaldos = ref({ solo_negativos: false })
-const filtrosSolicitudes = ref({ ano: new Date().getFullYear(), estado: 'todos' })
+const filtrosSaldos = ref({ solo_negativos: false, sede_id: 'todos' })
+const filtrosSolicitudes = ref({ ano: new Date().getFullYear(), estado: 'todos', sede_id: 'todos' })
 const filtrosGeneral = ref({ 
   ano: new Date().getFullYear(), 
   sede_id: 'todos',

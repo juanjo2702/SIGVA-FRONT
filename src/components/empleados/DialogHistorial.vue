@@ -191,7 +191,7 @@ async function descargarPDF() {
             filename: `Formulario_Vacaciones_${datosFormulario.value?.solicitud?.id || 'solicitud'}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'mm', format: 'legal', orientation: 'portrait' }
         }
         await html2pdf().set(opt).from(element).save()
         notify.success('PDF descargado correctamente')
@@ -211,6 +211,11 @@ function imprimirFormulario() {
 <style>
 /* Estilos globales de impresión optimizados */
 @media print {
+    @page {
+        size: legal;
+        margin: 10mm;
+    }
+    
     /* Ocultar la barra de navegación, el fondo oscuro del diálogo y el historial */
     .q-header, .q-footer, .q-drawer, .q-notifications, .q-dialog__backdrop,
     .q-card__section--main-history, .no-print {
