@@ -135,24 +135,42 @@ router.beforeEach(async (to, from, next) => {
     
     // Guardar token en el store y localStorage
     authStore.token = urlToken
-    localStorage.setItem('token', urlToken)
+    localStorage.setItem('sigva_token', urlToken)
     api.defaults.headers.common['Authorization'] = `Bearer ${urlToken}`
 
     try {
       // Decodificación segura de base64 
       const decodedStr = decodeURIComponent(escape(atob(userEncoded)))
       const userData = JSON.parse(decodedStr)
-      authStore.user = userData
-      localStorage.setItem('user', JSON.stringify(userData))
+      
+      // === NORMALIZACIÓN PARA SIGVA (SSO COMPATIBILITY) ===
+      // SIGETH devuelve access_metadata agrupado por sistema
+      const accessMetadata = userData.access_metadata || {}
+      const sigvaAccess = accessMetadata['sigva'] || accessMetadata['SIGVA'] || { roles: [], permissions: [] }
+      
+      // Mapear permisos y rol al formato que espera SIGVA internamente
+      userData.permisos = sigvaAccess.permissions || []
+      userData.rol = { 
+        name: sigvaAccess.roles.length > 0 ? sigvaAccess.roles[0] : 'Administrador' 
+      }
+      
+      // Mapear nombres desde el objeto persona de SIGETH si existe
+      if (userData.persona) {
+        userData.nombres = userData.persona.nombres
+        userData.apellidos = `${userData.persona.apellido_paterno || ''} ${userData.persona.apellido_materno || ''}`.trim()
+      } else if (userData.name && !userData.nombres) {
+        userData.nombres = userData.name
+      }
+      
+      authStore.setUser(userData)
       
       // Limpiar la URL y redirigir al dashboard REAL
-      console.log('SSO: Authentication successful. Redirecting to dashboard...')
+      console.log('SSO: Authentication successful and normalized. Redirecting to dashboard...')
       return next({ path: '/admin/dashboard', replace: true })
     } catch (e) {
       console.error('SSO: Token verification failed', e)
       authStore.logout()
       
-      // En vez de redirigir por nombre, usamos la ruta absoluta para evitar concatenaciones
       return next({ path: '/admin/login', query: {}, replace: true })
     }
   }

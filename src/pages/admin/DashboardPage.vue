@@ -488,12 +488,7 @@ const motivoRechazo = ref('')
 
 const currentYear = new Date().getFullYear()
 
-const userName = computed(() => {
-  const user = authStore.user
-  if (!user) return 'Usuario'
-  const name = user.nombres ? `${user.nombres} ${user.apellido_paterno || user.apellidos || ''}`.trim() : 'Usuario'
-  return name
-})
+const userName = computed(() => authStore.userName)
 
 const greeting = computed(() => {
   const hour = new Date().getHours()

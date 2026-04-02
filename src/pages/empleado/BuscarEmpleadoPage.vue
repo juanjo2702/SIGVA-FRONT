@@ -106,13 +106,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
+import { useAuthStore } from '@/stores/auth'
 import empleadoService from '@/services/empleadoService'
 
 const router = useRouter()
 const $q = useQuasar()
+const authStore = useAuthStore()
+
+onMounted(() => {
+    // Redirección SSO automática si ya está autenticado como administrador
+    if (authStore.isAuthenticated) {
+        router.push('/admin/dashboard')
+    }
+})
 
 const ci = ref('')
 const fechaIngreso = ref('')
@@ -121,7 +130,9 @@ const errorCi = ref('')
 const errorFecha = ref('')
 
 const goToLogin = () => {
-    const ssoUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login`
+    const currentUrl = window.location.origin
+    const returnToUrl = encodeURIComponent(`${currentUrl}/admin/dashboard`)
+    const ssoUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login?returnTo=${returnToUrl}`
     window.location.href = ssoUrl
 }
 

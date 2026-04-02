@@ -154,17 +154,8 @@ const today = new Date().toLocaleDateString('es-ES', {
   month: 'long',
 })
 
-const userName = computed(() => {
-  const user = authStore.user
-  if (user?.nombres) return `${user.nombres} ${user.apellidos || ''}`
-  return user?.name || 'Usuario'
-})
-
-const userRole = computed(() => {
-  const user = authStore.user
-  return user?.rol?.name || user?.rol?.nombre || 'Administrador'
-})
-
+const userName = computed(() => authStore.userName)
+const userRole = computed(() => authStore.userRole)
 
 
 // ====== Menu Items (filtered by permissions) ======
@@ -179,7 +170,27 @@ const allMenuItems = [
 ]
 
 const menuItems = computed(() => {
-  const userPermisos = authStore.user?.permisos || []
+  const user = authStore.user
+  const accessMetadata = user?.access_metadata || {}
+  const sigvaAccess = accessMetadata['sigva'] || accessMetadata['SIGVA'] || { roles: [], permissions: [] }
+  
+  // Combine all possible sources of permissions
+  const userPermisos = [
+    ...(user?.permisos || []),
+    ...(sigvaAccess.permissions || [])
+  ]
+  
+  const roles = [
+    ...(sigvaAccess.roles || []).map(r => r.toUpperCase()),
+    (userRole.value || '').toUpperCase()
+  ]
+  const isGlobalAdmin = roles.some(r => ['DIRECTOR', 'ADMINISTRADOR', 'ADMIN', 'SUPER ADMIN'].includes(r))
+
+  // If Global Admin or specifically has 'all', show all items
+  if (isGlobalAdmin || userPermisos.includes('all') || userPermisos.includes('*')) {
+      return allMenuItems
+  }
+
   return allMenuItems.filter(item => userPermisos.includes(item.permission))
 })
 
