@@ -35,11 +35,28 @@
                 </div>
                 <div class="col-12 col-sm-6">
                   <q-input v-model="form.reemplazoNombre" label="Persona que Reemplaza" outlined clearable
-                    hint="Opcional - quien cubrirá sus funciones">
+                    hint="Obligatorio - quien cubrirá sus funciones"
+                    :rules="[val => !!val || 'El nombre del reemplazo es obligatorio']">
                     <template v-slot:prepend>
                       <q-icon name="person" />
                     </template>
                   </q-input>
+                </div>
+              </div>
+
+              <!-- Archivo de Respaldo -->
+              <div class="row q-col-gutter-md">
+                <div class="col-12">
+                  <q-file v-model="form.archivoRespaldo" label="Adjuntar Respaldo (Opcional)" outlined
+                    hint="Si adjunta el respaldo firmado, su solicitud se aprobará automáticamente"
+                    accept=".pdf,image/*" max-file-size="5120000" @rejected="onFileRejected">
+                    <template v-slot:prepend>
+                      <q-icon name="cloud_upload" />
+                    </template>
+                    <template v-slot:append>
+                      <q-icon v-if="form.archivoRespaldo" name="close" @click.stop="form.archivoRespaldo = null" class="cursor-pointer" />
+                    </template>
+                  </q-file>
                 </div>
               </div>
 
@@ -133,8 +150,18 @@ const fechaMinima = computed(() => {
 
 const form = ref({
   lugar: '',
-  reemplazoNombre: ''
+  reemplazoNombre: '',
+  archivoRespaldo: null
 })
+
+const onFileRejected = (rejectedEntries) => {
+  rejectedEntries.forEach(entry => {
+    $q.notify({
+      type: 'negative',
+      message: `El archivo ${entry.file.name} es demasiado grande o el formato no es válido`
+    })
+  })
+}
 
 // Total de días
 const totalDias = computed(() => {
@@ -165,18 +192,23 @@ async function enviarSolicitud() {
   submitting.value = true
 
   try {
-    const response = await empleadoService.crearSolicitudConDias({
-      empleado_id: empleado.value.id,
-      dias: diasSeleccionados.value,
-      lugar_solicitud: form.value.lugar,
-      reemplazo: form.value.reemplazoNombre || null
-    })
+    // Usar FormData para enviar archivos
+    const formData = new FormData()
+    formData.append('empleado_id', empleado.value.id)
+    formData.append('dias', JSON.stringify(diasSeleccionados.value))
+    formData.append('lugar_solicitud', form.value.lugar)
+    formData.append('reemplazo', form.value.reemplazoNombre)
+    
+    if (form.value.archivoRespaldo) {
+      formData.append('archivo_respaldo', form.value.archivoRespaldo)
+    }
+
+    const response = await empleadoService.crearSolicitudConDias(formData)
 
     if (response.success) {
       $q.notify({
         type: 'positive',
-        message: 'Solicitud creada correctamente',
-        caption: 'Pendiente de aprobación por Talento Humano',
+        message: response.message || 'Solicitud creada correctamente',
         icon: 'check_circle'
       })
 

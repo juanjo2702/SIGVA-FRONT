@@ -25,6 +25,7 @@
       <!-- FECHA LUGAR -->
       <div style="text-align: right; margin-bottom: 10px;">
         <table style="display: inline-table; border-collapse: collapse; font-size: 10px;">
+<tbody>
           <tr>
             <td style="border: 1px solid #000; padding: 2px 5px; font-weight: bold;">Lugar</td>
             <td style="border: 1px solid #000; padding: 2px 5px; font-weight: bold;">Día</td>
@@ -37,11 +38,13 @@
             <td style="border: 1px solid #000; padding: 2px 8px;">{{ getFechaPartes(datos.solicitud.fecha_solicitud).mes }}</td>
             <td style="border: 1px solid #000; padding: 2px 8px;">{{ getFechaPartes(datos.solicitud.fecha_solicitud).anio }}</td>
           </tr>
-        </table>
+        </tbody>
+</table>
       </div>
 
       <!-- DATOS EMPLEADO -->
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+<tbody>
         <tr>
           <td style="padding: 5px; border: 1px solid #000;">
             <strong>Nombres y Apellidos:</strong>
@@ -64,10 +67,12 @@
             <span style="margin-left: 10px;">{{ datos.empleado.sede || '_________________' }}</span>
           </td>
         </tr>
-      </table>
+      </tbody>
+</table>
 
       <!-- DIAS DE VACACION -->
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
+<tbody>
         <tr>
           <td style="border: 1px solid #000; padding: 3px; width: 80px; text-align: center;">
             <div style="font-weight: bold; font-size: 9px;">No. de días</div>
@@ -75,6 +80,7 @@
           </td>
           <td style="border: 1px solid #000; padding: 3px;">
             <table style="width: 100%; border-collapse: collapse;">
+<tbody>
               <tr>
                 <td style="padding: 2px; text-align: center;"></td>
                 <td style="padding: 2px; text-align: center; font-size: 9px; font-weight: bold;">día</td>
@@ -111,7 +117,8 @@
                 <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datos.solicitud.fecha_fin).mes }}</td>
                 <td style="border: 1px solid #000; padding: 3px; text-align: center;">{{ getFechaPartes(datos.solicitud.fecha_fin).anio }}</td>
               </tr>
-            </table>
+            </tbody>
+</table>
           </td>
           <td style="border: 1px solid #000; padding: 3px; width: 150px;">
             <div style="display: flex; justify-content: space-around;">
@@ -129,7 +136,8 @@
             Vacación programada <span style="border: 1px solid #000; padding: 0 5px; margin-left: 5px;">X</span>
           </td>
         </tr>
-      </table>
+      </tbody>
+</table>
 
       <!-- CALENDARIO VISUAL -->
       <div v-if="datos.etapas && datos.etapas.length > 0" style="border: 1px solid #000; padding: 8px; margin-bottom: 10px;">
@@ -141,6 +149,7 @@
 
       <!-- ADJUNTOS -->
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+<tbody>
         <tr>
           <td style="padding: 5px; border: 1px solid #000;">
             <span style="border: 1px solid #000; padding: 0 8px; margin-right: 10px;"></span>
@@ -151,10 +160,12 @@
             Otros ___________________________
           </td>
         </tr>
-      </table>
+      </tbody>
+</table>
 
       <!-- REEMPLAZO -->
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+<tbody>
         <tr>
           <td style="padding: 5px; border: 1px solid #000;" colspan="2">
             <em><strong>Nombre de la persona que REEMPLAZA:</strong></em>
@@ -170,11 +181,13 @@
         <tr>
           <td style="padding: 5px; border: 1px solid #000;">Reemplazo solo de funciones con memorándum</td>
         </tr>
-      </table>
+      </tbody>
+</table>
 
       <!-- AUTORIZACION -->
       <div style="text-align: center; font-weight: bold; font-size: 14px; margin: 15px 0;">AUTORIZACIÓN DE VACACIONES</div>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+<tbody>
         <tr>
           <td style="padding: 5px;">
             <span style="border: 1px solid #000; padding: 0 5px; margin-right: 5px;">{{
@@ -187,7 +200,8 @@
             Se rechaza
           </td>
         </tr>
-      </table>
+      </tbody>
+</table>
 
       <div style="margin-bottom: 15px;">
         <span>Justificación:</span>
@@ -196,6 +210,7 @@
 
       <!-- FIRMAS VoBo -->
       <table style="width: 100%; margin-bottom: 20px;">
+<tbody>
         <tr>
           <td style="text-align: center; width: 33%;">
             <div style="border-top: 1px solid #000; width: 150px; margin: 0 auto;"></div>
@@ -210,13 +225,15 @@
             <div><strong>DAF</strong></div>
           </td>
         </tr>
-      </table>
+      </tbody>
+</table>
 
       <!-- CONTROL DE VACACIONES -->
       <div style="text-align: center; font-weight: bold; font-size: 12px;">CONTROL DE VACACIONES</div>
       <div style="text-align: center; font-size: 9px; margin-bottom: 10px;">(Para uso exclusivo de Recursos Humanos y Personal)</div>
 
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+<tbody>
         <tr>
           <td style="padding: 5px;">Fecha de ingreso:</td>
           <td style="border: 1px solid #000; padding: 3px; text-align: center; width: 40px;">{{ getFechaPartes(datos.empleado.fecha_ingreso).dia }}</td>
@@ -224,9 +241,11 @@
           <td style="border: 1px solid #000; padding: 3px; text-align: center; width: 50px;">{{ getFechaPartes(datos.empleado.fecha_ingreso).anio }}</td>
           <td style="width: 50%;"></td>
         </tr>
-      </table>
+      </tbody>
+</table>
 
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+<tbody>
         <tr>
           <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">Gestiones</td>
           <td style="border: 1px solid #000; padding: 5px; font-weight: bold; text-align: center;">años de<br>servicios</td>
@@ -243,7 +262,8 @@
           <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datos.solicitud.dias_solicitados }}</td>
           <td style="border: 1px solid #000; padding: 5px; text-align: center;">{{ datos.saldo?.despues || '0' }}</td>
         </tr>
-      </table>
+      </tbody>
+</table>
 
       <div style="text-align: right; margin-bottom: 15px;">
         <strong>SALDO TOTAL PENDIENTE</strong>

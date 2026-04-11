@@ -158,6 +158,10 @@
                   </q-item-section>
                   <q-item-section side>
                     <div class="row items-center q-gutter-xs">
+                      <q-btn v-if="solicitud.estado === 'pendiente'" flat round dense icon="cloud_upload" color="orange"
+                        @click="prepararSubida(solicitud.id)" :loading="loadingUpload === solicitud.id">
+                        <q-tooltip>Subir respaldo para aprobación automática</q-tooltip>
+                      </q-btn>
                       <q-btn flat round dense icon="description" color="primary"
                         @click="descargarFormulario(solicitud.id)" :loading="loadingFormulario === solicitud.id">
                         <q-tooltip>Descargar Formulario</q-tooltip>
@@ -183,6 +187,15 @@
         </q-card>
       </div>
     </div>
+
+    <!-- Input de archivo oculto para subir respaldos -->
+    <q-file
+      v-model="archivoTemp"
+      ref="fileInputRef"
+      style="display: none"
+      accept=".pdf,image/*"
+      @update:model-value="ejecutarSubida"
+    />
 
     <!-- Dialog formulario oficial UNITEPC (mismo que RRHH) -->
     <q-dialog v-model="dialogFormulario" maximized>
@@ -536,6 +549,11 @@ const loadingFormulario = ref(null)
 const dialogFormulario = ref(false)
 const datosFormulario = ref(null)
 
+const fileInputRef = ref(null)
+const selectedSolicitudId = ref(null)
+const archivoTemp = ref(null)
+const loadingUpload = ref(null)
+
 const saldoClass = computed(() => {
   if (!empleado.value) return 'bg-grey-2'
   const saldo = empleado.value.saldo_vacaciones
@@ -636,6 +654,43 @@ async function descargarFormulario(solicitudId) {
     $q.notify({ type: 'negative', message: 'Error al cargar formulario' })
   } finally {
     loadingFormulario.value = null
+  }
+}
+
+function prepararSubida(solicitudId) {
+  selectedSolicitudId.value = solicitudId
+  fileInputRef.value.pickFiles()
+}
+
+async function ejecutarSubida(file) {
+  if (!file || !selectedSolicitudId.value) return
+
+  loadingUpload.value = selectedSolicitudId.value
+  try {
+    const formData = new FormData()
+    formData.append('archivo', file)
+
+    const response = await empleadoService.subirRespaldo(selectedSolicitudId.value, formData)
+
+    if (response.success) {
+      $q.notify({
+        type: 'positive',
+        message: response.message,
+        icon: 'check_circle'
+      })
+      // Recargar datos para ver el cambio de estado
+      await cargarEmpleado()
+    }
+  } catch (error) {
+    console.error('Error subiendo archivo:', error)
+    $q.notify({
+      type: 'negative',
+      message: error.response?.data?.message || 'Error al subir el archivo'
+    })
+  } finally {
+    loadingUpload.value = null
+    archivoTemp.value = null
+    selectedSolicitudId.value = null
   }
 }
 

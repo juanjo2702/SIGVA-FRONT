@@ -36,6 +36,12 @@ export const empleadoService = {
       tipo
     })
     return response.data
+  },
+
+  // Subir respaldo para una solicitud existente
+  async subirRespaldo(solicitudId, formData) {
+    const response = await api.post(`/solicitudes/${solicitudId}/respaldo`, formData)
+    return response.data
   }
 }
 

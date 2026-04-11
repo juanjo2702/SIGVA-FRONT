@@ -13,10 +13,10 @@
                 <div class="q-mb-md">
                     <div class="text-subtitle2 text-weight-bold q-mb-sm">
                         <q-icon name="looks_one" color="primary" class="q-mr-xs" />
-                        Seleccionar Sede
+                        Sede de Respaldo
                     </div>
-                    <q-select v-model="sedeId" label="Sede a asignar a todos los empleados *" :options="sedesOptions"
-                        emit-value map-options outlined dense :rules="[v => !!v || 'Seleccione una sede']">
+                    <q-select v-model="sedeId" label="Sede por defecto si la fila no trae sede" :options="sedesOptions"
+                        emit-value map-options outlined dense clearable>
                         <template v-slot:prepend><q-icon name="business" /></template>
                     </q-select>
                     <div class="text-caption text-grey-7 q-mt-xs">
@@ -56,6 +56,7 @@
                                     <li><strong>CI</strong> - Carnet de identidad (obligatorio)</li>
                                     <li><strong>Género</strong> - Masculino / Femenino (opcional)</li>
                                     <li><strong>Tipo Contrato</strong> - Completo / Medio Tiempo (opcional)</li>
+                                    <li><strong>Sede</strong> - Nombre de sede exacto como COCHABAMBA, COBIJA o LA PAZ (recomendado)</li>
                                     <li><strong>Cargo</strong> - Cargo del empleado (opcional)</li>
                                     <li><strong>Fecha de Ingreso</strong> - DD/MM/AAAA (obligatorio)</li>
                                     <li><strong>Saldo de Días</strong> - Saldo inicial de vacaciones (opcional)</li>
@@ -74,7 +75,7 @@
             <q-card-actions align="right" class="q-pa-md">
                 <q-btn flat label="Cancelar" @click="$emit('update:modelValue', false)" no-caps />
                 <q-btn color="primary" icon="upload" label="Importar Empleados" @click="onSubmit" :loading="loading"
-                    :disable="!archivo || !sedeId" no-caps />
+                    :disable="!archivo" no-caps />
             </q-card-actions>
         </q-card>
     </q-dialog>

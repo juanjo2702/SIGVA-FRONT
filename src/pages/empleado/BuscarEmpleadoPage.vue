@@ -117,10 +117,12 @@ const $q = useQuasar()
 const authStore = useAuthStore()
 
 onMounted(() => {
-    // Redirección SSO automática si ya está autenticado como administrador
+    // Redirección SSO automática deshabilitada para permitir a los admins ver el portal
+    /*
     if (authStore.isAuthenticated) {
         router.push('/admin/dashboard')
     }
+    */
 })
 
 const ci = ref('')

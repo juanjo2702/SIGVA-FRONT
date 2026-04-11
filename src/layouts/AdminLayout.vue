@@ -37,7 +37,7 @@
             round
             dense
             icon="public"
-            @click="$router.push('/')"
+            @click="window.location.href = '/'"
             class="bg-white/10 hover:bg-white/20 transition-all"
           >
             <q-tooltip class="bg-black/80 text-white">Ver Portal Empleado</q-tooltip>
@@ -54,7 +54,7 @@
       bordered
       class="bg-white"
     >
-      <div class="column no-wrap h-full" style="height: 100vh;">
+      <div class="column no-wrap h-full">
         <!-- Brand Area - CLEAN STYLE -->
         <div class="p-6 flex flex-col gap-1">
           <div class="flex items-center gap-2 font-bold text-xl tracking-tight">
@@ -67,7 +67,7 @@
         <div class="col px-4 space-y-2 overflow-y-auto mt-2">
           <!-- Back to Public Button -->
           <div
-            @click="$router.push('/')"
+            @click="window.location.href = '/'"
             class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all cursor-pointer mb-6 bg-gray-50 hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white border border-gray-100 group"
           >
             <q-icon name="public" size="22px" class="text-gray-600 group-hover:text-white group-hover:scale-110 transition-all" />
@@ -98,11 +98,15 @@
     <!-- Footer - SIMPLE STYLE -->
         <div class="p-6 border-t border-gray-100 bg-gray-50">
           <div class="row items-center no-wrap gap-3 mb-4">
-            <div
-              class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shadow-sm border border-primary/20 shrink-0"
+            <q-avatar
+              size="34px"
+              class="shadow-sm border border-primary/20 shrink-0"
+              color="primary"
+              text-color="white"
             >
-              {{ userName?.[0] || 'A' }}
-            </div>
+              <q-img v-if="userPhoto" :src="userPhoto" />
+              <span v-else>{{ userName?.[0] || 'A' }}</span>
+            </q-avatar>
             <div class="column leading-tight overflow-hidden">
               <div class="font-bold text-gray-900 text-[11px] uppercase truncate">
                 {{ userName }}
@@ -130,6 +134,36 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-dialog v-model="sessionTimeoutState.warningVisible" persistent>
+      <q-card style="width: 440px; max-width: 92vw; border-radius: 20px;">
+        <q-card-section class="bg-primary text-white q-pa-lg">
+          <div class="row items-center no-wrap">
+            <q-icon name="schedule" size="md" class="q-mr-md" />
+            <div class="column">
+              <div class="text-h6 text-weight-bold">Sesión por expirar</div>
+              <div class="text-caption opacity-80">Detectamos inactividad. Puedes continuar o cerrar tu sesión.</div>
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-card-section class="q-pa-xl">
+          <div class="text-body1 text-grey-8 q-mb-md">
+            Tu sesión se cerrará en
+            <span class="text-primary text-weight-bolder">{{ sessionTimeoutState.countdownSeconds }}</span>
+            segundos.
+          </div>
+          <div class="text-caption text-grey-6">
+            Si sigues trabajando, presiona <strong>Seguir en línea</strong>.
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-px-xl q-pb-xl q-gutter-sm">
+          <q-btn flat no-caps color="negative" label="Cerrar sesión ahora" @click="handleSessionLogoutNow" />
+          <q-btn no-caps color="primary" unelevated label="Seguir en línea" @click="handleSessionContinue" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 
@@ -138,8 +172,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import adminService from '@/services/adminService'
+import { useInactivity } from '@/composables/useInactivity'
+import { sessionTimeoutManager, sessionTimeoutState } from '@/shared/sessionTimeoutManager'
 
 const authStore = useAuthStore()
+useInactivity()
 const leftDrawerOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
@@ -155,6 +192,7 @@ const today = new Date().toLocaleDateString('es-ES', {
 })
 
 const userName = computed(() => authStore.userName)
+const userPhoto = computed(() => authStore.userPhoto)
 const userRole = computed(() => authStore.userRole)
 
 
@@ -203,6 +241,14 @@ const volverAlPortal = () => {
   const isDev = import.meta.env ? import.meta.env.DEV : process.env.DEV
   const ssoUrl = import.meta.env.VITE_SSO_FRONT_URL
   window.location.href = ssoUrl
+}
+
+const handleSessionContinue = async () => {
+  await sessionTimeoutManager.continueSession()
+}
+
+const handleSessionLogoutNow = async () => {
+  await sessionTimeoutManager.logoutNow()
 }
 
 const pendingCount = ref(0)
