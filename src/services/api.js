@@ -23,8 +23,20 @@ api.interceptors.request.use(config => {
 
 // Interceptor para respuestas de error
 let isRedirecting = false
+const resetAuthLoopGuard = () => {
+  isRedirecting = false
+  localStorage.removeItem('sigva_last_401')
+  localStorage.removeItem('sigva_401_count')
+}
+
 api.interceptors.response.use(
-  response => response,
+  response => {
+    if (localStorage.getItem('sigva_token')) {
+      resetAuthLoopGuard()
+    }
+
+    return response
+  },
   error => {
     if (error.response?.status === 401 && !isRedirecting) {
       // Solo redirigir si el usuario TENÍA un token (sesión expirada)
@@ -51,7 +63,7 @@ api.interceptors.response.use(
         localStorage.removeItem('sigva_token')
         localStorage.removeItem('sigva_user')
         // Redirigir al login de SIGVA (que a su vez redirige al SSO central)
-        window.location.href = '/admin/login'
+        window.location.href = '/admin/login?force=true'
       }
     }
     return Promise.reject(error)

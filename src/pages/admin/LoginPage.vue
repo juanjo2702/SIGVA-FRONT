@@ -13,10 +13,11 @@ import { onMounted } from 'vue'
 onMounted(() => {
   const currentUrl = window.location.origin
   const ssoUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login`
+  const force = new URLSearchParams(window.location.search).get('force') === 'true'
 
   // En SIGVA usamos history mode por lo que el admin dashboard es /admin/dashboard
   const returnToUrl = encodeURIComponent(`${currentUrl}/admin/dashboard`)
 
-  window.location.href = `${ssoUrl}?returnTo=${returnToUrl}`
+  window.location.href = `${ssoUrl}?returnTo=${returnToUrl}${force ? '&force=true' : ''}`
 })
 </script>

@@ -134,13 +134,14 @@ router.beforeEach(async (to, from, next) => {
     console.log('SSO: Token detected in URL. Authenticating in SIGVA...')
     
     // Guardar token en el store y localStorage
-    authStore.token = urlToken
-    localStorage.setItem('sigva_token', urlToken)
-    api.defaults.headers.common['Authorization'] = `Bearer ${urlToken}`
+    const tokenValue = decodeURIComponent(String(urlToken))
+    authStore.setToken(tokenValue)
+    localStorage.removeItem('sigva_last_401')
+    localStorage.removeItem('sigva_401_count')
 
     try {
       // Decodificación segura de base64 
-      const decodedStr = decodeURIComponent(escape(atob(userEncoded)))
+      const decodedStr = decodeURIComponent(escape(atob(decodeURIComponent(String(userEncoded)))))
       const userData = JSON.parse(decodedStr)
       
       // === NORMALIZACIÓN PARA SIGVA (SSO COMPATIBILITY) ===
@@ -169,7 +170,11 @@ router.beforeEach(async (to, from, next) => {
       return next({ path: '/admin/dashboard', replace: true })
     } catch (e) {
       console.error('SSO: Token verification failed', e)
-      authStore.logout()
+      authStore.token = null
+      authStore.user = null
+      localStorage.removeItem('sigva_token')
+      localStorage.removeItem('sigva_user')
+      delete api.defaults.headers.common.Authorization
       
       return next({ path: '/admin/login', query: {}, replace: true })
     }
