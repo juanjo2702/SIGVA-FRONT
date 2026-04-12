@@ -53,9 +53,9 @@ export function useInactivity() {
         timeout: 4000,
       })
 
-      if (router.currentRoute.value.path !== '/admin/login') {
-        router.push('/admin/login')
-      }
+      // Redirigir al SSO central con force=true para evitar bucle
+      const ssoUrl = import.meta.env.VITE_SSO_FRONT_URL || 'http://127.0.0.1:9000'
+      window.location.href = `${ssoUrl}/login?force=true`
 
       logoutInProgress = false
     }

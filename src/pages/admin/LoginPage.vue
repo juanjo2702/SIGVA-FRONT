@@ -9,13 +9,21 @@
 
 <script setup>
 import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+
+const authStore = useAuthStore()
+const router = useRouter()
 
 onMounted(() => {
-  const currentUrl = window.location.origin
-  const ssoUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login`
-  const force = new URLSearchParams(window.location.search).get('force') === 'true'
+  if (authStore.isAuthenticated) {
+    router.push('/admin/dashboard')
+    return
+  }
 
-  // En SIGVA usamos history mode por lo que el admin dashboard es /admin/dashboard
+  const currentUrl = window.location.origin
+  const ssoUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/login`
+  const force = new URLSearchParams(window.location.search).get('force') === 'true'
   const returnToUrl = encodeURIComponent(`${currentUrl}/admin/dashboard`)
 
   window.location.href = `${ssoUrl}?returnTo=${returnToUrl}${force ? '&force=true' : ''}`

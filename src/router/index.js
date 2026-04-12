@@ -128,34 +128,41 @@ router.beforeEach(async (to, from, next) => {
   document.title = to.meta.title || 'SIGVA'
 
   // --- SSO: Leer token de la URL (viene del Portal SSO) ---
-  const urlToken = to.query.token
-  const userEncoded = to.query.user
+  // Primero intentar desde vue-router query, si no, desde window.location.search (hash mode compat)
+  let urlToken = to.query.token
+  let userEncoded = to.query.user
+  
+  if (!urlToken || !userEncoded) {
+    const searchParams = new URLSearchParams(window.location.search)
+    urlToken = urlToken || searchParams.get('token')
+    userEncoded = userEncoded || searchParams.get('user')
+  }
+  
   if (urlToken && userEncoded) {
     console.log('SSO: Token detected in URL. Authenticating in SIGVA...')
     
-    // Guardar token en el store y localStorage
-    const tokenValue = decodeURIComponent(String(urlToken))
-    authStore.setToken(tokenValue)
-    localStorage.removeItem('sigva_last_401')
-    localStorage.removeItem('sigva_401_count')
-
     try {
+      // Guardar token en el store y localStorage
+      const tokenValue = decodeURIComponent(String(urlToken))
+      authStore.setToken(tokenValue)
+      localStorage.removeItem('sigva_last_401')
+      localStorage.removeItem('sigva_401_count')
+
       // Decodificación segura de base64 
-      const decodedStr = decodeURIComponent(escape(atob(decodeURIComponent(String(userEncoded)))))
+      // Reemplazamos espacios por + (por si el navegador los convirtió)
+      const base64Str = decodeURIComponent(String(userEncoded)).replace(/ /g, '+')
+      const decodedStr = decodeURIComponent(escape(atob(base64Str)))
       const userData = JSON.parse(decodedStr)
       
       // === NORMALIZACIÓN PARA SIGVA (SSO COMPATIBILITY) ===
-      // SIGETH devuelve access_metadata agrupado por sistema
       const accessMetadata = userData.access_metadata || {}
       const sigvaAccess = accessMetadata['sigva'] || accessMetadata['SIGVA'] || { roles: [], permissions: [] }
       
-      // Mapear permisos y rol al formato que espera SIGVA internamente
       userData.permisos = sigvaAccess.permissions || []
       userData.rol = { 
         name: sigvaAccess.roles.length > 0 ? sigvaAccess.roles[0] : 'Administrador' 
       }
       
-      // Mapear nombres desde el objeto persona de SIGETH si existe
       if (userData.persona) {
         userData.nombres = userData.persona.nombres
         userData.apellidos = `${userData.persona.apellido_paterno || ''} ${userData.persona.apellido_materno || ''}`.trim()
@@ -165,17 +172,14 @@ router.beforeEach(async (to, from, next) => {
       
       authStore.setUser(userData)
       
-      // Limpiar la URL y redirigir al dashboard REAL
       console.log('SSO: Authentication successful and normalized. Redirecting to dashboard...')
+
+      // Limpiar la URL del navegador para quitar el token visible
+      window.history.replaceState({}, '', '/admin/dashboard')
       return next({ path: '/admin/dashboard', replace: true })
     } catch (e) {
       console.error('SSO: Token verification failed', e)
-      authStore.token = null
-      authStore.user = null
-      localStorage.removeItem('sigva_token')
-      localStorage.removeItem('sigva_user')
-      delete api.defaults.headers.common.Authorization
-      
+      authStore.logout()
       return next({ path: '/admin/login', query: {}, replace: true })
     }
   }
@@ -184,7 +188,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
       console.log('Not authenticated, redirecting to Central SSO')
-      const ssoLoginUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login`
+      const ssoLoginUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/login`
       const returnToUrl = encodeURIComponent(`${window.location.origin}/admin/dashboard`)
       window.location.href = `${ssoLoginUrl}?returnTo=${returnToUrl}`
       return next(false)

@@ -20,9 +20,10 @@ app.use(pinia)
 // Inicializar autenticación ANTES del router para evitar logout al recargar
 import { useAuthStore } from '@/stores/auth'
 const authStore = useAuthStore()
-authStore.initializeAuth()
 
-app.use(router)
+// IMPORTANTE: Esperar a que el backend valide el token antes de montar el router
+authStore.initializeAuth().then(() => {
+  app.use(router)
 app.use(Quasar, {
   plugins: {
     Notify,
@@ -49,4 +50,5 @@ app.use(Quasar, {
   }
 })
 
-app.mount('#app')
+  app.mount('#app')
+})

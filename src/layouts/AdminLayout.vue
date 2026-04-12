@@ -100,11 +100,18 @@
           <div class="row items-center no-wrap gap-3 mb-4">
             <q-avatar
               size="34px"
-              class="shadow-sm border border-primary/20 shrink-0"
-              color="primary"
-              text-color="white"
+              class="shadow-sm border border-primary/20 shrink-0 overflow-hidden"
+              :color="userPhoto && !userPhotoFailed ? void 0 : 'primary'"
+              :text-color="userPhoto && !userPhotoFailed ? void 0 : 'white'"
             >
-              <q-img v-if="userPhoto" :src="userPhoto" />
+              <q-img
+                v-if="userPhoto && !userPhotoFailed"
+                :src="userPhoto"
+                fit="cover"
+                class="full-width full-height"
+                img-class="full-width full-height"
+                @error="handleUserPhotoError"
+              />
               <span v-else>{{ userName?.[0] || 'A' }}</span>
             </q-avatar>
             <div class="column leading-tight overflow-hidden">
@@ -124,6 +131,14 @@
             >
               <q-icon name="home" size="18px" class="group-hover:scale-110 transition-all" />
               <span class="font-bold text-sm">Volver al Portal</span>
+            </button>
+
+            <button
+              @click="cerrarSesion"
+              class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 hover:bg-red-600 hover:text-white hover:border-transparent transition-all group"
+            >
+              <q-icon name="logout" size="18px" class="group-hover:scale-110 transition-all" />
+              <span class="font-bold text-sm">Cerrar Sesión</span>
             </button>
           </div>
         </div>
@@ -168,7 +183,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import adminService from '@/services/adminService'
@@ -194,6 +209,15 @@ const today = new Date().toLocaleDateString('es-ES', {
 const userName = computed(() => authStore.userName)
 const userPhoto = computed(() => authStore.userPhoto)
 const userRole = computed(() => authStore.userRole)
+const userPhotoFailed = ref(false)
+
+const handleUserPhotoError = () => {
+  userPhotoFailed.value = true
+}
+
+watch(userPhoto, () => {
+  userPhotoFailed.value = false
+}, { immediate: true })
 
 
 // ====== Menu Items (filtered by permissions) ======
@@ -238,9 +262,15 @@ const setAdminSection = (path) => {
 }
 
 const volverAlPortal = () => {
-  const isDev = import.meta.env ? import.meta.env.DEV : process.env.DEV
-  const ssoUrl = import.meta.env.VITE_SSO_FRONT_URL
+  const ssoUrl = import.meta.env.VITE_SSO_FRONT_URL || 'http://127.0.0.1:9000'
   window.location.href = ssoUrl
+}
+
+const cerrarSesion = async () => {
+  await authStore.logout()
+  // Redirigir al SSO con force=true para destruir la sesión en SIGETH también
+  const ssoUrl = import.meta.env.VITE_SSO_FRONT_URL || 'http://127.0.0.1:9000'
+  window.location.href = `${ssoUrl}/login?force=true`
 }
 
 const handleSessionContinue = async () => {
@@ -263,7 +293,6 @@ async function loadPendingCount() {
 }
 
 onMounted(() => {
-  authStore.initializeAuth()
   loadPendingCount()
 })
 </script>

@@ -29,6 +29,22 @@ const normalizePhotoUrl = (photo) => {
   return `${resolveSharedAssetBase()}/${String(photo).replace(/^\/+/, '')}`
 }
 
+const resolveUserPhoto = (user) => normalizePhotoUrl(
+  user?.persona?.foto_url
+  || user?.persona?.foto
+  || user?.persona?.avatar
+  || user?.persona?.avatar_url
+  || user?.persona?.image_url
+  || user?.persona?.profile_photo_url
+  || user?.foto_url
+  || user?.foto
+  || user?.avatar
+  || user?.avatar_url
+  || user?.image_url
+  || user?.profile_photo_url
+  || null
+)
+
 const normalizePersona = (persona) => {
   if (!persona) return null
 
@@ -36,6 +52,7 @@ const normalizePersona = (persona) => {
     ...persona,
     apellido_paterno: persona.apellido_paterno || persona.primer_apellido || null,
     apellido_materno: persona.apellido_materno || persona.segundo_apellido || null,
+    foto: normalizePhotoUrl(persona.foto || persona.foto_url || null),
     foto_url: normalizePhotoUrl(persona.foto_url || persona.foto || null),
   }
 }
@@ -87,13 +104,7 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isAuthenticated: (state) => !!state.token,
     userName: (state) => buildFullName(state.user),
-    userPhoto: (state) => normalizePhotoUrl(
-      state.user?.persona?.foto_url
-      || state.user?.persona?.foto
-      || state.user?.foto_url
-      || state.user?.foto
-      || null
-    ),
+    userPhoto: (state) => resolveUserPhoto(state.user),
     userRole: (state) => {
       const user = state.user
       if (!user) return 'Usuario'
@@ -150,8 +161,29 @@ export const useAuthStore = defineStore('auth', {
         this.user = null
         localStorage.removeItem('sigva_token')
         localStorage.removeItem('sigva_user')
+        localStorage.removeItem('sigva_last_401')
+        localStorage.removeItem('sigva_401_count')
+        localStorage.removeItem('sigva_last_activity')
         delete api.defaults.headers.common.Authorization
       }
+    },
+
+    /**
+     * Logout SSO: limpia todo y redirige al login de SIGETH
+     */
+    logoutSSO() {
+      this.token = null
+      this.user = null
+      localStorage.removeItem('sigva_token')
+      localStorage.removeItem('sigva_user')
+      localStorage.removeItem('sigva_last_401')
+      localStorage.removeItem('sigva_401_count')
+      localStorage.removeItem('sigva_last_activity')
+      delete api.defaults.headers.common.Authorization
+
+      // Redirigir al SSO central para cerrar sesión completa
+      const ssoUrl = import.meta.env.VITE_SSO_FRONT_URL || 'http://127.0.0.1:9000'
+      window.location.href = `${ssoUrl}/login?force=true`
     },
 
     async initializeAuth() {
@@ -165,7 +197,17 @@ export const useAuthStore = defineStore('auth', {
           this.setUser(payload)
         }
       } catch (error) {
-        console.warn('No se pudo refrescar el usuario actual de SIGVA, se mantiene la sesion local.', error?.message || error)
+        // Si el backend dice 401, el token expiró → limpiar sesión
+        if (error?.response?.status === 401 || error?.response?.status === 403) {
+          console.warn('SIGVA: Token expirado o inválido. Cerrando sesión local.')
+          this.token = null
+          this.user = null
+          localStorage.removeItem('sigva_token')
+          localStorage.removeItem('sigva_user')
+          delete api.defaults.headers.common.Authorization
+        } else {
+          console.warn('No se pudo refrescar el usuario actual de SIGVA, se mantiene la sesion local.', error?.message || error)
+        }
       }
     },
 
@@ -184,6 +226,8 @@ export const useAuthStore = defineStore('auth', {
         return
       }
 
+      const previousUser = this.user
+
       const accessMetadata = user.access_metadata || {}
       const sigvaAccess = accessMetadata.sigva || accessMetadata.SIGVA || { roles: [], permissions: [] }
 
@@ -201,7 +245,7 @@ export const useAuthStore = defineStore('auth', {
         }
       }
 
-      const normalizedPersona = normalizePersona(user.persona)
+      const normalizedPersona = normalizePersona(user.persona) || normalizePersona(previousUser?.persona)
 
       if (normalizedPersona) {
         user.persona = normalizedPersona
@@ -210,6 +254,15 @@ export const useAuthStore = defineStore('auth', {
         user.apellido_materno = normalizedPersona.apellido_materno || user.apellido_materno || user.segundo_apellido
         user.apellidos = [user.apellido_paterno, user.apellido_materno].filter(Boolean).join(' ')
       }
+
+      user.nombres = user.nombres || previousUser?.nombres
+      user.apellido_paterno = user.apellido_paterno || previousUser?.apellido_paterno
+      user.apellido_materno = user.apellido_materno || previousUser?.apellido_materno
+      user.apellidos = user.apellidos || previousUser?.apellidos
+
+      const resolvedPhoto = resolveUserPhoto(user) || resolveUserPhoto(previousUser)
+      user.foto = resolvedPhoto
+      user.foto_url = resolvedPhoto
 
       this.user = user
       localStorage.setItem('sigva_user', JSON.stringify(user))

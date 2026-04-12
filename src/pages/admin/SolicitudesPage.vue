@@ -396,9 +396,7 @@ async function handleFileUpload(event) {
 
 function verRespaldo(solicitud) {
   if (!solicitud.archivo_respaldo_path) return
-  const baseUrl = import.meta.env.PROD 
-    ? import.meta.env.VITE_SIGVA_BACK_URL 
-    : 'http://localhost:8001' // URL base del backend en desarrollo
+  const baseUrl = String(import.meta.env.VITE_SIGVA_BACK_URL || '').replace(/\/+$/, '')
   const url = `${baseUrl}/storage/${solicitud.archivo_respaldo_path}`
   window.open(url, '_blank')
 }

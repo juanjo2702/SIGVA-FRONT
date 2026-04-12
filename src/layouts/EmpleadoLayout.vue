@@ -15,7 +15,7 @@ const currentYear = computed(() => new Date().getFullYear())
 const goToLogin = () => {
     const currentUrl = window.location.origin
     const returnToUrl = encodeURIComponent(`${currentUrl}/admin/dashboard`)
-    const ssoUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/#/login?returnTo=${returnToUrl}`
+    const ssoUrl = `${import.meta.env.VITE_SSO_FRONT_URL}/login?returnTo=${returnToUrl}`
     window.location.href = ssoUrl
 }
 </script>
