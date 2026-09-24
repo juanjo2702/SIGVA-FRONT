@@ -206,6 +206,7 @@ import empleadoService from '@/services/empleadoService'
 
 const route = useRoute()
 const router = useRouter()
+const portalHomeRoute = { path: '/', query: { public: '1' } }
 
 const datos = ref(null)
 const loading = ref(true)
@@ -224,7 +225,7 @@ async function cargarDatos() {
     }
   } catch (error) {
     console.error('Error cargando datos del formulario:', error)
-    router.push('/')
+    router.push(portalHomeRoute)
   } finally {
     loading.value = false
   }

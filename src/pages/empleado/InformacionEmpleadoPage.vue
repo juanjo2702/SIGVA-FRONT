@@ -88,7 +88,7 @@
               <q-btn color="primary" icon="add_circle" label="Solicitar Vacaciones" size="lg" class="full-width q-mb-sm"
                 unelevated no-caps @click="irASolicitud" />
 
-              <q-btn flat color="grey-7" icon="arrow_back" label="Volver a buscar" class="full-width" no-caps to="/" />
+              <q-btn flat color="grey-7" icon="arrow_back" label="Volver a buscar" class="full-width" no-caps :to="portalHomeRoute" />
             </q-card-section>
           </q-card>
 
@@ -182,7 +182,7 @@
           <q-card-section class="text-center q-pa-xl">
             <q-icon name="error_outline" size="64px" color="negative" />
             <div class="text-h6 q-mt-md">Empleado no encontrado</div>
-            <q-btn flat color="primary" label="Volver a buscar" to="/" class="q-mt-md" />
+            <q-btn flat color="primary" label="Volver a buscar" :to="portalHomeRoute" class="q-mt-md" />
           </q-card-section>
         </q-card>
       </div>
@@ -542,6 +542,7 @@ import CalendarioFormulario from '@/components/CalendarioFormulario.vue'
 const $q = useQuasar()
 const route = useRoute()
 const router = useRouter()
+const portalHomeRoute = { path: '/', query: { public: '1' } }
 
 const empleado = ref(null)
 const loading = ref(true)
@@ -785,11 +786,11 @@ async function cargarEmpleado() {
     }
 
     // Si no hay datos en sessionStorage o el CI no coincide, redirigir a búsqueda
-    router.push('/')
+    router.push(portalHomeRoute)
   } catch (error) {
     console.error('Error cargando empleado:', error)
     $q.notify({ type: 'negative', message: 'Error al cargar datos del empleado' })
-    router.push('/')
+    router.push(portalHomeRoute)
   } finally {
     loading.value = false
   }

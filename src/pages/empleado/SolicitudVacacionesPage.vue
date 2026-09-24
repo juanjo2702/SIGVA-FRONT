@@ -134,6 +134,7 @@ import CalendarioVacaciones from '@/components/CalendarioVacaciones.vue'
 const route = useRoute()
 const router = useRouter()
 const $q = useQuasar()
+const portalHomeRoute = { path: '/', query: { public: '1' } }
 
 const ci = route.params.ci
 const empleado = ref(null)
@@ -244,10 +245,10 @@ async function cargarEmpleado() {
     }
 
     // Si no hay datos en sessionStorage o el CI no coincide, redirigir a búsqueda
-    router.push('/')
+    router.push(portalHomeRoute)
   } catch (error) {
     console.error('Error cargando empleado:', error)
-    router.push('/')
+    router.push(portalHomeRoute)
   } finally {
     loading.value = false
   }

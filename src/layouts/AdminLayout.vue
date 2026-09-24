@@ -37,7 +37,7 @@
             round
             dense
             icon="public"
-            @click="window.location.href = '/'"
+            @click="openPublicPortal"
             class="bg-white/10 hover:bg-white/20 transition-all"
           >
             <q-tooltip class="bg-black/80 text-white">Ver Portal Empleado</q-tooltip>
@@ -67,7 +67,7 @@
         <div class="col px-4 space-y-2 overflow-y-auto mt-2">
           <!-- Back to Public Button -->
           <div
-            @click="window.location.href = '/'"
+            @click="openPublicPortal"
             class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all cursor-pointer mb-6 bg-gray-50 hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white border border-gray-100 group"
           >
             <q-icon name="public" size="22px" class="text-gray-600 group-hover:text-white group-hover:scale-110 transition-all" />
@@ -258,6 +258,11 @@ const menuItems = computed(() => {
 
 const setAdminSection = (path) => {
   router.push(path)
+  leftDrawerOpen.value = false
+}
+
+const openPublicPortal = () => {
+  router.push({ path: '/', query: { public: '1' } })
   leftDrawerOpen.value = false
 }
 
