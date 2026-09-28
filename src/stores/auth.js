@@ -58,15 +58,17 @@ const normalizePersona = (persona) => {
 }
 
 const resolveRoleBySystem = (user, targetSystemId) => {
-  const matchingRole = (user?.roles || []).find((role) =>
-    (role?.permissions || []).some((permission) => Number(permission?.sistema_id) === targetSystemId)
-  )
+  const matchingRole = (user?.roles || []).find((role) => {
+    if (Number(role?.sistema_id) === targetSystemId) return true
+    return (role?.permissions || []).some((permission) => Number(permission?.sistema_id) === targetSystemId)
+  })
 
   if (!matchingRole) return null
 
+  const roleName = matchingRole.nombres || matchingRole.nombre || matchingRole.name || 'Usuario'
   return {
-    name: matchingRole.name || matchingRole.nombre || 'Usuario',
-    nombre: matchingRole.nombre || matchingRole.name || 'Usuario'
+    name: roleName,
+    nombre: roleName
   }
 }
 
@@ -118,7 +120,8 @@ export const useAuthStore = defineStore('auth', {
       const systemRole = resolveRoleBySystem(user, 3)
       if (systemRole) return systemRole.nombre || systemRole.name
 
-      return 'Administrador'
+      if (user.is_global_admin) return 'Administrador'
+      return 'Usuario'
     },
     mustChangePassword: (state) => state.user?.must_change_password || false
   },

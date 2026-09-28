@@ -242,14 +242,17 @@ const menuItems = computed(() => {
     ...(sigvaAccess.permissions || [])
   ]
   
-  const roles = [
-    ...(sigvaAccess.roles || []).map(r => r.toUpperCase()),
-    (userRole.value || '').toUpperCase()
-  ]
-  const isGlobalAdmin = roles.some(r => ['DIRECTOR', 'ADMINISTRADOR', 'ADMIN', 'SUPER ADMIN'].includes(r))
+  const isGlobalAdmin = !!user?.is_global_admin || (user?.roles || []).some(r => {
+    const sysId = Number(r?.sistema_id ?? 0)
+    const rName = String(r?.nombres || r?.name || r?.nombre || '').toUpperCase()
+    return sysId === 1 && ['ADMINISTRADOR', 'ADMIN', 'SUPER ADMIN', 'SUPERADMIN', 'DIRECTOR (ENCARGADO)'].includes(rName)
+  })
 
-  // If Global Admin or specifically has 'all', show all items
-  if (isGlobalAdmin || userPermisos.includes('all') || userPermisos.includes('*')) {
+  const isSigvaAdmin = (sigvaAccess.roles || []).some(r => ['ADMINISTRADOR', 'ADMIN'].includes(String(r).toUpperCase()))
+    || (user?.roles || []).some(r => Number(r?.sistema_id) === 3 && ['ADMINISTRADOR', 'ADMIN'].includes(String(r?.nombres || r?.name || r?.nombre || '').toUpperCase()))
+
+  // If Global Admin or SIGVA Admin or specifically has 'all', show all items
+  if (isGlobalAdmin || isSigvaAdmin || userPermisos.includes('all') || userPermisos.includes('*')) {
       return allMenuItems
   }
 

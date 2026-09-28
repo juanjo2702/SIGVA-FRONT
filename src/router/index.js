@@ -148,24 +148,60 @@ router.beforeEach(async (to, from, next) => {
       localStorage.removeItem('sigva_last_401')
       localStorage.removeItem('sigva_401_count')
 
-      // Decodificación segura de base64 
-      // Reemplazamos espacios por + (por si el navegador los convirtió)
-      const base64Str = decodeURIComponent(String(userEncoded)).replace(/ /g, '+')
-      const decodedStr = decodeURIComponent(escape(atob(base64Str)))
-      const userData = JSON.parse(decodedStr)
-      
-      // === NORMALIZACIÓN PARA SIGVA (SSO COMPATIBILITY) ===
-      const accessMetadata = userData.access_metadata || {}
-      const sigvaAccess = accessMetadata['sigva'] || accessMetadata['SIGVA'] || { roles: [], permissions: [] }
-      
-      userData.permisos = sigvaAccess.permissions || []
-      userData.rol = { 
-        name: sigvaAccess.roles.length > 0 ? sigvaAccess.roles[0] : 'Administrador' 
+      let userData = null
+      try {
+        const base64Str = decodeURIComponent(String(userEncoded)).replace(/ /g, '+')
+        const binary = atob(base64Str)
+        const bytes = new Uint8Array(binary.length)
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i)
+        }
+        const decodedStr = new TextDecoder().decode(bytes)
+        userData = JSON.parse(decodedStr)
+      } catch {
+        const fallbackStr = decodeURIComponent(escape(atob(decodeURIComponent(String(userEncoded)).replace(/ /g, '+'))))
+        userData = JSON.parse(fallbackStr)
       }
+      
+      // === VERIFICACIÓN Y NORMALIZACIÓN PARA SIGVA (STRICT RBAC) ===
+      const accessMetadata = userData.access_metadata || {}
+      const sigvaAccess = accessMetadata['sigva'] || accessMetadata['SIGVA'] || null
+      
+      const isGlobalAdmin = !!userData.is_global_admin || (userData.roles || []).some(r => {
+        const sysId = Number(r?.sistema_id ?? 0)
+        const rName = String(r?.nombres || r?.name || r?.nombre || '').toUpperCase()
+        return sysId === 1 && ['ADMINISTRADOR', 'ADMIN', 'SUPER ADMIN', 'SUPERADMIN', 'DIRECTOR (ENCARGADO)'].includes(rName)
+      })
+
+      const sigvaRole = (userData.roles || []).find(r => Number(r?.sistema_id) === 3)
+      const hasSigvaAccess = isGlobalAdmin || !!sigvaRole || (sigvaAccess && ((sigvaAccess.roles && sigvaAccess.roles.length > 0) || (sigvaAccess.permissions && sigvaAccess.permissions.length > 0)))
+
+      if (!hasSigvaAccess) {
+        console.warn('SSO: Usuario no tiene permisos para acceder a SIGVA')
+        alert('Acceso no autorizado: No tienes permisos para acceder al sistema SIGVA.')
+        authStore.logout()
+        const ssoUrl = import.meta.env.VITE_SSO_FRONT_URL || 'http://localhost:9000'
+        window.location.href = ssoUrl
+        return next(false)
+      }
+      
+      userData.permisos = sigvaAccess?.permissions || []
+      
+      let assignedRole = 'Usuario'
+      if (isGlobalAdmin) {
+        assignedRole = 'Administrador'
+      } else if (sigvaAccess && sigvaAccess.roles && sigvaAccess.roles.length > 0) {
+        assignedRole = sigvaAccess.roles[0]
+      } else if (sigvaRole) {
+        assignedRole = sigvaRole.nombres || sigvaRole.name || sigvaRole.nombre || 'RRHH'
+      }
+      userData.rol = { name: assignedRole, nombre: assignedRole }
       
       if (userData.persona) {
         userData.nombres = userData.persona.nombres
-        userData.apellidos = `${userData.persona.apellido_paterno || ''} ${userData.persona.apellido_materno || ''}`.trim()
+        const ap1 = userData.persona.apellido_paterno || userData.persona.primer_apellido || ''
+        const ap2 = userData.persona.apellido_materno || userData.persona.segundo_apellido || ''
+        userData.apellidos = `${ap1} ${ap2}`.trim()
       } else if (userData.name && !userData.nombres) {
         userData.nombres = userData.name
       }
@@ -192,6 +228,28 @@ router.beforeEach(async (to, from, next) => {
       const returnToUrl = encodeURIComponent(`${window.location.origin}/admin/dashboard`)
       window.location.href = `${ssoLoginUrl}?returnTo=${returnToUrl}`
       return next(false)
+    }
+
+    // Verificar autorización activa para SIGVA
+    const currentUser = authStore.user
+    if (currentUser) {
+      const cMeta = currentUser.access_metadata || {}
+      const cSigva = cMeta['sigva'] || cMeta['SIGVA']
+      const cIsGlobal = !!currentUser.is_global_admin || (currentUser.roles || []).some(r => {
+        const sysId = Number(r?.sistema_id ?? 0)
+        const rName = String(r?.nombres || r?.name || r?.nombre || '').toUpperCase()
+        return sysId === 1 && ['ADMINISTRADOR', 'ADMIN', 'SUPER ADMIN', 'SUPERADMIN', 'DIRECTOR (ENCARGADO)'].includes(rName)
+      })
+      const cHasRole = (currentUser.roles || []).some(r => Number(r?.sistema_id) === 3)
+      const cAllowed = cIsGlobal || cHasRole || (cSigva && ((cSigva.roles && cSigva.roles.length > 0) || (cSigva.permissions && cSigva.permissions.length > 0)))
+
+      if (!cAllowed) {
+        alert('Acceso no autorizado: No tienes permisos para acceder al sistema SIGVA.')
+        authStore.logout()
+        const ssoUrl = import.meta.env.VITE_SSO_FRONT_URL || 'http://localhost:9000'
+        window.location.href = ssoUrl
+        return next(false)
+      }
     }
   }
 
